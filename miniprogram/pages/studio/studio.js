@@ -92,7 +92,8 @@ Page({
 
   // ---- 交互 ----
   pickBoard(e) {
-    const idx = e.detail.value
+    const idx = Number(e.currentTarget.dataset.idx)
+    if (!(idx >= 0) || idx >= this.data.boards.length || idx === this.data.boardIdx) return
     this.setData({ boardIdx: idx, placements: [], selectedIdx: -1 })
     this.board = this.data.boards[idx]
     this.loadElements(this.data.cats[this.data.catIdx].key)

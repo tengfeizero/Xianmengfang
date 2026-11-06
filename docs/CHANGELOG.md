@@ -10,6 +10,7 @@
 - 种子逻辑从「元素表非空即跳过」改为**按名字幂等补插**（底板同）：老库启动自动获得新素材，不覆盖后台已建/已改内容；新素材 PNG 缺失时程序生成，已存在不覆盖
 - 踩坑：`imageutil.FillRing` 会把环内擦成透明——叠在实心图形上画环（如草帽帽带）会打穿下层，需改用双圆叠加
 - 新增 `server/scripts/collage_e2e.py`：老库回填数量与分类断言 → 空分类拉取 → 小熊猫底板 + 新元素合成 → 作品入库 → 种子幂等
+- 修复：创作页无法切换底板——底板行 `wx:if="boards.length > 1"` 此前只有 1 个底板从未渲染，点击事件实际是 `bindtap` + `data-idx`，`pickBoard` 却按 picker 组件读 `e.detail.value`（恒 undefined）；改读 `e.currentTarget.dataset.idx` 并加越界/重复选择保护
 
 ## v1.0 (2026-11-06) — 购物车
 
