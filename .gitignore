@@ -20,3 +20,4 @@ server/data/
 *.db-wal
 *.db-shm
 .jwt_secret
+miniprogram/project.private.config.json

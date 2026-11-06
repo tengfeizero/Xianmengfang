@@ -1,34 +1,34 @@
 <template>
-  <el-card shadow="never" style="max-width: 560px">
+  <el-card shadow="never" class="config-card">
     <template #header><b>系统配置</b></template>
-    <el-form label-width="160px">
+    <el-form label-width="180px">
       <el-form-item label="每人每日 AI 免费生成">
         <el-input-number v-model="aiLimit" :min="0" :max="1000" :step="1" />
-        <span style="margin-left: 8px; color: #909399">次（0 = 关闭 AI 生成）</span>
+        <span class="hint">次（0 = 关闭 AI 生成）</span>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :loading="saving" @click="save">保存</el-button>
       </el-form-item>
     </el-form>
-    <el-alert type="info" :closable="false"
-      title="说明：AI 生图当前为 mock 占位实现，配额已生效；接入真实生图 API 后此配置直接作用于真实调用。" />
+    <el-alert
+      type="info"
+      :closable="false"
+      title="说明：AI 生图当前为 mock 占位实现，配额已生效；接入真实生图 API 后此配置直接作用于真实调用。"
+    />
   </el-card>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import { api } from '../api'
-
-interface Config { key: string; value: string }
+import { CONFIG_KEYS, listConfigs, updateConfig } from '@/api/modules/configs'
 
 const aiLimit = ref(3)
 const saving = ref(false)
 
 onMounted(async () => {
   try {
-    const cfgs = await api<Config[]>('GET', '/admin/configs')
-    const v = cfgs.find((c) => c.key === 'ai_daily_free_limit')?.value
+    const cfgs = await listConfigs()
+    const v = cfgs.find((c) => c.key === CONFIG_KEYS.aiDailyFreeLimit)?.value
     if (v !== undefined) aiLimit.value = parseInt(v, 10) || 0
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '加载失败')
@@ -38,7 +38,7 @@ onMounted(async () => {
 async function save() {
   saving.value = true
   try {
-    await api('PUT', '/admin/configs', { key: 'ai_daily_free_limit', value: String(aiLimit.value) })
+    await updateConfig(CONFIG_KEYS.aiDailyFreeLimit, String(aiLimit.value))
     ElMessage.success('已保存')
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '保存失败')
@@ -47,3 +47,13 @@ async function save() {
   }
 }
 </script>
+
+<style scoped>
+.config-card {
+  max-width: 560px;
+}
+.hint {
+  margin-left: 8px;
+  color: #909399;
+}
+</style>

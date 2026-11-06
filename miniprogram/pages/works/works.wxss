@@ -2,9 +2,6 @@
   text-align: center;
   padding: 100rpx 0;
 }
-.empty-btn {
-  width: 300rpx;
-}
 .grid {
   display: flex;
   flex-wrap: wrap;

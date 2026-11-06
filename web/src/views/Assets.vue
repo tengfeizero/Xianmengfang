@@ -1,16 +1,16 @@
 <template>
   <div>
-    <el-card shadow="never" style="margin-bottom: 16px">
+    <el-card shadow="never" class="card-block">
       <template #header>
-        <div style="display: flex; justify-content: space-between">
+        <div class="flex-between">
           <b>拼装底板</b>
-          <el-button type="primary" @click="openBoard()">新增底板</el-button>
+          <el-button type="primary" @click="openBoard">新增底板</el-button>
         </div>
       </template>
       <el-table :data="boards" border>
         <el-table-column label="预览" width="80">
           <template #default="{ row }">
-            <el-image :src="staticUrl(row.url)" style="width: 48px; height: 60px" fit="contain" />
+            <el-image :src="row.url" class="preview" fit="contain" />
           </template>
         </el-table-column>
         <el-table-column prop="name" label="名称" width="160" />
@@ -23,9 +23,11 @@
             <el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? '上架' : '下架' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="80">
+        <el-table-column label="操作" width="90">
           <template #default="{ row }">
-            <el-button size="small" type="warning" @click="toggleBoard(row)">{{ row.status === 1 ? '下架' : '上架' }}</el-button>
+            <el-button size="small" type="warning" @click="onToggleBoard(row as Board)">
+              {{ row.status === 1 ? '下架' : '上架' }}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -33,10 +35,10 @@
 
     <el-card shadow="never">
       <template #header>
-        <div style="display: flex; justify-content: space-between">
+        <div class="flex-between">
           <b>拼装元素</b>
-          <div>
-            <el-select v-model="catFilter" placeholder="全部分类" clearable style="width: 140px; margin-right: 8px" @change="loadElements">
+          <div class="page-toolbar">
+            <el-select v-model="catFilter" placeholder="全部分类" clearable class="filter" @change="loadElements">
               <el-option v-for="c in CATEGORIES" :key="c.value" :label="c.label" :value="c.value" />
             </el-select>
             <el-button type="primary" @click="openElement()">新增元素</el-button>
@@ -46,7 +48,7 @@
       <el-table :data="elements" border>
         <el-table-column label="预览" width="80">
           <template #default="{ row }">
-            <el-image :src="staticUrl(row.image_url)" style="width: 48px; height: 48px" fit="contain" />
+            <el-image :src="row.image_url" class="preview square" fit="contain" />
           </template>
         </el-table-column>
         <el-table-column prop="name" label="名称" width="140" />
@@ -59,24 +61,25 @@
             <el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? '上架' : '下架' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="130">
+        <el-table-column label="操作" width="140">
           <template #default="{ row }">
-            <el-button size="small" @click="openElement(row)">编辑</el-button>
-            <el-button size="small" type="warning" @click="toggleElement(row)">{{ row.status === 1 ? '下架' : '上架' }}</el-button>
+            <el-button size="small" @click="openElement(row as ElementItem)">编辑</el-button>
+            <el-button size="small" type="warning" @click="onToggleElement(row as ElementItem)">
+              {{ row.status === 1 ? '下架' : '上架' }}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
-    <!-- 底板弹窗 -->
     <el-dialog v-model="boardVisible" title="新增底板" width="440px">
       <el-form label-width="70px">
         <el-form-item label="名称"><el-input v-model="boardForm.name" /></el-form-item>
         <el-form-item label="图片">
           <el-upload :show-file-list="false" :auto-upload="false" accept="image/png" :on-change="onBoardFile">
-            <el-button>选择 PNG（透明背景，单文件）</el-button>
+            <el-button>选择 PNG（透明背景）</el-button>
           </el-upload>
-          <span v-if="boardForm.url" style="margin-left: 8px; color: #67c23a">已上传</span>
+          <span v-if="boardForm.url" class="uploaded">已上传</span>
         </el-form-item>
         <el-form-item label="宽"><el-input-number v-model="boardForm.width" :min="100" /></el-form-item>
         <el-form-item label="高"><el-input-number v-model="boardForm.height" :min="100" /></el-form-item>
@@ -87,7 +90,6 @@
       </template>
     </el-dialog>
 
-    <!-- 元素弹窗 -->
     <el-dialog v-model="elementVisible" :title="elementForm.id ? '编辑元素' : '新增元素'" width="440px">
       <el-form label-width="80px">
         <el-form-item label="分类">
@@ -96,17 +98,17 @@
           </el-select>
         </el-form-item>
         <el-form-item label="名称"><el-input v-model="elementForm.name" /></el-form-item>
-        <el-form-item label="图片" v-if="!elementForm.id">
+        <el-form-item v-if="!elementForm.id" label="图片">
           <el-upload :show-file-list="false" :auto-upload="false" accept="image/png" :on-change="onElementFile">
             <el-button>选择 PNG（透明背景）</el-button>
           </el-upload>
-          <span v-if="elementForm.image_url" style="margin-left: 8px; color: #67c23a">已上传</span>
+          <span v-if="elementForm.image_url" class="uploaded">已上传</span>
         </el-form-item>
         <el-form-item label="锚点X">
-          <el-slider v-model="elementForm.ax" :min="0" :max="1" :step="0.01" style="width: 200px" />
+          <el-slider v-model="elementForm.ax" :min="0" :max="1" :step="0.01" class="slider" />
         </el-form-item>
         <el-form-item label="锚点Y">
-          <el-slider v-model="elementForm.ay" :min="0" :max="1" :step="0.01" style="width: 200px" />
+          <el-slider v-model="elementForm.ay" :min="0" :max="1" :step="0.01" class="slider" />
         </el-form-item>
         <el-form-item label="默认倍率">
           <el-input-number v-model="elementForm.scale" :min="0.1" :max="4" :step="0.1" />
@@ -122,9 +124,18 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import { api, uploadImage } from '../api'
+import {
+  createBoard,
+  createElement,
+  listBoards,
+  listElements,
+  toggleBoard,
+  toggleElement,
+  updateElement,
+  uploadImage,
+} from '@/api/modules/assets'
+import type { Board, ElementItem } from '@/types'
 
 const CATEGORIES = [
   { value: 'hair', label: '头发' },
@@ -135,11 +146,8 @@ const CATEGORIES = [
   { value: 'accessory', label: '配饰' },
 ]
 
-interface Board { id: number; name: string; url: string; width: number; height: number; status: number }
-interface Element { id: number; category: string; name: string; image_url: string; anchor: string; sort: number; status: number }
-
 const boards = ref<Board[]>([])
-const elements = ref<Element[]>([])
+const elements = ref<ElementItem[]>([])
 const catFilter = ref('')
 
 const boardVisible = ref(false)
@@ -148,16 +156,13 @@ const boardForm = reactive({ name: '', url: '', width: 400, height: 500 })
 const elementVisible = ref(false)
 const elementForm = reactive({ id: 0, category: 'hair', name: '', image_url: '', ax: 0.5, ay: 0.5, scale: 1 })
 
-function staticUrl(u: string): string {
-  return u
-}
 function catLabel(v: string): string {
   return CATEGORIES.find((c) => c.value === v)?.label ?? v
 }
 
 async function load() {
   try {
-    boards.value = await api<Board[]>('GET', '/admin/boards')
+    boards.value = await listBoards()
     await loadElements()
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '加载失败')
@@ -165,7 +170,11 @@ async function load() {
 }
 
 async function loadElements() {
-  elements.value = await api<Element[]>('GET', '/admin/elements' + (catFilter.value ? '?category=' + catFilter.value : ''))
+  try {
+    elements.value = await listElements(catFilter.value)
+  } catch (e) {
+    ElMessage.error(e instanceof Error ? e.message : '加载失败')
+  }
 }
 
 function openBoard() {
@@ -191,7 +200,7 @@ async function saveBoard() {
     return
   }
   try {
-    await api('POST', '/admin/boards', { ...boardForm })
+    await createBoard({ ...boardForm })
     ElMessage.success('底板已添加')
     boardVisible.value = false
     load()
@@ -200,18 +209,18 @@ async function saveBoard() {
   }
 }
 
-async function toggleBoard(b: Board) {
-  await api('DELETE', `/admin/boards/${b.id}`)
+async function onToggleBoard(b: Board) {
+  await toggleBoard(b.id)
   ElMessage.success('已切换')
   load()
 }
 
-function openElement(el?: Element | null) {
+function openElement(el?: ElementItem | null) {
   elementForm.id = el?.id ?? 0
   elementForm.category = el?.category ?? 'hair'
   elementForm.name = el?.name ?? ''
   elementForm.image_url = ''
-  const anchor = el ? JSON.parse(el.anchor) : { x: 0.5, y: 0.5, scale: 1 }
+  const anchor = el ? (JSON.parse(el.anchor) as { x: number; y: number; scale: number }) : { x: 0.5, y: 0.5, scale: 1 }
   elementForm.ax = anchor.x
   elementForm.ay = anchor.y
   elementForm.scale = anchor.scale
@@ -233,18 +242,13 @@ async function saveElement() {
     return
   }
   const anchor = JSON.stringify({ x: elementForm.ax, y: elementForm.ay, scale: elementForm.scale })
+  const base = { category: elementForm.category, name: elementForm.name, anchor, sort: 0 }
   try {
     if (elementForm.id) {
-      await api('PUT', `/admin/elements/${elementForm.id}`, {
-        category: elementForm.category, name: elementForm.name,
-        image_url: elements.value.find((x) => x.id === elementForm.id)?.image_url ?? '',
-        anchor, sort: 0,
-      })
+      const imageUrl = elements.value.find((x) => x.id === elementForm.id)?.image_url ?? ''
+      await updateElement(elementForm.id, { ...base, image_url: imageUrl })
     } else {
-      await api('POST', '/admin/elements', {
-        category: elementForm.category, name: elementForm.name,
-        image_url: elementForm.image_url, anchor, sort: 0,
-      })
+      await createElement({ ...base, image_url: elementForm.image_url })
     }
     ElMessage.success('已保存')
     elementVisible.value = false
@@ -254,11 +258,35 @@ async function saveElement() {
   }
 }
 
-async function toggleElement(el: Element) {
-  await api('DELETE', `/admin/elements/${el.id}`)
-  ElMessage.success('已切换')
-  loadElements()
+async function onToggleElement(el: ElementItem) {
+  try {
+    await toggleElement(el.id)
+    ElMessage.success('已切换')
+    loadElements()
+  } catch (e) {
+    ElMessage.error(e instanceof Error ? e.message : '操作失败')
+  }
 }
 
 onMounted(load)
 </script>
+
+<style scoped>
+.preview {
+  width: 48px;
+  height: 60px;
+}
+.preview.square {
+  height: 48px;
+}
+.filter {
+  width: 140px;
+}
+.slider {
+  width: 200px;
+}
+.uploaded {
+  margin-left: 8px;
+  color: #67c23a;
+}
+</style>

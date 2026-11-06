@@ -51,6 +51,11 @@
 - [x] 小程序地址列表/编辑页、商品页选地址、订单展示收货人
 - [x] 7 组地址单测 + 三套 e2e 回归全过
 
+## 前端工程规范化 ✅ 已完成（2026-11-06，v0.7）
+- [x] web：ESLint9/Prettier、.env、layouts/api/components/stores/types/utils 分层、Pinia、Element Plus 按需引入
+- [x] 小程序：components 抽取、tabBar 图标、order-list/order-detail 重命名、私有配置出库
+- [x] 三套 e2e + 浏览器截图回归全过
+
 ## Backlog
 - [ ] 真实微信支付（等主体+商户号资质）
 - [ ] 多租户改造

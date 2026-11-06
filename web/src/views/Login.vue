@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrap">
     <el-card class="login-card">
-      <h2 style="text-align: center; margin-top: 0">现梦坊 · 管理后台</h2>
+      <h2 class="title">现梦坊 · 管理后台</h2>
       <el-form :model="form" @keyup.enter="onLogin">
         <el-form-item>
           <el-input v-model="form.username" placeholder="用户名" />
@@ -9,9 +9,7 @@
         <el-form-item>
           <el-input v-model="form.password" type="password" placeholder="密码" show-password />
         </el-form-item>
-        <el-button type="primary" style="width: 100%" :loading="loading" @click="onLogin">
-          登 录
-        </el-button>
+        <el-button type="primary" class="submit" :loading="loading" @click="onLogin">登 录</el-button>
       </el-form>
     </el-card>
   </div>
@@ -20,10 +18,11 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { api, setToken } from '../api'
+import { adminLogin } from '@/api/modules/auth'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
 const form = reactive({ username: '', password: '' })
 const loading = ref(false)
 
@@ -34,8 +33,8 @@ async function onLogin() {
   }
   loading.value = true
   try {
-    const data = await api<{ token: string }>('POST', '/admin/auth/login', form)
-    setToken(data.token)
+    const data = await adminLogin(form.username, form.password)
+    auth.login(data.token)
     router.push('/orders')
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '登录失败')
@@ -55,5 +54,12 @@ async function onLogin() {
 .login-card {
   width: 360px;
   padding: 12px 8px;
+}
+.title {
+  text-align: center;
+  margin-top: 0;
+}
+.submit {
+  width: 100%;
 }
 </style>

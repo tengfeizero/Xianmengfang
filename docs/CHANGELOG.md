@@ -1,5 +1,23 @@
 # CHANGELOG — 现梦坊
 
+## v0.7 (2026-11-06) — 前端工程规范化重构
+
+**web/（按社区标准补齐骨架）**
+- 补 ESLint9（扁平配置 + eslint-plugin-vue + typescript-eslint）与 Prettier；`npm run lint / format`
+- 新增 `.env` / `.env.example`（VITE_API_BASE），API 基址不再硬编码
+- 目录分层：`layouts/`（Layout 移出 views）、`api/http.ts + api/modules/*`（按域分模块）、`router/`（守卫 + document.title）、`stores/`（Pinia auth，组件不直接碰 localStorage）、`components/`（StatusTag/AmountText）、`types/`（集中 DTO）、`styles/`（主题变量）、`utils/`（auth/money）
+- Element Plus 改按需引入（unplugin-auto-import + unplugin-vue-components + ElConfigProvider 中文 locale），dist 从全量降至 754K，视图按域拆 chunk
+- 视图全部改用模块化 API + 复用组件；路由守卫增强（已登录访问 /login 回 orders）
+- 401 统一处理：http 层清 token 回登录页
+
+**miniprogram/（规范补齐）**
+- 新增 `components/`：empty-state（空态/加载/行动按钮）、status-tag（状态文案颜色，externalClasses 定制）；四页接入并移除页面内重复实现
+- tabBar 补 4 组图标（81×81 PNG，Go 程序生成、超采样抗锯齿；临时工具已删）
+- 页面重命名：pages/orders→order-list、pages/order→order-detail（目录与文件同步，杜绝单复数混淆）
+- project.private.config.json 移出版本库（.gitignore）
+
+**验收**：vue-tsc + vite build + eslint 全过；小程序 node --check + JSON 全过；m0/m1/mp 三套 e2e 全过（金额/快照对账一致）；Edge 实测登录→四页截图，按需引入样式无异常。
+
 ## v0.6 (2026-11-06) — 收货地址管理
 - 后端：addresses 表 + AddressService（上限 20 条、默认地址唯一、第一个自动默认、删默认自动补位最新一条、手机号 `^1\d{10}$` 校验、归属校验）；用户端 CRUD + 设默认 5 个接口
 - 下单改造：POST /orders 必传 address_id，收货信息**快照**进订单（receiver_name/phone/address），地址后续修改不影响历史订单；无地址/他人地址/非法地址下单分别 400/403/400

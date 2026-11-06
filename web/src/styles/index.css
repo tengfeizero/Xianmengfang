@@ -1,0 +1,45 @@
+:root {
+  --xmf-pink: #ff7ea0;
+  --xmf-pink-deep: #ff5c7a;
+  --xmf-bg: #f5f7fa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--xmf-bg);
+  color: #303133;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+/* 页面通用布局工具类，避免每个视图重复写内联样式 */
+.page-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.card-block {
+  margin-bottom: 16px;
+}
+
+.text-muted {
+  color: #909399;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

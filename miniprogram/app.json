@@ -3,11 +3,11 @@
     "pages/index/index",
     "pages/studio/studio",
     "pages/works/works",
-    "pages/orders/orders",
+    "pages/order-list/order-list",
     "pages/login/login",
     "pages/product/product",
     "pages/ai/ai",
-    "pages/order/order",
+    "pages/order-detail/order-detail",
     "pages/address/list",
     "pages/address/edit"
   ],
@@ -22,10 +22,30 @@
     "selectedColor": "#ff7ea0",
     "backgroundColor": "#ffffff",
     "list": [
-      { "pagePath": "pages/index/index", "text": "商店" },
-      { "pagePath": "pages/studio/studio", "text": "创作" },
-      { "pagePath": "pages/works/works", "text": "作品" },
-      { "pagePath": "pages/orders/orders", "text": "订单" }
+      {
+        "pagePath": "pages/index/index",
+        "text": "商店",
+        "iconPath": "images/tabbar/shop.png",
+        "selectedIconPath": "images/tabbar/shop-active.png"
+      },
+      {
+        "pagePath": "pages/studio/studio",
+        "text": "创作",
+        "iconPath": "images/tabbar/studio.png",
+        "selectedIconPath": "images/tabbar/studio-active.png"
+      },
+      {
+        "pagePath": "pages/works/works",
+        "text": "作品",
+        "iconPath": "images/tabbar/works.png",
+        "selectedIconPath": "images/tabbar/works-active.png"
+      },
+      {
+        "pagePath": "pages/order-list/order-list",
+        "text": "订单",
+        "iconPath": "images/tabbar/order.png",
+        "selectedIconPath": "images/tabbar/order-active.png"
+      }
     ]
   },
   "style": "v2",

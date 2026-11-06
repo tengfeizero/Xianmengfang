@@ -162,7 +162,7 @@ Page({
       .request('POST', '/orders', { address_id: this.data.selectedAddress.id, items: [item] })
       .then((d) => {
         wx.showToast({ title: '下单成功', icon: 'success' })
-        setTimeout(() => wx.switchTab({ url: '/pages/orders/orders' }), 800)
+        setTimeout(() => wx.switchTab({ url: '/pages/order-list/order-list' }), 800)
       })
       .catch((e) => wx.showModal({ title: '下单失败', content: e.message, showCancel: false }))
       .then(() => this.setData({ submitting: false }))

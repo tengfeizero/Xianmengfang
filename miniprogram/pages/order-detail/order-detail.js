@@ -1,5 +1,5 @@
 const api = require('../../utils/request')
-const { fen2yuan, statusText, statusColor } = require('../../utils/util')
+const { fen2yuan } = require('../../utils/util')
 
 Page({
   data: {
@@ -15,8 +15,6 @@ Page({
             id: d.order.id,
             orderNo: d.order.order_no,
             status: d.order.status,
-            statusLabel: statusText(d.order.status),
-            statusColor: statusColor(d.order.status),
             totalText: fen2yuan(d.order.total_cents),
             payType: d.order.pay_type === 'mock' ? '模拟支付' : '微信支付',
             cancelReason: d.order.cancel_reason,

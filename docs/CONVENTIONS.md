@@ -16,8 +16,36 @@ server/
   data/             # 运行时数据（.db、密钥文件），不进 git
   docs/             # 项目文档（在仓库根 docs/）
 web/                # Vue 3 + TS 管理后台
+  src/
+    api/            # http.ts（fetch 封装/401/ApiError）+ modules/（auth/orders/products/assets/configs，按域分模块）
+    components/     # 可复用组件（StatusTag、AmountText）
+    layouts/        # 布局（Layout.vue），与业务页分离
+    router/         # 路由 + 登录守卫 + document.title
+    stores/         # Pinia（auth 登录态），组件不直接碰 localStorage
+    styles/         # 全局样式与主题变量
+    types/          # DTO 类型 + 自动生成的 d.ts
+    utils/          # auth(token 读写)/money(分↔元)
+    views/          # 业务页面
+  .env / .env.example  # VITE_API_BASE 等非敏感配置；密钥不进前端
+  eslint.config.js  # ESLint9 扁平配置 + Prettier；npm run lint / format
 miniprogram/        # 微信小程序原生
+  app.js|json|wxss
+  config.js         # 基址等集中配置
+  components/       # 公共组件（empty-state、status-tag），页面经 usingComponents 引用
+  images/tabbar/    # tabBar 图标（81x81，程序生成）
+  pages/            # 每页四件套；命名用完整词（order-list/order-detail，不用易混缩写）
+  utils/            # request(JWT/401)、util(金额/状态文案)
+  project.private.config.json  # 个人本地配置，不进 git
 ```
+
+## 前端纪律
+
+10. **web 类型**：表格插槽的行类型用 `row as Type` 断言（Element Plus 插槽行是 DefaultRow）；DTO 一律放 `types/`，禁止在视图里重复声明。
+11. **web 请求**：视图只 import `api/modules/*`，不直接写 fetch；金额换算只经 `utils/money`。
+12. **Element Plus 按需引入**：新增组件直接写 `<el-*>` 即可（unplugin 自动注册），ElMessage/ElMessageBox 无需 import；不要退回全量 `app.use(ElementPlus)`。
+13. **小程序组件**：两个以上页面重复的 UI 块必须抽到 `components/`；页面路径重命名时全量搜索旧路径引用。
+14. **门禁**：web 提交前 `npm run lint && npm run build`；小程序提交前全量 `node --check` + JSON 校验。
+15. **提交**：一个功能一个 commit；`feat/fix/docs` 前缀；信息写"为什么"。
 
 ## 硬性纪律
 

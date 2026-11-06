@@ -1,7 +1,7 @@
 <view wx:if="{{order}}">
   <view class="card">
     <view class="row-between">
-      <text class="status" style="color: {{order.statusColor}}">{{order.statusLabel}}</text>
+      <status-tag custom-class="status" status="{{order.status}}" />
       <text class="muted">{{order.payType}}</text>
     </view>
     <view class="muted">单号 {{order.orderNo}}</view>

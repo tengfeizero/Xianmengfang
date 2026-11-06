@@ -1,5 +1,4 @@
-<view wx:if="{{loading}}" class="muted center-tip">加载中...</view>
-<view wx:elif="{{!addresses.length}}" class="muted center-tip">还没有收货地址</view>
+<empty-state wx:if="{{!addresses.length}}" loading="{{loading}}" text="还没有收货地址" />
 
 <view class="card addr" wx:for="{{addresses}}" wx:key="id" data-id="{{item.id}}" bindtap="pick">
   <view class="addr-head">

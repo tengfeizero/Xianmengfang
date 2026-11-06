@@ -1,0 +1,7 @@
+<view class="empty">
+  <view class="tip" wx:if="{{loading}}">加载中...</view>
+  <block wx:else>
+    <view class="tip">{{text}}</view>
+    <button wx:if="{{actionText}}" class="btn" bindtap="onAction">{{actionText}}</button>
+  </block>
+</view>

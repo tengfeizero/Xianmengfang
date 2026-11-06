@@ -1,5 +1,5 @@
 const api = require('../../utils/request')
-const { fen2yuan, statusText, statusColor } = require('../../utils/util')
+const { fen2yuan } = require('../../utils/util')
 
 const TABS = [
   { key: '', label: '全部' },
@@ -36,8 +36,6 @@ Page({
           id: d.order.id,
           orderNo: d.order.order_no,
           status: d.order.status,
-          statusLabel: statusText(d.order.status),
-          statusColor: statusColor(d.order.status),
           totalText: fen2yuan(d.order.total_cents),
           receiver: d.order.receiver_name
             ? d.order.receiver_name + ' ' + d.order.receiver_phone
@@ -99,7 +97,7 @@ Page({
   },
 
   detail(e) {
-    wx.navigateTo({ url: '/pages/order/order?id=' + e.currentTarget.dataset.id })
+    wx.navigateTo({ url: '/pages/order-detail/order-detail?id=' + e.currentTarget.dataset.id })
   },
 
   manageAddress() {

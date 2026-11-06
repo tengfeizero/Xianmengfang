@@ -1,30 +1,32 @@
 <template>
   <div>
-    <el-card shadow="never" style="margin-bottom: 16px">
+    <el-card shadow="never" class="card-block">
       <template #header><b>商品分类</b></template>
-      <div style="margin-bottom: 12px">
-        <el-input v-model="newCat" placeholder="新分类名称" style="width: 200px; margin-right: 8px" />
+      <div class="page-toolbar">
+        <el-input v-model="newCat" placeholder="新分类名称" class="cat-input" />
         <el-button type="primary" @click="addCategory">添加分类</el-button>
       </div>
       <el-tag
         v-for="c in categories"
         :key="c.id"
-        style="margin: 0 8px 8px 0"
+        class="cat-tag"
         :type="c.status === 1 ? 'primary' : 'info'"
         closable
         @close="delCategory(c)"
         @click="editCategory(c)"
-      >{{ c.name }}</el-tag>
+      >
+        {{ c.name }}
+      </el-tag>
     </el-card>
 
     <el-card shadow="never">
       <template #header>
-        <div style="display: flex; justify-content: space-between">
+        <div class="flex-between">
           <b>商品列表</b>
           <el-button type="primary" @click="openProduct(null)">新增商品</el-button>
         </div>
       </template>
-      <el-table :data="products" v-loading="loading" border>
+      <el-table v-loading="loading" :data="products" border>
         <el-table-column prop="title" label="商品" min-width="160" />
         <el-table-column label="分类" width="100">
           <template #default="{ row }">{{ catName(row.category_id) }}</template>
@@ -36,25 +38,26 @@
         </el-table-column>
         <el-table-column label="规格/SKU" min-width="320">
           <template #default="{ row }">
-            <div v-for="s in row.skus" :key="s.id" style="display: flex; align-items: center; gap: 8px; margin: 4px 0">
+            <div v-for="s in row.skus" :key="s.id" class="sku-row">
               <el-tag size="small">{{ s.specs }}</el-tag>
-              <span>{{ yuan(s.price_cents) }} 元 / 库存 {{ s.stock }}</span>
-              <el-button size="small" link type="primary" @click="openSKU(row, s)">改价/库存</el-button>
+              <span><AmountText :cents="s.price_cents" /> / 库存 {{ s.stock }}</span>
+              <el-button size="small" link type="primary" @click="openSKU(row as Product, s)">改价/库存</el-button>
               <el-button size="small" link type="danger" @click="delSKU(s)">删除</el-button>
             </div>
-            <el-button size="small" @click="openSKU(row, null)">+ 添加规格</el-button>
+            <el-button size="small" @click="openSKU(row as Product, null)">+ 添加规格</el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="160">
           <template #default="{ row }">
-            <el-button size="small" @click="openProduct(row)">编辑</el-button>
-            <el-button size="small" type="warning" @click="toggleShelf(row)">{{ row.status === 1 ? '下架' : '上架' }}</el-button>
+            <el-button size="small" @click="openProduct(row as Product)">编辑</el-button>
+            <el-button size="small" type="warning" @click="toggleShelf(row as Product)">
+              {{ row.status === 1 ? '下架' : '上架' }}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
-    <!-- 商品弹窗 -->
     <el-dialog v-model="productVisible" :title="productForm.id ? '编辑商品' : '新增商品'" width="440px">
       <el-form label-width="60px">
         <el-form-item label="分类">
@@ -75,7 +78,6 @@
       </template>
     </el-dialog>
 
-    <!-- SKU 弹窗 -->
     <el-dialog v-model="skuVisible" :title="skuForm.id ? '改价/库存' : '添加规格'" width="440px">
       <el-form label-width="80px">
         <el-form-item label="规格">
@@ -101,12 +103,21 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { api, cents, yuan } from '../api'
-
-interface Category { id: number; name: string; sort: number; status: number }
-interface SKU { id: number; product_id: number; specs: string; price_cents: number; stock: number; code: string }
-interface Product { id: number; category_id: number; title: string; description: string; status: number; skus: SKU[] }
+import AmountText from '@/components/AmountText.vue'
+import {
+  createCategory,
+  createProduct,
+  createSku,
+  deleteCategory,
+  deleteSku,
+  listCategories,
+  listProducts,
+  updateCategory,
+  updateProduct,
+  updateSku,
+} from '@/api/modules/products'
+import type { Category, Product, Sku } from '@/types'
+import { cents } from '@/utils/money'
 
 const categories = ref<Category[]>([])
 const products = ref<Product[]>([])
@@ -122,10 +133,7 @@ const skuForm = reactive({ id: 0, productId: 0, specs: '', priceYuan: 9.9, stock
 async function load() {
   loading.value = true
   try {
-    const [cats, prods] = await Promise.all([
-      api<Category[]>('GET', '/admin/categories'),
-      api<Product[]>('GET', '/admin/products'),
-    ])
+    const [cats, prods] = await Promise.all([listCategories(), listProducts()])
     categories.value = cats
     products.value = prods
   } catch (e) {
@@ -142,7 +150,7 @@ function catName(id: number): string {
 async function addCategory() {
   if (!newCat.value) return
   try {
-    await api('POST', '/admin/categories', { name: newCat.value, sort: 0 })
+    await createCategory(newCat.value)
     newCat.value = ''
     ElMessage.success('分类已添加')
     load()
@@ -152,16 +160,20 @@ async function addCategory() {
 }
 
 async function editCategory(c: Category) {
-  const { value } = await ElMessageBox.prompt('修改分类名', '编辑', { inputValue: c.name })
-  if (value && value !== c.name) {
-    await api('PUT', `/admin/categories/${c.id}`, { name: value, sort: c.sort })
-    load()
+  try {
+    const { value } = await ElMessageBox.prompt('修改分类名', '编辑', { inputValue: c.name })
+    if (value && value !== c.name) {
+      await updateCategory(c.id, value, c.sort)
+      load()
+    }
+  } catch (e) {
+    if (e instanceof Error) ElMessage.error(e.message)
   }
 }
 
 async function delCategory(c: Category) {
   try {
-    await api('DELETE', `/admin/categories/${c.id}`)
+    await deleteCategory(c.id)
     ElMessage.success('已删除')
     load()
   } catch (e) {
@@ -182,12 +194,14 @@ async function saveProduct() {
     ElMessage.warning('请填写商品名称')
     return
   }
+  const input = {
+    category_id: productForm.category_id,
+    title: productForm.title,
+    description: productForm.description,
+  }
   try {
-    if (productForm.id) {
-      await api('PUT', `/admin/products/${productForm.id}`, { ...productForm })
-    } else {
-      await api('POST', '/admin/products', { ...productForm })
-    }
+    if (productForm.id) await updateProduct(productForm.id, input)
+    else await createProduct(input)
     ElMessage.success('已保存')
     productVisible.value = false
     load()
@@ -198,8 +212,10 @@ async function saveProduct() {
 
 async function toggleShelf(p: Product) {
   try {
-    await api('PUT', `/admin/products/${p.id}`, {
-      category_id: p.category_id, title: p.title, description: p.description,
+    await updateProduct(p.id, {
+      category_id: p.category_id,
+      title: p.title,
+      description: p.description,
       status: p.status === 1 ? 0 : 1,
     })
     ElMessage.success(p.status === 1 ? '已下架' : '已上架')
@@ -209,7 +225,7 @@ async function toggleShelf(p: Product) {
   }
 }
 
-function openSKU(p: Product, s: SKU | null) {
+function openSKU(p: Product, s: Sku | null) {
   skuForm.id = s?.id ?? 0
   skuForm.productId = p.id
   skuForm.specs = s?.specs ?? ''
@@ -220,19 +236,16 @@ function openSKU(p: Product, s: SKU | null) {
 }
 
 async function saveSKU() {
+  const input = {
+    product_id: skuForm.productId,
+    specs: skuForm.specs || '{}',
+    price_cents: cents(skuForm.priceYuan),
+    stock: skuForm.stock,
+    code: skuForm.code,
+  }
   try {
-    const body = {
-      product_id: skuForm.productId,
-      specs: skuForm.specs || '{}',
-      price_cents: cents(skuForm.priceYuan),
-      stock: skuForm.stock,
-      code: skuForm.code,
-    }
-    if (skuForm.id) {
-      await api('PUT', `/admin/skus/${skuForm.id}`, body)
-    } else {
-      await api('POST', '/admin/skus', body)
-    }
+    if (skuForm.id) await updateSku(skuForm.id, input)
+    else await createSku(input)
     ElMessage.success('已保存')
     skuVisible.value = false
     load()
@@ -241,14 +254,14 @@ async function saveSKU() {
   }
 }
 
-async function delSKU(s: SKU) {
+async function delSKU(s: Sku) {
   try {
     await ElMessageBox.confirm(`确认删除规格 ${s.specs}？`, '确认')
   } catch {
     return
   }
   try {
-    await api('DELETE', `/admin/skus/${s.id}`)
+    await deleteSku(s.id)
     ElMessage.success('已删除')
     load()
   } catch (e) {
@@ -258,3 +271,19 @@ async function delSKU(s: SKU) {
 
 onMounted(load)
 </script>
+
+<style scoped>
+.cat-input {
+  width: 200px;
+}
+.cat-tag {
+  margin: 0 8px 8px 0;
+  cursor: pointer;
+}
+.sku-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+</style>
