@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 
 	"xmf/internal/api"
@@ -34,6 +35,15 @@ func main() {
 		Dev:        cfg.DevLogin,
 	}
 	r := api.Router(h)
+	// Web 管理后台静态托管（构建产物存在即启用）
+	if webDir := os.Getenv("XMF_WEB"); webDir != "" {
+		if st, err := os.Stat(filepath.Join(webDir, "index.html")); err == nil && !st.IsDir() {
+			api.ServeWebDir(r, webDir)
+			log.Printf("Web 后台已托管: %s -> /ui/", webDir)
+		} else {
+			log.Printf("XMF_WEB=%s 下没有 index.html，跳过静态托管", webDir)
+		}
+	}
 	log.Printf("现梦坊服务启动: %s (db=%s, dev_login=%v, ai=%s)", cfg.Addr, cfg.DBPath, cfg.DevLogin, h.AI.Provider.Name())
 	if err := r.Run(cfg.Addr); err != nil {
 		log.Fatalf("服务启动失败: %v", err)

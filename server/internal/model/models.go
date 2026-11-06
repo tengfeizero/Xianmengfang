@@ -111,7 +111,7 @@ type Order struct {
 type OrderItem struct {
 	Model
 	OrderID    int64  `gorm:"index" json:"order_id"`
-	SKUID      int64  `json:"sku_id"`
+	SKUID      int64  `gorm:"column:sku_id;index" json:"sku_id"`
 	WorkID     *int64 `json:"work_id"` // M0 可空，M1 绑定作品
 	Title      string `gorm:"size:64" json:"title"`
 	Specs      string `gorm:"size:255" json:"specs"`

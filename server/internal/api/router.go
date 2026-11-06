@@ -1,6 +1,9 @@
 package api
 
 import (
+	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -9,6 +12,19 @@ import (
 func paramID(c *gin.Context) int64 {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	return id
+}
+
+// ServeWebDir 托管 Web 后台静态文件（SPA，hash 路由；未匹配文件回落 index.html）
+func ServeWebDir(r *gin.Engine, dir string) {
+	r.GET("/ui", func(c *gin.Context) { c.Redirect(http.StatusMovedPermanently, "/ui/") })
+	r.GET("/ui/*filepath", func(c *gin.Context) {
+		p := filepath.Join(dir, filepath.Clean(c.Param("filepath")))
+		if st, err := os.Stat(p); err == nil && !st.IsDir() {
+			c.File(p)
+			return
+		}
+		c.File(filepath.Join(dir, "index.html"))
+	})
 }
 
 // Router 组装全部路由
@@ -63,11 +79,29 @@ func Router(h *Handlers) *gin.Engine {
 
 		// 素材与底板管理（M1）
 		ag.POST("/boards", h.adminBoardCreate)
+		ag.GET("/boards", h.adminBoardList)
 		ag.PUT("/boards/:id", h.adminBoardUpdate)
 		ag.DELETE("/boards/:id", h.adminBoardDelete)
 		ag.POST("/elements", h.adminElementCreate)
+		ag.GET("/elements", h.adminElementList)
 		ag.PUT("/elements/:id", h.adminElementUpdate)
 		ag.DELETE("/elements/:id", h.adminElementDelete)
+
+		// 商品/分类/SKU 管理 + 系统配置（M1.4）
+		ag.POST("/upload", h.upload)
+		ag.GET("/categories", h.adminCategoryList)
+		ag.POST("/categories", h.adminCategoryCreate)
+		ag.PUT("/categories/:id", h.adminCategoryUpdate)
+		ag.DELETE("/categories/:id", h.adminCategoryDelete)
+		ag.GET("/products", h.adminProductList)
+		ag.POST("/products", h.adminProductCreate)
+		ag.PUT("/products/:id", h.adminProductUpdate)
+		ag.DELETE("/products/:id", h.adminProductDelete)
+		ag.POST("/skus", h.adminSKUCreate)
+		ag.PUT("/skus/:id", h.adminSKUUpdate)
+		ag.DELETE("/skus/:id", h.adminSKUDelete)
+		ag.GET("/configs", h.adminConfigList)
+		ag.PUT("/configs", h.adminConfigUpdate)
 	}
 
 	return r

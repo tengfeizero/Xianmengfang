@@ -41,8 +41,12 @@
 | POST | /admin/orders/:id/ship | 发货（物流公司+单号） | ✅ 已实现 |
 | POST | /admin/orders/:id/cancel | 后台取消（待接单/待发货，恢复库存） | ✅ 已实现 |
 | POST | /admin/orders/:id/refund_mark | 退款标记（仅标记，已发货/已完成） | ✅ 已实现 |
-| GET/POST/PUT | /admin/products… | 商品与 SKU 管理 | M2 |
-| GET/POST/PUT | /admin/elements… /boards… | 素材与底板管理 | ✅ 已实现（POST/PUT/DELETE） |
+| GET/POST/PUT/DELETE | /admin/products… | 商品管理（列表含下架，删除=下架） | ✅ 已实现 |
+| POST/PUT/DELETE | /admin/skus… | SKU 管理（有订单引用的 SKU 禁止删除） | ✅ 已实现 |
+| GET/POST/PUT/DELETE | /admin/categories… | 商品分类管理（分类下有商品禁止删除） | ✅ 已实现 |
+| GET/POST/PUT/DELETE | /admin/elements… /boards… | 素材与底板管理（POST/GET/PUT/DELETE） | ✅ 已实现 |
+| GET/PUT | /admin/configs | 系统配置（白名单键，ai_daily_free_limit 0~1000） | ✅ 已实现 |
+| POST | /admin/upload | 后台上传图片（与用户端 /upload 同逻辑） | ✅ 已实现 |
 
 ## 状态码约定
 
