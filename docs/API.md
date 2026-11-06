@@ -112,6 +112,8 @@
 | GET/POST/PUT/DELETE | /admin/categories… | 商品分类管理（分类下有商品禁止删除） | ✅ 已实现 |
 | GET/POST/PUT/DELETE | /admin/elements… /boards… | 素材与底板管理（POST/GET/PUT/DELETE） | ✅ 已实现 |
 | GET/PUT | /admin/configs | 系统配置（白名单键，ai_daily_free_limit 0~1000） | ✅ 已实现 |
+| GET | /admin/users | 用户列表（含订单数/作品数统计；keyword 按昵称模糊、status=0/1 过滤） | ✅ 已实现 |
+| PUT | /admin/users/:id/status | 启用/禁用用户（{status:0\|1}）。禁用后无法登录；已签发 JWT 在过期前仍有效 | ✅ 已实现 |
 | POST | /admin/upload | 后台上传图片（与用户端 /upload 同逻辑） | ✅ 已实现 |
 
 ## 状态码约定

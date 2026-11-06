@@ -30,6 +30,7 @@ const menus = [
   { path: '/orders', title: '订单管理' },
   { path: '/products', title: '商品管理' },
   { path: '/assets', title: '素材管理' },
+  { path: '/users', title: '用户管理' },
   { path: '/configs', title: '系统配置' },
 ]
 

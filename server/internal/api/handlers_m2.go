@@ -313,6 +313,54 @@ func (h *Handlers) adminElementList(c *gin.Context) {
 	ok(c, els)
 }
 
+// ---- 后台：用户管理 ----
+
+// adminUserList 用户列表（含订单数/作品数），支持关键字（昵称）与状态过滤。
+func (h *Handlers) adminUserList(c *gin.Context) {
+	q := h.DB.Order("id desc")
+	if s := c.Query("status"); s == "0" || s == "1" {
+		q = q.Where("status = ?", s)
+	}
+	if kw := strings.TrimSpace(c.Query("keyword")); kw != "" {
+		q = q.Where("nickname LIKE ?", "%"+kw+"%")
+	}
+	var users []model.User
+	if err := q.Find(&users).Error; err != nil {
+		fail(c, 500, "获取用户失败，请稍后再试")
+		return
+	}
+	type userRow struct {
+		model.User
+		OrderCount int64 `json:"order_count"`
+		WorkCount  int64 `json:"work_count"`
+	}
+	rows := make([]userRow, 0, len(users))
+	for _, u := range users {
+		r := userRow{User: u}
+		h.DB.Model(&model.Order{}).Where("user_id = ?", u.ID).Count(&r.OrderCount)
+		h.DB.Model(&model.Work{}).Where("user_id = ?", u.ID).Count(&r.WorkCount)
+		rows = append(rows, r)
+	}
+	ok(c, rows)
+}
+
+// adminUserSetStatus 启用/禁用用户。禁用后无法再登录（已签发的 JWT 在过期前仍有效，见 PRD 说明）。
+func (h *Handlers) adminUserSetStatus(c *gin.Context) {
+	var req struct {
+		Status int `json:"status" binding:"oneof=0 1"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		fail(c, 400, "参数错误：status 只能为 0（禁用）或 1（正常）")
+		return
+	}
+	res := h.DB.Model(&model.User{}).Where("id = ?", paramID(c)).Update("status", req.Status)
+	if res.Error != nil || res.RowsAffected == 0 {
+		fail(c, 404, "用户不存在")
+		return
+	}
+	ok(c, nil)
+}
+
 // ---- 后台：系统配置 ----
 
 var configWhitelist = map[string]bool{

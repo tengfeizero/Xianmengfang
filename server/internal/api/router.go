@@ -124,6 +124,8 @@ func Router(h *Handlers) *gin.Engine {
 		ag.DELETE("/skus/:id", h.adminSKUDelete)
 		ag.GET("/configs", h.adminConfigList)
 		ag.PUT("/configs", h.adminConfigUpdate)
+		ag.GET("/users", h.adminUserList)
+		ag.PUT("/users/:id/status", h.adminUserSetStatus)
 	}
 
 	return r
