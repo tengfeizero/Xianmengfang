@@ -78,8 +78,8 @@ type placementReq struct {
 }
 
 type composeReq struct {
-	BoardID    int64           `json:"board_id" binding:"required"`
-	Placements []placementReq  `json:"placements" binding:"required,min=1"`
+	BoardID    int64          `json:"board_id" binding:"required"`
+	Placements []placementReq `json:"placements" binding:"required,min=1"`
 }
 
 func (h *Handlers) collageCompose(c *gin.Context) {
