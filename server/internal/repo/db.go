@@ -29,7 +29,11 @@ func Open(path string) (*gorm.DB, error) {
 }
 
 // Seed 演示数据：仅当为空时写入，可重复执行
-func Seed(db *gorm.DB) error {
+func Seed(db *gorm.DB, uploadsDir string) error {
+	// 演示素材 PNG（缺文件才生成）
+	if err := SeedAssets(uploadsDir); err != nil {
+		return err
+	}
 	// 管理员 admin / admin123（上线前必须改密）
 	var adminCount int64
 	if err := db.Model(&model.Admin{}).Count(&adminCount).Error; err != nil {
@@ -91,5 +95,10 @@ func Seed(db *gorm.DB) error {
 		{ProductID: products[2].ID, Specs: `{"规格":"标准"}`, PriceCents: 6900, Stock: 150, Code: "BAG-STD"},
 		{ProductID: products[3].ID, Specs: `{"规格":"20cm"}`, PriceCents: 19900, Stock: 50, Code: "DOLL-20"},
 	}
-	return db.Create(&skus).Error
+	if err := db.Create(&skus).Error; err != nil {
+		return err
+	}
+
+	// 拼装底板与元素
+	return SeedCatalogAssets(db)
 }

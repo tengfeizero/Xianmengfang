@@ -60,6 +60,27 @@ type SKU struct {
 	Code       string `gorm:"size:32" json:"code"`
 }
 
+// Board 拼装底板
+type Board struct {
+	Model
+	Name   string `gorm:"size:32" json:"name"`
+	URL    string `gorm:"size:255" json:"url"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+	Status int    `json:"status"` // 1 上架 0 下架
+}
+
+// Element 拼装元素（PNG 图层素材）
+type Element struct {
+	Model
+	Category string `gorm:"size:16;index" json:"category"` // hair/hat/lash/expression/outfit/accessory
+	Name     string `gorm:"size:32" json:"name"`
+	ImageURL string `gorm:"size:255" json:"image_url"`
+	Anchor   string `gorm:"size:128" json:"anchor"` // json 默认锚点 {"x":0.5,"y":0.2,"scale":1}
+	Sort     int    `json:"sort"`
+	Status   int    `json:"status"`
+}
+
 // Work 用户作品（M1 启用，先建表）
 type Work struct {
 	Model
@@ -135,6 +156,7 @@ func AllMigrations() []any {
 	return []any{
 		&User{}, &Admin{}, &Config{},
 		&ProductCategory{}, &Product{}, &SKU{}, &Work{},
+		&Board{}, &Element{},
 		&Order{}, &OrderItem{}, &OrderEvent{}, &Shipment{}, &AITask{},
 	}
 }

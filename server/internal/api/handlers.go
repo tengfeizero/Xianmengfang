@@ -9,11 +9,13 @@ import (
 )
 
 type Handlers struct {
-	DB     *gorm.DB
-	Secret string
-	Auth   *service.AuthService
-	Orders *service.OrderService
-	Dev    bool // 是否允许开发者模拟登录
+	DB         *gorm.DB
+	Secret     string
+	Auth       *service.AuthService
+	Orders     *service.OrderService
+	AI         *service.AIService
+	UploadsDir string
+	Dev        bool // 是否允许开发者模拟登录
 }
 
 // ---- 登录 ----

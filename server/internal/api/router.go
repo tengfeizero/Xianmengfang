@@ -15,6 +15,9 @@ func paramID(c *gin.Context) int64 {
 func Router(h *Handlers) *gin.Engine {
 	r := gin.Default()
 
+	// 静态资源（上传图片与生成物）
+	r.Static("/static", h.UploadsDir)
+
 	v1 := r.Group("/api/v1")
 	{
 		// 登录
@@ -35,6 +38,18 @@ func Router(h *Handlers) *gin.Engine {
 		ug.GET("/orders/:id", h.orderDetail)
 		ug.POST("/orders/:id/confirm", h.orderConfirm)
 		ug.POST("/orders/:id/cancel", h.orderCancel)
+
+		// 上传与创作（M1）
+		ug.POST("/upload", h.upload)
+		ug.GET("/collage/boards", h.collageBoards)
+		ug.GET("/collage/elements", h.collageElements)
+		ug.POST("/collage/compose", h.collageCompose)
+		ug.POST("/ai/tasks", h.aiCreateTask)
+
+		// 作品库（M1）
+		ug.GET("/works", h.workList)
+		ug.GET("/works/:id", h.workDetail)
+		ug.DELETE("/works/:id", h.workDelete)
 	}
 
 	// 管理后台（需管理员）
@@ -45,6 +60,14 @@ func Router(h *Handlers) *gin.Engine {
 		ag.POST("/orders/:id/ship", h.adminOrderShip)
 		ag.POST("/orders/:id/cancel", h.adminOrderCancel)
 		ag.POST("/orders/:id/refund_mark", h.adminOrderRefundMark)
+
+		// 素材与底板管理（M1）
+		ag.POST("/boards", h.adminBoardCreate)
+		ag.PUT("/boards/:id", h.adminBoardUpdate)
+		ag.DELETE("/boards/:id", h.adminBoardDelete)
+		ag.POST("/elements", h.adminElementCreate)
+		ag.PUT("/elements/:id", h.adminElementUpdate)
+		ag.DELETE("/elements/:id", h.adminElementDelete)
 	}
 
 	return r

@@ -22,11 +22,14 @@
 | GET | /orders/:id | 订单详情（含明细+物流） | ✅ 已实现 |
 | POST | /orders/:id/confirm | 确认收货 | ✅ 已实现 |
 | POST | /orders/:id/cancel | 取消订单（仅待接单，恢复库存） | ✅ 已实现 |
-| GET | /works | 我的作品库 | M1 |
-| POST | /works | 保存作品（拼装 meta 或 AI 结果） | M1 |
-| POST | /ai/tasks | 发起 AI 生成（文生图/照片转风格，受每日配额限制） | M1 |
-| GET | /collage/boards | 底板列表 | M1 |
-| GET | /collage/elements?category= | 元素列表 | M1 |
+| POST | /upload | 上传图片（multipart，jpg/png/webp ≤10MB），返回 /static/ 地址 | ✅ 已实现 |
+| GET | /collage/boards | 底板列表 | ✅ 已实现 |
+| GET | /collage/elements?category= | 元素列表 | ✅ 已实现 |
+| POST | /collage/compose | 拼装合成（board_id + placements[x,y,scale]），服务端合成 PNG 并存为作品 | ✅ 已实现 |
+| POST | /ai/tasks | 发起 AI 生成（ai_text/ai_photo，每日配额超限返回 429；当前 mock 供应商） | ✅ 已实现 |
+| GET | /works | 我的作品库 | ✅ 已实现 |
+| GET | /works/:id | 作品详情 | ✅ 已实现 |
+| DELETE | /works/:id | 删除作品（软删） | ✅ 已实现 |
 
 ## 管理后台
 
@@ -38,9 +41,8 @@
 | POST | /admin/orders/:id/ship | 发货（物流公司+单号） | ✅ 已实现 |
 | POST | /admin/orders/:id/cancel | 后台取消（待接单/待发货，恢复库存） | ✅ 已实现 |
 | POST | /admin/orders/:id/refund_mark | 退款标记（仅标记，已发货/已完成） | ✅ 已实现 |
-| GET/POST/PUT | /admin/products… | 商品与 SKU 管理 | M1 |
-| GET/POST/PUT | /admin/elements… /boards… | 素材与底板管理 | M1 |
-| GET/PUT | /admin/configs | 系统配置（AI 配额等） | M1 |
+| GET/POST/PUT | /admin/products… | 商品与 SKU 管理 | M2 |
+| GET/POST/PUT | /admin/elements… /boards… | 素材与底板管理 | ✅ 已实现（POST/PUT/DELETE） |
 
 ## 状态码约定
 
