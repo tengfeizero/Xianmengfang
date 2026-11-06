@@ -1,4 +1,4 @@
-const { BASE } = require('../config')
+const { API } = require('../config')
 
 const TOKEN_KEY = 'xmf_token'
 
@@ -20,7 +20,7 @@ function request(method, path, data, opts) {
   opts = opts || {}
   return new Promise((resolve, reject) => {
     wx.request({
-      url: BASE + '/api/v1' + path,
+      url: API + path,
       method,
       data,
       timeout: 15000,
@@ -54,7 +54,7 @@ function request(method, path, data, opts) {
 function uploadFile(filePath) {
   return new Promise((resolve, reject) => {
     wx.uploadFile({
-      url: BASE + '/api/v1/upload',
+      url: API + '/upload',
       filePath,
       name: 'file',
       header: getToken() ? { Authorization: 'Bearer ' + getToken() } : {},

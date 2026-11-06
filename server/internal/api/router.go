@@ -35,19 +35,22 @@ func Router(h *Handlers) *gin.Engine {
 	r.Static("/static", h.UploadsDir)
 
 	v1 := r.Group("/api/v1")
+
+	// 用户端（小程序）：全部收在 /user 下，与 /admin 对称。
+	// 公开接口（登录、商品浏览）也在 /user 内，保证"一个端一个前缀"。
+	user := v1.Group("/user")
 	{
 		// 登录
-		v1.POST("/auth/login", h.wxLogin)
-		v1.POST("/auth/dev_login", h.devLogin)
-		v1.POST("/admin/auth/login", h.adminLogin)
+		user.POST("/auth/login", h.wxLogin)
+		user.POST("/auth/dev_login", h.devLogin)
 
 		// 商品（公开）
-		v1.GET("/products", h.productList)
-		v1.GET("/products/:id", h.productDetail)
+		user.GET("/products", h.productList)
+		user.GET("/products/:id", h.productDetail)
 	}
 
 	// 用户端（需登录）
-	ug := v1.Group("", AuthRequired(h.Secret), RoleRequired("user"))
+	ug := user.Group("", AuthRequired(h.Secret), RoleRequired("user"))
 	{
 		ug.POST("/orders", h.orderCreate)
 		ug.GET("/orders", h.orderList)
@@ -74,6 +77,9 @@ func Router(h *Handlers) *gin.Engine {
 		ug.DELETE("/addresses/:id", h.addressDelete)
 		ug.POST("/addresses/:id/default", h.addressSetDefault)
 	}
+
+	// 管理后台：登录公开，其余需管理员
+	v1.POST("/admin/auth/login", h.adminLogin)
 
 	// 管理后台（需管理员）
 	ag := v1.Group("/admin", AuthRequired(h.Secret), RoleRequired("admin"))

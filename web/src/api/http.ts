@@ -1,5 +1,7 @@
 import { clearToken, getToken } from '@/utils/auth'
 
+// 后台接口前缀：后端按端分命名空间（用户端 /api/v1/user，后台 /api/v1/admin），
+// 所以 modules/ 里只写 /admin/xxx 资源段
 const BASE = import.meta.env.VITE_API_BASE || '/api/v1'
 
 export interface Resp<T = unknown> {

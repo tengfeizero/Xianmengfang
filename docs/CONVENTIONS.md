@@ -86,7 +86,7 @@ miniprogram/
 
 | 要加的东西 | 落在哪 | 同步 |
 |---|---|---|
-| 新接口 | `api/handlers_<域>.go` + `api/router.go` 注册 | API.md |
+| 新接口 | `api/handlers_<域>.go` + `api/router.go` 的对应 group（user/admin）注册 | API.md |
 | 业务规则 | `service/<域>.go`（先写 `_test.go`） | CONVENTIONS/文档口径 |
 | 新表/字段 | `model/models.go` + `repo/<域>.go` | DATA-MODEL.md |
 | 新配置项 | `internal/config/config.go`（`XMF_` 前缀）+ `.env.example` | TODO/CHANGELOG |
@@ -123,3 +123,8 @@ miniprogram/
 17. **生成物与依赖不手改不提交**：`web/dist/`、`web/node_modules/`、`src/types/auto-imports.d.ts`、`src/types/components.d.ts`（unplugin 生成；要跑 vue-tsc 须先 build）。
 18. **`internal/` 不新增无业务包**：纯工具先做对应域包的私有函数；确需独立包（如图像处理）必须无业务依赖且有单测。
 19. **目录名与路由/接口名一致**：小程序页面目录名 = `app.json` 路由 = 后端 resource 名（`order-list` ↔ `/orders`）；不用易混缩写（故不用 `order`，用 `order-detail`）。
+
+## 接口约定
+
+20. **一端一个命名空间**：用户端 `/api/v1/user/*`（含登录与商品浏览等公开接口），管理后台 `/api/v1/admin/*`；`/api/v1` 根下不挂业务接口。新增接口必须归入其一，路由只在 `api/router.go` 的对应 group 里注册。
+21. **路径形态**：资源用复数（`/orders`、`/addresses`），状态变动用子路径 `POST`（`/orders/:id/confirm`），禁止 `/confirmOrder` 这类动词根路径；前端各端只认自己的前缀（小程序 `config.js` 的 `API`、web 的 `VITE_API_BASE`），页面/module 内只写资源段。

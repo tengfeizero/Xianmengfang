@@ -5,38 +5,41 @@
 ## 通用
 
 - Base：`https://<域名>/api/v1`
+- **命名空间**：用户端（小程序）全部在 `/api/v1/user/*`，管理后台全部在 `/api/v1/admin/*`；v1 根下不再挂业务接口（只有 `/static` 静态资源）。新增接口必须归入其一，禁止在 v1 根上新增
 - 鉴权：`Authorization: Bearer <JWT>`
 - 响应：`{ "code": 0, "msg": "ok", "data": ... }`；非 0 为业务错误，msg 面向用户可读
 - 金额单位分
 
-## 小程序端
+## 用户端（小程序）— 前缀 `/api/v1/user`
+
+> 公开接口（登录、商品浏览）也在 `/user` 下，保证"一个端一个前缀"；小程序侧前缀集中在 `miniprogram/config.js` 的 `API` 常量，页面内只写 `/orders` 这类资源路径。
 
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
-| POST | /auth/login | wx code 换 JWT（需配置 XMF_WX_APPID/SECRET） | ✅ 已实现 |
-| POST | /auth/dev_login | 开发者模拟登录（仅 XMF_DEV_LOGIN=1，默认开） | ✅ 已实现 |
-| GET | /products | 商品列表（含 SKU） | ✅ 已实现 |
-| GET | /products/:id | 商品详情 | ✅ 已实现 |
-| POST | /orders | 下单（address_id 必传、items:[{sku_id、work_id 可空、qty}]；mock 支付直达待接单；收货信息快照进订单） | ✅ 已实现 |
-| GET | /orders | 我的订单（?status= 筛选） | ✅ 已实现 |
-| GET | /orders/:id | 订单详情（含明细+物流+收货快照） | ✅ 已实现 |
-| POST | /orders/:id/confirm | 确认收货 | ✅ 已实现 |
-| POST | /orders/:id/cancel | 取消订单（仅待接单，恢复库存） | ✅ 已实现 |
-| GET | /addresses | 收货地址列表（默认优先） | ✅ 已实现 |
-| POST | /addresses | 新增地址（第一个自动设默认；上限 20；手机号 ^1\d{10}$） | ✅ 已实现 |
-| PUT | /addresses/:id | 编辑地址（可改默认） | ✅ 已实现 |
-| DELETE | /addresses/:id | 删除地址（软删；删默认自动补位最新一条） | ✅ 已实现 |
-| POST | /addresses/:id/default | 设为默认（唯一默认） | ✅ 已实现 |
-| POST | /upload | 上传图片（multipart，jpg/png/webp ≤10MB），返回 /static/ 地址 | ✅ 已实现 |
-| GET | /collage/boards | 底板列表 | ✅ 已实现 |
-| GET | /collage/elements?category= | 元素列表 | ✅ 已实现 |
-| POST | /collage/compose | 拼装合成（board_id + placements[x,y,scale]），服务端合成 PNG 并存为作品 | ✅ 已实现 |
-| POST | /ai/tasks | 发起 AI 生成（ai_text/ai_photo，每日配额超限返回 429；当前 mock 供应商） | ✅ 已实现 |
-| GET | /works | 我的作品库 | ✅ 已实现 |
-| GET | /works/:id | 作品详情 | ✅ 已实现 |
-| DELETE | /works/:id | 删除作品（软删） | ✅ 已实现 |
+| POST | /user/auth/login | wx code 换 JWT（需配置 XMF_WX_APPID/SECRET） | ✅ 已实现 |
+| POST | /user/auth/dev_login | 开发者模拟登录（仅 XMF_DEV_LOGIN=1，默认开） | ✅ 已实现 |
+| GET | /user/products | 商品列表（含 SKU） | ✅ 已实现 |
+| GET | /user/products/:id | 商品详情 | ✅ 已实现 |
+| POST | /user/orders | 下单（address_id 必传、items:[{sku_id、work_id 可空、qty}]；mock 支付直达待接单；收货信息快照进订单） | ✅ 已实现 |
+| GET | /user/orders | 我的订单（?status= 筛选） | ✅ 已实现 |
+| GET | /user/orders/:id | 订单详情（含明细+物流+收货快照） | ✅ 已实现 |
+| POST | /user/orders/:id/confirm | 确认收货 | ✅ 已实现 |
+| POST | /user/orders/:id/cancel | 取消订单（仅待接单，恢复库存） | ✅ 已实现 |
+| GET | /user/addresses | 收货地址列表（默认优先） | ✅ 已实现 |
+| POST | /user/addresses | 新增地址（第一个自动设默认；上限 20；手机号 ^1\d{10}$） | ✅ 已实现 |
+| PUT | /user/addresses/:id | 编辑地址（可改默认） | ✅ 已实现 |
+| DELETE | /user/addresses/:id | 删除地址（软删；删默认自动补位最新一条） | ✅ 已实现 |
+| POST | /user/addresses/:id/default | 设为默认（唯一默认） | ✅ 已实现 |
+| POST | /user/upload | 上传图片（multipart，jpg/png/webp ≤10MB），返回 /static/ 地址 | ✅ 已实现 |
+| GET | /user/collage/boards | 底板列表 | ✅ 已实现 |
+| GET | /user/collage/elements?category= | 元素列表 | ✅ 已实现 |
+| POST | /user/collage/compose | 拼装合成（board_id + placements[x,y,scale]），服务端合成 PNG 并存为作品 | ✅ 已实现 |
+| POST | /user/ai/tasks | 发起 AI 生成（ai_text/ai_photo，每日配额超限返回 429；当前 mock 供应商） | ✅ 已实现 |
+| GET | /user/works | 我的作品库 | ✅ 已实现 |
+| GET | /user/works/:id | 作品详情 | ✅ 已实现 |
+| DELETE | /user/works/:id | 删除作品（软删） | ✅ 已实现 |
 
-## 管理后台
+## 管理后台 — 前缀 `/api/v1/admin`
 
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|

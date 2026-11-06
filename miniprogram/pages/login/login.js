@@ -1,5 +1,4 @@
 const api = require('../../utils/request')
-const { BASE } = require('../../config')
 
 Page({
   data: {

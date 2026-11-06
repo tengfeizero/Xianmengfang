@@ -12,7 +12,7 @@ def req(method, path, token=None, body=None):
         data=json.dumps(body).encode("utf-8") if body else None, headers=headers)
     return json.loads(urllib.request.urlopen(r).read())
 
-ut = req("POST", "/auth/dev_login", body={"openid": "uibuyer"})["data"]["token"]
-ADDR = req("POST", "/addresses", ut, {"name": "张三", "phone": "13800001111", "province": "广东省", "city": "深圳市", "district": "南山区", "detail": "科技园 1 号楼"})["data"]["id"]
-r = req("POST", "/orders", ut, body={"address_id": ADDR, "items": [{"sku_id": 1, "qty": 1}]})
+ut = req("POST", "/user/auth/dev_login", body={"openid": "uibuyer"})["data"]["token"]
+ADDR = req("POST", "/user/addresses", ut, {"name": "张三", "phone": "13800001111", "province": "广东省", "city": "深圳市", "district": "南山区", "detail": "科技园 1 号楼"})["data"]["id"]
+r = req("POST", "/user/orders", ut, body={"address_id": ADDR, "items": [{"sku_id": 1, "qty": 1}]})
 print("测试订单已创建:", r["data"]["order"]["order_no"], r["data"]["order"]["status"])

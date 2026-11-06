@@ -1,5 +1,15 @@
 # CHANGELOG — 现梦坊
 
+## v0.8 (2026-11-06) — API 命名空间按端拆分
+
+- 用户端（小程序）接口统一收进 `/api/v1/user/*`，含公开的 `/user/auth/login`、`/user/auth/dev_login`、`/user/products`（商品浏览不需要登录，但仍属用户端）；管理后台保持 `/api/v1/admin/*`。`/api/v1` 根下不再挂业务接口，静态资源 `/static` 不变
+- 路由按 group 组织：`v1.Group("/user")` 放公开接口，其下再挂 `AuthRequired + RoleRequired("user")` 的需登录 group；后台仅 `admin/auth/login` 公开
+- 小程序：`config.js` 新增 `API` 常量（`BASE + '/api/v1/user'`），`request.js` / 上传统一用它拼 URL，8 个页面里的 `/orders`、`/addresses` 等资源路径零改动；顺手删掉 login.js 未使用的 `BASE` 引用
+- web 后台无需改动（`api/modules/*` 本就全是 `/admin/...`）
+- 三套 e2e 脚本路径同步为 `/user/...`；`go vet` + `go test` 全过，m0/m1/mp 全链路通过
+- 实测（:8080 新版二进制）：`/api/v1/user/products` 200、`/api/v1/admin/auth/login` 200、`/api/v1/products` 404、`/ui/` 200
+- 破坏性变更：旧的无端前缀路径立即失效（项目未上线，不做兼容层）；新增接口一律归入 user/admin 其一（CONVENTIONS 接口约定 20-21）
+
 ## v0.7 (2026-11-06) — 前端工程规范化重构
 
 **web/（按社区标准补齐骨架）**
