@@ -55,6 +55,7 @@
 - [x] web：ESLint9/Prettier、.env、layouts/api/components/stores/types/utils 分层、Pinia、Element Plus 按需引入
 - [x] 小程序：components 抽取、tabBar 图标、order-list/order-detail 重命名、私有配置出库
 - [x] 三套 e2e + 浏览器截图回归全过
+- [x] 目录规范入档：CONVENTIONS 三端目录树 + 落位决策表 + 目录纪律 15-19；AGENTS.md 增落位硬规则
 
 ## Backlog
 - [ ] 真实微信支付（等主体+商户号资质）

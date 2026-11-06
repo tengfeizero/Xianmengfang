@@ -18,6 +18,12 @@
 
 **验收**：vue-tsc + vite build + eslint 全过；小程序 node --check + JSON 全过；m0/m1/mp 三套 e2e 全过（金额/快照对账一致）；Edge 实测登录→四页截图，按需引入样式无异常。
 
+**文档：目录规范入档**
+- `docs/CONVENTIONS.md` 原「目录结构」重写为规范章节：仓库总览（根目录只允许 AGENTS.md + docs/ server/ web/ miniprogram/）→ server/ web/ miniprogram/ 三端完整目录树（每层注明职责与禁止事项）→ **新增文件落位决策表**（新接口/业务规则/表字段/配置项/管理页/跨页组件/小程序页/脚本/文档 → 落点 + 需同步的文档）→ 目录纪律 15-19
+- 纪律编号重排为 硬性 1-9 → 前端 10-14 → 目录 15-19，去掉「提交」重复条；`handlers_<域>.go` 定为新增接口的命名方式（handlers_m1/m2 为历史切法，不再沿用）
+- `AGENTS.md` 增一条硬规则：新增文件必须按落位表放，找不到落点先问，不在根目录或 `web/src/` 平铺
+- `docs/AI协作开发流程.md`：文档体系表标注 CONVENTIONS 含目录规范与落位表，并补一段"为什么目录规范也要写进 CONVENTIONS"（v0.7 前根目录出现 login.yaml/orders.yaml 的根因是没有落点规则，不是马虎）
+
 ## v0.6 (2026-11-06) — 收货地址管理
 - 后端：addresses 表 + AddressService（上限 20 条、默认地址唯一、第一个自动默认、删默认自动补位最新一条、手机号 `^1\d{10}$` 校验、归属校验）；用户端 CRUD + 设默认 5 个接口
 - 下单改造：POST /orders 必传 address_id，收货信息**快照**进订单（receiver_name/phone/address），地址后续修改不影响历史订单；无地址/他人地址/非法地址下单分别 400/403/400

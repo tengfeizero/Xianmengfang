@@ -4,6 +4,7 @@
 
 - 技术栈：Go 1.22+（Gin + GORM + SQLite，后期迁 PostgreSQL，禁止提前引入 MQ/Redis/ES）；前端为微信小程序原生 + Vue 3 + TS + Element Plus
 - 分层：api 只做参数绑定和鉴权，repo 只做 CRUD，业务规则（金额、库存、状态机、配额）全部在 service 层
+- 目录：新增文件必须按 docs/CONVENTIONS.md「目录结构 › 落位决策表」放；仓库根只允许 AGENTS.md + docs/ server/ web/ miniprogram/，找不到落点先问，不要新建散文件或平铺
 - 金额一律 int（分），禁止 float 参与金额计算；数量 int
 - 每次改动必须：`go vet ./... && go test ./...` 通过，Web 后端实测后才能报告"完成"；必须给出证据（命令输出/截图/断言），不接受"我改好了"
 - 订单状态机见 docs/DATA-MODEL.md，状态流转只允许在 service 层发生
