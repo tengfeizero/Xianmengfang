@@ -22,7 +22,7 @@
 | GET | /user/products/:id | 商品详情 | ✅ 已实现 |
 | POST | /user/orders | 下单（address_id 必传、items:[{sku_id、work_id 可空、qty}]；mock 支付直达待接单；收货信息快照进订单） | ✅ 已实现 |
 | GET | /user/orders | 我的订单（?status= 筛选） | ✅ 已实现 |
-| GET | /user/orders/:id | 订单详情（含明细+物流+收货快照） | ✅ 已实现 |
+| GET | /user/orders/:id | 订单详情（明细含商品图/作品图 + 物流 + 状态流水 + 金额明细，结构见下文） | ✅ 已实现 |
 | POST | /user/orders/:id/confirm | 确认收货 | ✅ 已实现 |
 | POST | /user/orders/:id/cancel | 取消订单（仅待接单，恢复库存） | ✅ 已实现 |
 | GET | /user/addresses | 收货地址列表（默认优先） | ✅ 已实现 |
@@ -38,6 +38,38 @@
 | GET | /user/works | 我的作品库 | ✅ 已实现 |
 | GET | /user/works/:id | 作品详情 | ✅ 已实现 |
 | DELETE | /user/works/:id | 删除作品（软删） | ✅ 已实现 |
+
+### 订单详情响应（GET /user/orders/:id）
+
+```json
+{
+  "order": {
+    "id": 1, "order_no": "XMF20261106131900", "status": "shipped", "pay_type": "mock",
+    "total_cents": 19800, "refund_flag": 0, "cancel_reason": "",
+    "receiver_name": "张三", "receiver_phone": "13800001111",
+    "receiver_address": "广东省深圳市南山区科技园 1 号楼 502",
+    "paid_at": "2026-11-06T13:19:00+08:00", "shipped_at": "2026-11-06T13:19:00+08:00", "done_at": null,
+    "created_at": "2026-11-06T13:19:00+08:00"
+  },
+  "items": [{
+    "id": 1, "sku_id": 1, "work_id": 1, "title": "定制图案T恤",
+    "specs": "{\"尺码\":\"M\",\"颜色\":\"白\"}", "price_cents": 9900, "qty": 2,
+    "image_url": "", "work_image_url": "/static/collage_20261106131900_2421.png"
+  }],
+  "shipment": { "company": "顺丰速运", "tracking_no": "SF123456789", "created_at": "2026-11-06T13:19:00+08:00" },
+  "events": [
+    { "from": "", "to": "pending_accept", "operator": "user:1", "note": "下单，模拟支付成功", "created_at": "..." },
+    { "from": "pending_accept", "to": "pending_ship", "operator": "admin:1", "note": "接单", "created_at": "..." },
+    { "from": "pending_ship", "to": "shipped", "operator": "admin:1", "note": "发货：顺丰速运 SF123456789", "created_at": "..." }
+  ],
+  "amounts": { "items_cents": 19800, "shipping_cents": 0, "discount_cents": 0, "total_cents": 19800 }
+}
+```
+
+- `items[].image_url`：商品首图（`product.images` 的第一张，可能为空）；`work_image_url`：绑定作品的图（无绑定为 null）。两者都不进订单快照，取的是当前商品/作品图——商品换图会改变历史订单展示（MVP 接受）
+- `events`：`order_events` 流水，按发生顺序返回，可直接渲染时间轴；`operator` 形如 `user:12` / `admin:1`
+- `amounts`：订单表暂无运费/优惠独立字段，`shipping_cents` 与 `discount_cents` 由 `total_cents - items_cents` 反推（当前均为 0）
+- 他人订单 403、不存在 404（归属校验在 service 层）
 
 ## 管理后台 — 前缀 `/api/v1/admin`
 

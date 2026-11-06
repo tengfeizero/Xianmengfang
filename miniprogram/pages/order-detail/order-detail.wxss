@@ -1,37 +1,249 @@
-.row-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10rpx;
+/* 底部安全区留白：避免固定操作栏遮挡最后一个卡片 */
+.page {
+  padding-bottom: 150rpx;
 }
-.status {
-  font-size: 34rpx;
+
+/* 状态头 */
+.hero {
+  background: linear-gradient(135deg, #ffa8bd 0%, #ff7ea0 100%);
+  color: #fff;
+  padding: 36rpx 32rpx 40rpx;
+}
+.hero-status {
+  font-size: 40rpx;
   font-weight: 600;
 }
-.warn {
-  color: #ff5c7a;
-  margin-top: 8rpx;
+.hero-desc {
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  opacity: 0.92;
 }
-.order-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12rpx 0;
-  border-bottom: 2rpx solid #f7f2f0;
+.hero-tip {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8rpx;
+  padding: 8rpx 14rpx;
+  display: inline-block;
 }
-.oi-left {
-  flex: 1;
-}
-.oi-right {
-  text-align: right;
-}
-.total-row {
-  margin-top: 16rpx;
-  font-weight: 600;
+
+/* 通用键值行 */
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  margin: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.04);
 }
 .sec-title {
   font-weight: 600;
-  margin-bottom: 12rpx;
+  margin-bottom: 16rpx;
 }
-.confirm-btn {
-  margin: 30rpx 20rpx;
+.kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10rpx 0;
+  font-size: 27rpx;
+}
+.k {
+  color: #999;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+.v {
+  text-align: right;
+  word-break: break-all;
+}
+.mono {
+  font-family: Menlo, Consolas, monospace;
+  font-size: 25rpx;
+}
+.copy {
+  color: #ff7ea0;
+  font-size: 24rpx;
+  margin-left: 14rpx;
+  padding: 2rpx 6rpx;
+}
+
+/* 进度时间轴 */
+.timeline {
+  padding-top: 4rpx;
+}
+.tl-item {
+  display: flex;
+}
+.tl-rail {
+  width: 34rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.tl-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #e6dcd8;
+  margin-top: 10rpx;
+}
+.latest .tl-dot {
+  width: 18rpx;
+  height: 18rpx;
+  background: #ff7ea0;
+  box-shadow: 0 0 0 6rpx rgba(255, 126, 160, 0.15);
+  margin-top: 8rpx;
+}
+.tl-line {
+  flex: 1;
+  width: 2rpx;
+  background: #f0e6e2;
+  margin: 4rpx 0;
+}
+.tl-body {
+  flex: 1;
+  padding: 0 0 26rpx 10rpx;
+}
+.tl-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.tl-action {
+  font-size: 27rpx;
+}
+.latest .tl-action {
+  font-weight: 600;
+  color: #ff5c7a;
+}
+.tl-note {
+  margin-top: 4rpx;
+}
+
+/* 商品明细 */
+.item {
+  display: flex;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid #f7f2f0;
+}
+.item-img {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 12rpx;
+  background: #f7f2f0;
+  flex-shrink: 0;
+}
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c8bfba;
+  font-size: 22rpx;
+}
+.item-main {
+  flex: 1;
+  margin-left: 20rpx;
+  min-width: 0;
+}
+.item-title {
+  font-size: 28rpx;
+  line-height: 1.4;
+}
+.work-line {
+  display: flex;
+  align-items: center;
+  margin-top: 10rpx;
+}
+.work-img {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 8rpx;
+  margin-right: 10rpx;
+  background: #f7f2f0;
+}
+.item-foot {
+  display: flex;
+  align-items: baseline;
+  margin-top: 10rpx;
+  font-size: 26rpx;
+}
+.item-foot .muted {
+  margin: 0 16rpx;
+}
+.subtotal {
+  margin-left: auto;
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 金额 */
+.amounts {
+  margin-top: 12rpx;
+}
+.total {
+  margin-top: 6rpx;
+  padding-top: 14rpx;
+  border-top: 2rpx solid #f7f2f0;
+  font-weight: 600;
+}
+.total-price {
+  font-size: 36rpx;
+}
+
+/* 收货信息 */
+.recv-top {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+}
+.recv-name {
+  font-weight: 600;
+  margin-right: 16rpx;
+}
+.recv-addr {
+  margin-top: 10rpx;
+  font-size: 27rpx;
+  line-height: 1.5;
+  color: #444;
+}
+.recv-ops {
+  margin-top: 6rpx;
+  text-align: right;
+}
+.recv-ops .copy {
+  margin-left: 0;
+}
+
+/* 物流 */
+.ship-tip {
+  margin-top: 10rpx;
+}
+
+/* 底部操作栏 */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 18rpx 24rpx calc(18rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+.footer button + button {
+  margin-left: 20rpx;
+}
+.footer button {
+  margin: 0;
+  min-width: 220rpx;
+  font-size: 30rpx;
+  line-height: 2.4;
+}
+.btn-ghost {
+  background: #fff;
+  color: #666;
+  border: 2rpx solid #e6dcd8;
+  border-radius: 40rpx;
 }

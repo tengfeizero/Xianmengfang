@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 
 	"xmf/internal/model"
@@ -190,16 +191,12 @@ func (h *Handlers) orderList(c *gin.Context) {
 
 func (h *Handlers) orderDetail(c *gin.Context) {
 	claims := c.MustGet("claims").(*service.Claims)
-	var o model.Order
-	if err := h.DB.First(&o, c.Param("id")).Error; err != nil {
-		fail(c, 404, "订单不存在")
+	o, err := h.Orders.GetForUser(paramID(c), claims.UserID)
+	if err != nil {
+		failErr(c, err)
 		return
 	}
-	if o.UserID != claims.UserID {
-		fail(c, 403, "无权查看该订单")
-		return
-	}
-	ok(c, withDetails(h.DB, []model.Order{o})[0])
+	ok(c, orderDetailView(h.DB, *o))
 }
 
 func (h *Handlers) orderConfirm(c *gin.Context) {
@@ -289,6 +286,7 @@ func (h *Handlers) adminOrderRefundMark(c *gin.Context) {
 
 // ---- 辅助 ----
 
+// withDetails 列表用：明细 + 物流（不查图片与流水，列表不需要）
 func withDetails(db *gorm.DB, orders []model.Order) []gin.H {
 	list := make([]gin.H, 0, len(orders))
 	for _, o := range orders {
@@ -302,4 +300,85 @@ func withDetails(db *gorm.DB, orders []model.Order) []gin.H {
 		list = append(list, gin.H{"order": o, "items": items, "shipment": shipment})
 	}
 	return list
+}
+
+// orderItemView 订单明细展示视图：订单快照字段 + 商品首图 + 绑定作品图。
+// 图不在快照里，取当前商品/作品的图（商品换图会改变历史订单展示，MVP 接受）。
+type orderItemView struct {
+	model.OrderItem
+	ImageURL     string `json:"image_url"`
+	WorkImageURL string `json:"work_image_url"`
+}
+
+// orderAmounts 金额明细（分）。订单表无运费/优惠独立字段，由合计差额反推。
+type orderAmounts struct {
+	ItemsCents    int64 `json:"items_cents"`
+	ShippingCents int64 `json:"shipping_cents"`
+	DiscountCents int64 `json:"discount_cents"`
+	TotalCents    int64 `json:"total_cents"`
+}
+
+// orderDetailView 单条订单的完整详情：明细（含图）、物流、状态流水、金额明细
+func orderDetailView(db *gorm.DB, o model.Order) gin.H {
+	var items []model.OrderItem
+	db.Where("order_id = ?", o.ID).Order("id asc").Find(&items)
+
+	views := make([]orderItemView, 0, len(items))
+	var itemsTotal int64
+	for _, it := range items {
+		v := orderItemView{OrderItem: it}
+		var sku model.SKU
+		if err := db.First(&sku, it.SKUID).Error; err == nil {
+			var p model.Product
+			if err := db.First(&p, sku.ProductID).Error; err == nil {
+				v.ImageURL = firstImage(p.Images)
+			}
+		}
+		if it.WorkID != nil {
+			var w model.Work
+			if err := db.First(&w, *it.WorkID).Error; err == nil {
+				v.WorkImageURL = w.ThumbnailURL
+				if v.WorkImageURL == "" {
+					v.WorkImageURL = w.ImageURL
+				}
+			}
+		}
+		itemsTotal += it.PriceCents * int64(it.Qty)
+		views = append(views, v)
+	}
+
+	var shipment *model.Shipment
+	var sh model.Shipment
+	if err := db.Where("order_id = ?", o.ID).Order("id desc").First(&sh).Error; err == nil {
+		shipment = &sh
+	}
+
+	events := make([]model.OrderEvent, 0, 4)
+	db.Where("order_id = ?", o.ID).Order("id asc").Find(&events)
+
+	shipping := o.TotalCents - itemsTotal
+	if shipping < 0 {
+		shipping = 0
+	}
+	discount := itemsTotal + shipping - o.TotalCents
+	if discount < 0 {
+		discount = 0
+	}
+
+	return gin.H{
+		"order":    o,
+		"items":    views,
+		"shipment": shipment,
+		"events":   events,
+		"amounts":  orderAmounts{ItemsCents: itemsTotal, ShippingCents: shipping, DiscountCents: discount, TotalCents: o.TotalCents},
+	}
+}
+
+// firstImage 从商品 images 的 JSON 数组里取首图
+func firstImage(raw string) string {
+	var arr []string
+	if err := json.Unmarshal([]byte(raw), &arr); err != nil || len(arr) == 0 {
+		return ""
+	}
+	return arr[0]
 }

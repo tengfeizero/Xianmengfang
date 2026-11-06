@@ -54,11 +54,11 @@ func (s *OrderService) Create(userID int64, items []ItemInput, addr *model.Addre
 	var total int64
 	now := time.Now()
 	order := &model.Order{
-		OrderNo:  genOrderNo(now),
-		UserID:   userID,
-		Status:   StatusPendingAccept,
-		PayType:  "mock",
-		PaidAt:   &now,
+		OrderNo: genOrderNo(now),
+		UserID:  userID,
+		Status:  StatusPendingAccept,
+		PayType: "mock",
+		PaidAt:  &now,
 	}
 	if addr != nil {
 		order.ReceiverName = addr.Name
@@ -119,6 +119,21 @@ func (s *OrderService) Create(userID int64, items []ItemInput, addr *model.Addre
 		return nil, err
 	}
 	return &CreateResult{Order: order, TotalCents: total}, nil
+}
+
+// GetForUser 取用户自己的订单。归属校验属于业务规则，api 层不自己判断。
+func (s *OrderService) GetForUser(orderID, userID int64) (*model.Order, error) {
+	var o model.Order
+	if err := s.DB.First(&o, orderID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	if o.UserID != userID {
+		return nil, ErrForbidden
+	}
+	return &o, nil
 }
 
 // Cancel 取消订单。用户只能取消待接单；管理员可取消待接单和待发货。取消恢复库存。

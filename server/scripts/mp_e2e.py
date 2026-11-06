@@ -112,7 +112,11 @@ st, d = req("POST", "/user/orders/%d/confirm" % oid, ut)
 assert st == 200
 st, d = req("GET", "/user/orders/%d" % oid, ut)
 assert d["data"]["order"]["status"] == "done" and d["data"]["shipment"]["tracking_no"] == "SF777"
-steps.append("订单列表/详情/接单/发货/确认收货 OK（含中文物流名）")
+detail = d["data"]
+assert detail["amounts"]["total_cents"] == total == detail["amounts"]["items_cents"]
+assert len(detail["events"]) == 4 and detail["events"][-1]["to"] == "done", detail["events"]
+assert detail["items"][0]["work_image_url"], "订单详情缺少作品图"
+steps.append("订单列表/详情/接单/发货/确认收货 OK（金额明细、状态流水 4 条、作品图，含中文物流名）")
 
 print("小程序调用链全部通过：")
 for s in steps:
