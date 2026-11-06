@@ -24,7 +24,19 @@ export interface Product {
   id: number
   category_id: number
   title: string
+  subtitle: string
   description: string
+  /** JSON 数组字符串：商品主图，首张为封面 */
+  images: string
+  /** 划线价（分），0 不展示，不参与结算 */
+  original_price_cents: number
+  unit: string
+  /** 文字详情，空行分段 */
+  detail: string
+  /** JSON 数组字符串：详情长图 */
+  detail_images: string
+  service_notes: string
+  sort: number
   status: number
   skus: Sku[]
 }

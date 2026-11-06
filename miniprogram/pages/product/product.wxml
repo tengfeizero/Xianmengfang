@@ -14,10 +14,33 @@
     <view class="addr-manage" catchtap="manageAddress">管理地址 ›</view>
   </view>
 
+  <view class="card gallery-card">
+    <swiper wx:if="{{product.images.length > 1}}" class="gallery" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#ffffff" circular>
+      <swiper-item wx:for="{{product.images}}" wx:key="*this">
+        <image class="gallery-img" src="{{item}}" mode="aspectFill" data-url="{{item}}" bindtap="previewImage" />
+      </swiper-item>
+    </swiper>
+    <image
+      wx:else
+      class="p-cover"
+      src="{{product.images[0]}}"
+      mode="aspectFill"
+      data-url="{{product.images[0]}}"
+      bindtap="previewImage"
+    />
+  </view>
+
   <view class="card">
-    <image class="p-cover" src="{{product.cover}}" mode="aspectFill" />
     <view class="p-title">{{product.title}}</view>
-    <view class="muted">{{product.description}}</view>
+    <view wx:if="{{product.subtitle}}" class="p-subtitle">{{product.subtitle}}</view>
+    <view class="price-row">
+      <view class="p-price">¥{{product.priceText}}<text wx:if="{{skus.length > 1}}" class="p-price-suffix"> 起</text></view>
+      <view wx:if="{{product.originalText}}" class="p-origin">¥{{product.originalText}}</view>
+    </view>
+    <view wx:if="{{product.serviceNotes}}" class="service-notes">
+      <text class="service-label">服务</text>
+      <text>{{product.serviceNotes}}</text>
+    </view>
   </view>
 
   <view class="card">
@@ -36,6 +59,7 @@
     <view class="qty-row">
       <text>数量</text>
       <input class="qty-input" type="number" value="{{qty}}" bindblur="onQty" />
+      <text class="muted">共 {{qty}} {{product.unit}}</text>
     </view>
   </view>
 
@@ -55,6 +79,22 @@
       </view>
     </scroll-view>
   </view>
+
+  <view class="card" wx:if="{{product.detailParagraphs.length || product.detailImages.length}}">
+    <view class="sec-title">图文详情</view>
+    <view class="detail-par" wx:for="{{product.detailParagraphs}}" wx:key="*this">{{item}}</view>
+    <image
+      wx:for="{{product.detailImages}}"
+      wx:key="*this"
+      class="detail-img"
+      src="{{item}}"
+      mode="widthFix"
+      data-url="{{item}}"
+      bindtap="previewImage"
+    />
+  </view>
+
+  <view class="refund-tip">提交订单即表示同意：定制商品不支持七天无理由退货</view>
 
   <view class="footer">
     <view class="footer-total">

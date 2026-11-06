@@ -81,7 +81,7 @@
 | POST | /admin/orders/:id/ship | 发货（物流公司+单号） | ✅ 已实现 |
 | POST | /admin/orders/:id/cancel | 后台取消（待接单/待发货，恢复库存） | ✅ 已实现 |
 | POST | /admin/orders/:id/refund_mark | 退款标记（仅标记，已发货/已完成） | ✅ 已实现 |
-| GET/POST/PUT/DELETE | /admin/products… | 商品管理（列表含下架，删除=下架） | ✅ 已实现 |
+| GET/POST/PUT/DELETE | /admin/products… | 商品管理（列表含下架，删除=下架）。v0.9 起支持 subtitle / images / original_price_cents / unit / detail / detail_images / service_notes / sort；images 与 detail_images 为 JSON 数组字符串；update 为全量覆盖语义，前端上下架时必须带全字段 | ✅ 已实现 |
 | POST/PUT/DELETE | /admin/skus… | SKU 管理（有订单引用的 SKU 禁止删除） | ✅ 已实现 |
 | GET/POST/PUT/DELETE | /admin/categories… | 商品分类管理（分类下有商品禁止删除） | ✅ 已实现 |
 | GET/POST/PUT/DELETE | /admin/elements… /boards… | 素材与底板管理（POST/GET/PUT/DELETE） | ✅ 已实现 |

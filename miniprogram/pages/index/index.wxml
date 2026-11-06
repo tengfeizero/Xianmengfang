@@ -12,8 +12,11 @@
     <image class="goods-img" src="{{item.cover}}" mode="aspectFill" />
     <view class="goods-info">
       <view class="goods-title">{{item.title}}</view>
-      <view class="muted goods-desc">{{item.description}}</view>
-      <view class="price">¥{{item.priceText}} 起</view>
+      <view class="muted goods-desc">{{item.subtitle}}</view>
+      <view class="price-row">
+        <view class="price">¥{{item.priceText}} <text class="price-unit">起</text></view>
+        <view wx:if="{{item.originalText}}" class="price-origin">¥{{item.originalText}}</view>
+      </view>
     </view>
   </view>
 </view>

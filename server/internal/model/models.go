@@ -43,11 +43,18 @@ type ProductCategory struct {
 // Product 商品 SPU
 type Product struct {
 	Model
-	CategoryID  int64  `gorm:"index" json:"category_id"`
-	Title       string `gorm:"size:64" json:"title"`
-	Description string `json:"description"`
-	Images      string `gorm:"type:text" json:"images"` // json 数组
-	Status      int    `json:"status"`                  // 1 上架 0 下架
+	CategoryID         int64  `gorm:"index" json:"category_id"`
+	Title              string `gorm:"size:64" json:"title"`
+	Subtitle           string `gorm:"size:128" json:"subtitle"`       // 卖点副标题，列表第二行
+	Description        string `json:"description"`                    // 兼容字段：一句话简介，详情页不用
+	Images             string `gorm:"type:text" json:"images"`        // json 数组，商品主图（首张为封面）
+	OriginalPriceCents int64  `json:"original_price_cents"`           // 划线价，0 表示不展示，不参与结算
+	Unit               string `gorm:"size:8" json:"unit"`             // 计价单位：件/个/套
+	Detail             string `gorm:"type:text" json:"detail"`        // 文字详情，空行分段
+	DetailImages       string `gorm:"type:text" json:"detail_images"` // json 数组，详情长图
+	ServiceNotes       string `gorm:"size:255" json:"service_notes"`  // 服务承诺 + 售后例外
+	Sort               int    `json:"sort"`                           // 排序权重，大的靠前
+	Status             int    `json:"status"`                         // 1 上架 0 下架
 }
 
 // SKU 商品规格
@@ -109,13 +116,13 @@ type Address struct {
 // Order 订单
 type Order struct {
 	Model
-	OrderNo        string     `gorm:"uniqueIndex;size:32" json:"order_no"`
-	UserID         int64      `gorm:"index" json:"user_id"`
-	Status         string     `gorm:"size:20;index" json:"status"`
-	PayType        string     `gorm:"size:10" json:"pay_type"` // mock / wxpay
-	TotalCents     int64      `json:"total_cents"`
-	RefundFlag     int        `json:"refund_flag"` // 仅标记，MVP 无退款资金流
-	CancelReason   string     `json:"cancel_reason"`
+	OrderNo      string `gorm:"uniqueIndex;size:32" json:"order_no"`
+	UserID       int64  `gorm:"index" json:"user_id"`
+	Status       string `gorm:"size:20;index" json:"status"`
+	PayType      string `gorm:"size:10" json:"pay_type"` // mock / wxpay
+	TotalCents   int64  `json:"total_cents"`
+	RefundFlag   int    `json:"refund_flag"` // 仅标记，MVP 无退款资金流
+	CancelReason string `json:"cancel_reason"`
 	// 收货信息快照（下单时从 Address 复制，地址后续修改不影响历史订单）
 	ReceiverName    string     `gorm:"size:32" json:"receiver_name"`
 	ReceiverPhone   string     `gorm:"size:16" json:"receiver_phone"`

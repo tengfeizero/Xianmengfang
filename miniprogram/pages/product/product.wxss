@@ -111,3 +111,90 @@
 .footer-btn {
   width: 340rpx;
 }
+.gallery-card {
+  padding: 0;
+  overflow: hidden;
+}
+.gallery {
+  width: 100%;
+  height: 640rpx;
+}
+.gallery-img {
+  width: 100%;
+  height: 640rpx;
+  background: #f5f0ee;
+}
+.p-title {
+  margin-top: 0;
+}
+.p-subtitle {
+  font-size: 26rpx;
+  color: #8a8580;
+  margin-bottom: 12rpx;
+}
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+}
+.p-price {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #ff5c8a;
+}
+.p-price-suffix {
+  font-size: 24rpx;
+  font-weight: 400;
+}
+.p-origin {
+  font-size: 24rpx;
+  color: #b8b0aa;
+  text-decoration: line-through;
+}
+.service-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-top: 16rpx;
+  padding: 14rpx 18rpx;
+  background: #fff7f9;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  color: #8a6d70;
+  line-height: 1.5;
+}
+.service-label {
+  flex-shrink: 0;
+  background: #ff7ea0;
+  color: #fff;
+  font-size: 20rpx;
+  border-radius: 8rpx;
+  padding: 2rpx 10rpx;
+  margin-top: 2rpx;
+}
+.detail-par {
+  font-size: 26rpx;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 16rpx;
+  white-space: pre-wrap;
+}
+.detail-img {
+  width: 100%;
+  border-radius: 10rpx;
+  margin-bottom: 16rpx;
+  display: block;
+  background: #f5f0ee;
+}
+.refund-tip {
+  text-align: center;
+  font-size: 22rpx;
+  color: #b0a8a2;
+  padding: 8rpx 0 140rpx;
+}
+.footer-total {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+}

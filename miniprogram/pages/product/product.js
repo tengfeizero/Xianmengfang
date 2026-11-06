@@ -37,12 +37,30 @@ Page({
           priceText: fen2yuan(s.price_cents),
           stock: s.stock,
         }))
+        const p = d.product
+        const rawSkus = d.skus || []
+        const minCents = rawSkus.length
+          ? Math.min.apply(
+              null,
+              rawSkus.map((s) => s.price_cents)
+            )
+          : 0
         this.setData({
           product: {
-            id: d.product.id,
-            title: d.product.title,
-            description: d.product.description,
-            cover: img(this.firstImg(d.product.images)),
+            id: p.id,
+            title: p.title,
+            subtitle: p.subtitle,
+            images: this.parseList(p.images).map(img),
+            priceText: fen2yuan(minCents),
+            // 划线价只有高于最低售价才有"优惠"含义
+            originalText: p.original_price_cents > minCents ? fen2yuan(p.original_price_cents) : '',
+            unit: p.unit || '件',
+            detailParagraphs: (p.detail || '')
+              .split(/\n\s*\n/)
+              .map((s) => s.trim())
+              .filter(Boolean),
+            detailImages: this.parseList(p.detail_images).map(img),
+            serviceNotes: p.service_notes,
           },
           skus,
           selectedSku: skus.length === 1 ? skus[0] : null,
@@ -51,12 +69,20 @@ Page({
       .catch((e) => wx.showToast({ title: e.message, icon: 'none' }))
   },
 
-  firstImg(imagesJson) {
+  parseList(imagesJson) {
     try {
-      return JSON.parse(imagesJson || '[]')[0] || ''
+      return JSON.parse(imagesJson || '[]') || []
     } catch (e) {
-      return ''
+      return []
     }
+  },
+
+  // 主图/详情图点开大图，可左右滑动
+  previewImage(e) {
+    const url = e.currentTarget.dataset.url
+    if (!url) return
+    const urls = this.data.product.images.concat(this.data.product.detailImages)
+    wx.previewImage({ current: url, urls: urls.length ? urls : [url] })
   },
 
   specsText(specsJson) {

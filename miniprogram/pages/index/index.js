@@ -20,13 +20,18 @@ Page({
     api
       .request('GET', '/products')
       .then((list) => {
-        const products = (list || []).map((p) => ({
-          id: p.id,
-          title: p.title,
-          description: p.description,
-          cover: img(this.firstImg(p.images)),
-          priceText: fen2yuan(this.minPrice(p.skus)),
-        }))
+        const products = (list || []).map((p) => {
+          const min = this.minPrice(p.skus)
+          return {
+            id: p.id,
+            title: p.title,
+            subtitle: p.subtitle || p.description,
+            cover: img(this.firstImg(p.images)),
+            priceText: fen2yuan(min),
+            // 划线价只在高于最低售价时展示，否则没有"优惠"含义
+            originalText: p.original_price_cents > min ? fen2yuan(p.original_price_cents) : '',
+          }
+        })
         this.setData({ products, loading: false })
       })
       .catch((e) => {

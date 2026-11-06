@@ -54,8 +54,12 @@
 
 ### product_categories（商品分类）· products（商品 SPU）· skus
 - categories：name / sort / status
-- products：category_id / title / description / images / status（上下架）
+- products（v0.9 起）：category_id / title / **subtitle 副标题** / description（兼容一句话简介）/
+  **images JSON 数组（主图，首张封面）** / **original_price_cents 划线价（0 不展示，不参与结算）** /
+  **unit 计价单位** / **detail 文字详情（空行分段）** / **detail_images JSON 数组（详情长图）** /
+  **service_notes 服务承诺 + 售后例外** / **sort 排序权重** / status（上下架）
 - skus：product_id / specs json（如 `{"尺码":"M","颜色":"白"}`）/ **price_cents int** / **stock int** / code
+- 字段取舍与 P1/P2 规划（attrs、skus.image_url、tags、起订量、运费模板等）见 PRD 3.2.1
 
 ### orders（订单）· order_items（明细）· shipments（发货）
 | 字段 | 说明 |

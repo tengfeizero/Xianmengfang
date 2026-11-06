@@ -24,7 +24,17 @@ export function listProducts() {
 export interface ProductInput {
   category_id: number
   title: string
+  subtitle: string
   description: string
+  /** JSON 数组字符串 */
+  images: string
+  original_price_cents: number
+  unit: string
+  detail: string
+  /** JSON 数组字符串 */
+  detail_images: string
+  service_notes: string
+  sort: number
   status?: number
 }
 

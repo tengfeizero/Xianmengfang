@@ -101,7 +101,7 @@ func (h *Handlers) adminLogin(c *gin.Context) {
 
 func (h *Handlers) productList(c *gin.Context) {
 	var products []model.Product
-	if err := h.DB.Where("status = 1").Order("id").Find(&products).Error; err != nil {
+	if err := h.DB.Where("status = 1").Order("sort desc, id").Find(&products).Error; err != nil {
 		fail(c, 500, "获取商品失败，请稍后再试")
 		return
 	}

@@ -72,16 +72,54 @@ func (h *Handlers) adminCategoryDelete(c *gin.Context) {
 // ---- 后台：商品与 SKU ----
 
 type productReq struct {
-	CategoryID  int64  `json:"category_id" binding:"required"`
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
-	Images      string `json:"images"`
-	Status      *int   `json:"status"`
+	CategoryID         int64  `json:"category_id" binding:"required"`
+	Title              string `json:"title" binding:"required"`
+	Subtitle           string `json:"subtitle"`
+	Description        string `json:"description"`
+	Images             string `json:"images"`
+	OriginalPriceCents int64  `json:"original_price_cents"`
+	Unit               string `json:"unit"`
+	Detail             string `json:"detail"`
+	DetailImages       string `json:"detail_images"`
+	ServiceNotes       string `json:"service_notes"`
+	Sort               int    `json:"sort"`
+	Status             *int   `json:"status"`
+}
+
+// normalize 补齐空值并校验长度（SQLite 不强制 varchar 长度，靠这里兜住）
+func (r *productReq) normalize() string {
+	if r.Images == "" {
+		r.Images = "[]"
+	}
+	if r.DetailImages == "" {
+		r.DetailImages = "[]"
+	}
+	if r.Unit == "" {
+		r.Unit = "件"
+	}
+	if r.OriginalPriceCents < 0 {
+		r.OriginalPriceCents = 0
+	}
+	if n := len([]rune(r.Title)); n == 0 {
+		return "请填写商品名称"
+	} else if n > 64 {
+		return "商品名称不能超过 64 个字"
+	}
+	if len([]rune(r.Subtitle)) > 128 {
+		return "副标题不能超过 128 个字"
+	}
+	if len([]rune(r.Unit)) > 8 {
+		return "单位不能超过 8 个字"
+	}
+	if len([]rune(r.ServiceNotes)) > 255 {
+		return "服务承诺不能超过 255 个字"
+	}
+	return ""
 }
 
 func (h *Handlers) adminProductList(c *gin.Context) {
 	var products []model.Product
-	q := h.DB.Order("id desc")
+	q := h.DB.Order("sort desc, id desc")
 	if s := c.Query("status"); s != "" {
 		q = q.Where("status = ?", s)
 	}
@@ -108,15 +146,22 @@ func (h *Handlers) adminProductCreate(c *gin.Context) {
 		fail(c, 400, "参数错误")
 		return
 	}
+	if msg := req.normalize(); msg != "" {
+		fail(c, 400, msg)
+		return
+	}
 	var cat model.ProductCategory
 	if err := h.DB.Where("status = 1").First(&cat, req.CategoryID).Error; err != nil {
 		fail(c, 400, "分类不存在")
 		return
 	}
-	if req.Images == "" {
-		req.Images = "[]"
+	p := model.Product{
+		CategoryID: req.CategoryID, Title: req.Title, Subtitle: req.Subtitle,
+		Description: req.Description, Images: req.Images,
+		OriginalPriceCents: req.OriginalPriceCents, Unit: req.Unit,
+		Detail: req.Detail, DetailImages: req.DetailImages,
+		ServiceNotes: req.ServiceNotes, Sort: req.Sort, Status: 1,
 	}
-	p := model.Product{CategoryID: req.CategoryID, Title: req.Title, Description: req.Description, Images: req.Images, Status: 1}
 	if err := h.DB.Create(&p).Error; err != nil {
 		fail(c, 500, "创建失败，请稍后再试")
 		return
@@ -130,9 +175,16 @@ func (h *Handlers) adminProductUpdate(c *gin.Context) {
 		fail(c, 400, "参数错误")
 		return
 	}
+	if msg := req.normalize(); msg != "" {
+		fail(c, 400, msg)
+		return
+	}
 	updates := map[string]any{
-		"category_id": req.CategoryID, "title": req.Title,
+		"category_id": req.CategoryID, "title": req.Title, "subtitle": req.Subtitle,
 		"description": req.Description, "images": req.Images,
+		"original_price_cents": req.OriginalPriceCents, "unit": req.Unit,
+		"detail": req.Detail, "detail_images": req.DetailImages,
+		"service_notes": req.ServiceNotes, "sort": req.Sort,
 	}
 	if req.Status != nil {
 		updates["status"] = *req.Status
