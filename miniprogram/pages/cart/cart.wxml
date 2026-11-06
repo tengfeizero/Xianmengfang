@@ -1,0 +1,73 @@
+<view class="wrap">
+  <block wx:if="{{items.length}}">
+    <!-- 收货地址 -->
+    <view class="card addr-card" bindtap="chooseAddress">
+      <block wx:if="{{selectedAddress}}">
+        <view class="addr-line">
+          <text class="addr-name">{{selectedAddress.name}}</text>
+          <text class="muted">{{selectedAddress.phone}}</text>
+        </view>
+        <view class="muted">{{selectedAddress.full}}</view>
+      </block>
+      <block wx:else>
+        <view class="addr-pick-tip">📍 请选择收货地址</view>
+      </block>
+      <view class="addr-arrow">›</view>
+    </view>
+
+    <!-- 商品列表 -->
+    <view class="card cart-item {{item.valid ? '' : 'invalid'}}" wx:for="{{items}}" wx:key="id">
+      <view
+        class="checkbox {{item.checked ? 'on' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="toggleItem"
+      >{{item.checked ? '✓' : ''}}</view>
+      <image
+        wx:if="{{item.workThumb}}"
+        class="thumb work-thumb"
+        src="{{item.workThumb}}"
+        mode="aspectFill"
+      />
+      <image wx:elif="{{item.cover}}" class="thumb" src="{{item.cover}}" mode="aspectFill" />
+      <view wx:else class="thumb thumb-empty">无图</view>
+      <view class="info">
+        <view class="title">{{item.title}}</view>
+        <view class="muted" wx:if="{{item.invalidReason}}" style="color:#e6a23c">{{item.invalidReason}}</view>
+        <view class="muted" wx:elif="{{item.specsText}}">{{item.specsText}}</view>
+        <view class="muted work-label" wx:if="{{item.workThumb}}">🎨 定制图案</view>
+        <view class="bottom">
+          <text class="price">¥{{item.priceText}}</text>
+          <view class="qty" wx:if="{{item.valid}}">
+            <view class="qty-btn" data-id="{{item.id}}" data-delta="-1" bindtap="changeQty">−</view>
+            <text class="qty-num">{{item.qty}}</text>
+            <view class="qty-btn" data-id="{{item.id}}" data-delta="1" bindtap="changeQty">＋</view>
+          </view>
+        </view>
+      </view>
+      <view class="del" data-id="{{item.id}}" catchtap="removeItem">删除</view>
+    </view>
+
+    <view class="hint">共 {{items.length}} 种商品 · 结算按下单时现价为准 · 全店包邮</view>
+  </block>
+
+  <empty-state wx:if="{{!loading && !items.length}}" text="购物车还是空的，去挑一件定制吧" />
+
+  <view wx:if="{{!loading && !items.length}}" class="empty-btn-wrap">
+    <button class="btn-pink empty-btn" bindtap="goShop">去逛逛</button>
+  </view>
+
+  <!-- 底部结算栏 -->
+  <view class="footer" wx:if="{{items.length}}">
+    <view class="check-all" bindtap="toggleAll">
+      <view class="checkbox {{allChecked ? 'on' : ''}}">{{allChecked ? '✓' : ''}}</view>
+      <text>全选</text>
+    </view>
+    <view class="footer-total">
+      <text class="muted">合计</text>
+      <text class="price total-price">¥{{totalText}}</text>
+    </view>
+    <button class="btn-pink footer-btn" disabled="{{submitting || checkedCount <= 0}}" bindtap="checkout">
+      {{submitting ? '结算中...' : '结算(' + checkedCount + ')'}}
+    </button>
+  </view>
+</view>

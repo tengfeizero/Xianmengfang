@@ -1,6 +1,7 @@
 const api = require('../../utils/request')
 const { fen2yuan } = require('../../utils/util')
 const { img } = require('../../config')
+const { refreshBadge } = require('../../utils/cartBadge')
 
 Page({
   data: {
@@ -20,6 +21,7 @@ Page({
     this.productId = Number(query.id)
     this.load()
     this.loadWorks()
+    refreshBadge()
   },
 
   // 从地址列表/编辑页返回时刷新地址
@@ -181,6 +183,29 @@ Page({
     const qty = Math.max(1, Math.min(99, Number(e.detail.value) || 1))
     this.setData({ qty })
     this.computeTotal()
+  },
+
+  // 加入购物车：当前规格 + 数量 + 可选作品。不需要地址。
+  addCart() {
+    if (!this.data.selectedSku) {
+      wx.showToast({ title: '请先选择规格', icon: 'none' })
+      return
+    }
+    if (this.data.selectedSku.stock <= 0) {
+      wx.showToast({ title: '该规格暂时缺货', icon: 'none' })
+      return
+    }
+    this.setData({ submitting: true })
+    const body = { sku_id: this.data.selectedSku.id, qty: this.data.qty }
+    if (this.data.selectedWork) body.work_id = this.data.selectedWork.id
+    api
+      .request('POST', '/cart', body)
+      .then(() => {
+        wx.showToast({ title: '已加入购物车', icon: 'success' })
+        refreshBadge()
+      })
+      .catch((e) => wx.showModal({ title: '加购失败', content: e.message, showCancel: false }))
+      .then(() => this.setData({ submitting: false }))
   },
 
   submit() {

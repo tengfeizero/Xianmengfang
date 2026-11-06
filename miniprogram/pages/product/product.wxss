@@ -109,7 +109,22 @@
   flex: 1;
 }
 .footer-btn {
-  width: 340rpx;
+  width: 240rpx;
+  margin: 0 0 0 16rpx;
+  padding: 0;
+  height: 76rpx;
+  line-height: 76rpx;
+  font-size: 28rpx;
+}
+.btn-outline {
+  background: #fff;
+  color: #ff7ea0;
+  border: 2rpx solid #ff7ea0;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+.btn-outline::after {
+  border: none;
 }
 .gallery-card {
   padding: 0;

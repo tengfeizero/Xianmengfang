@@ -1,12 +1,11 @@
 # TODO — 现梦坊
 
-## 购物车 ⏳ 进行中（v1.0，规划见 PRD 3.2.2）
-- [ ] 后端：cart_items 模型（唯一键 user+sku+work、checked 默认 1）+ CartService + 8 个接口（列表/加购/单项改/批量勾选/删单项/清空/checkout）
-- [ ] checkout 复用 OrderService.Create 一单多明细，成功后移除对应项；失效项拦截
-- [ ] 小程序：tabBar 第 5 个「购物车」页（勾选/全选/数量步进/失效标灰/左滑或按钮删除/地址选择/结算）；商品页加「加入购物车」；tabBar 图标程序生成
-- [ ] 加购入口：商品页底部双按钮（加入购物车 / 立即购买）
-- [ ] e2e：cart 链路（加购累加 → 勾选结算一单多明细 → 金额对账 → 购物车项移除 → 失效项拦截）
-- [ ] 回归：go vet/test、小程序语法校验、m0/m1/mp 三套 e2e；文档 CHANGELOG
+## 购物车 ✅ 已完成（2026-11-06，v1.0，规划见 PRD 3.2.2）
+- [x] 后端：cart_items 模型（唯一键 user+sku+work、checked 默认 1）+ CartService + 8 个接口（列表/加购/单项改/批量勾选/删单项/清空/checkout）
+- [x] checkout 复用 OrderService.Create 一单多明细，成功后移除对应项；失效项拦截
+- [x] 小程序：tabBar 第 5 个「购物车」页（勾选/全选/数量步进/失效标灰/删除/地址选择/结算 + tabBar 角标）；商品页加「加入购物车」双按钮；tabBar 图标程序生成
+- [x] e2e：cart_e2e.py（加购累加 → 勾选结算一单多明细 → 金额对账 → 项移除 → 结算缺货 409 → 越权 403 → 清空）
+- [x] 回归：go vet/test、m0/m1/mp 三套 e2e、小程序全量校验；CHANGELOG/CONVENTIONS 同步
 
 ## 已完成
 - [x] 需求澄清，PRD v0.2（docs/PRD.md）

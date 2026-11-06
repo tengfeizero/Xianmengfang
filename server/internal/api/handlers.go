@@ -17,6 +17,7 @@ type Handlers struct {
 	Auth       *service.AuthService
 	Orders     *service.OrderService
 	Addresses  *service.AddressService
+	Carts      *service.CartService
 	AI         *service.AIService
 	UploadsDir string
 	Dev        bool // 是否允许开发者模拟登录

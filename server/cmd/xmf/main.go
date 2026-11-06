@@ -25,11 +25,13 @@ func main() {
 		log.Fatalf("写入演示数据失败: %v", err)
 	}
 
+	orders := &service.OrderService{DB: db}
 	h := &api.Handlers{
 		DB:         db,
 		Secret:     cfg.JWTSecret,
 		Auth:       service.NewAuthService(db, cfg.WxAppID, cfg.WxSecret),
-		Orders:     &service.OrderService{DB: db},
+		Orders:     orders,
+		Carts:      &service.CartService{DB: db, Orders: orders},
 		Addresses:  &service.AddressService{DB: db},
 		AI:         &service.AIService{DB: db, Provider: service.MockProvider{}, UploadsDir: uploadsDir},
 		UploadsDir: uploadsDir,

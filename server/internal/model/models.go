@@ -176,6 +176,17 @@ type AITask struct {
 	QuotaDate string `gorm:"size:10;index" json:"quota_date"`
 }
 
+// CartItem 购物车项（v1.0）。WorkID 用 0 表示未绑作品（而非 NULL），
+// 否则 SQLite 唯一索引视 NULL 互不相等，同款无作品会重复插入。
+type CartItem struct {
+	Model
+	UserID  int64 `gorm:"index;uniqueIndex:idx_cart_user_sku_work,priority:1" json:"user_id"`
+	SKUID   int64 `gorm:"column:sku_id;uniqueIndex:idx_cart_user_sku_work,priority:2" json:"sku_id"`
+	WorkID  int64 `gorm:"uniqueIndex:idx_cart_user_sku_work,priority:3" json:"work_id"` // 0 = 未绑作品
+	Qty     int   `json:"qty"`                                                          // 单件上限 99
+	Checked int   `json:"checked"`                                                      // 1 勾选 0 不勾，默认 1
+}
+
 // AllMigrations 全部迁移模型，AutoMigrate 幂等
 func AllMigrations() []any {
 	return []any{
@@ -183,5 +194,6 @@ func AllMigrations() []any {
 		&ProductCategory{}, &Product{}, &SKU{}, &Work{},
 		&Board{}, &Element{},
 		&Order{}, &OrderItem{}, &OrderEvent{}, &Shipment{}, &AITask{},
+		&CartItem{},
 	}
 }

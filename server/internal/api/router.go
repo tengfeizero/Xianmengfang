@@ -76,6 +76,15 @@ func Router(h *Handlers) *gin.Engine {
 		ug.PUT("/addresses/:id", h.addressUpdate)
 		ug.DELETE("/addresses/:id", h.addressDelete)
 		ug.POST("/addresses/:id/default", h.addressSetDefault)
+
+		// 购物车（v1.0）：PUT /cart 是批量勾选，PUT /cart/:id 是改数量/勾选
+		ug.GET("/cart", h.cartList)
+		ug.POST("/cart", h.cartAdd)
+		ug.PUT("/cart", h.cartSetChecked)
+		ug.PUT("/cart/:id", h.cartUpdate)
+		ug.DELETE("/cart/:id", h.cartRemove)
+		ug.DELETE("/cart", h.cartClear)
+		ug.POST("/cart/checkout", h.cartCheckout)
 	}
 
 	// 管理后台：登录公开，其余需管理员

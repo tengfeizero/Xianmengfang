@@ -74,7 +74,7 @@ miniprogram/
   app.js / app.json / app.wxss
   config.js              # 基址等集中配置，页面内禁止硬编码 URL
   components/            # 公共组件：empty-state、status-tag（externalClasses 定制外观）
-  images/tabbar/         # tabBar 图标 8 张（81×81，程序生成）
+  images/tabbar/         # tabBar 图标 10 张（5 项 × 普通选中，81×81，程序生成）
   pages/                 # 每页四件套 js/json/wxml/wxss，目录名 = 路由名
     index/ product/ studio/ ai/ works/ order-list/ order-detail/ address/ login/
   utils/                 # request.js（JWT/401/统一报错）、util.js（金额与状态文案）

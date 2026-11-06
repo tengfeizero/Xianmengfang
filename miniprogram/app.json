@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/cart/cart",
     "pages/studio/studio",
     "pages/works/works",
     "pages/order-list/order-list",
@@ -27,6 +28,12 @@
         "text": "商店",
         "iconPath": "images/tabbar/shop.png",
         "selectedIconPath": "images/tabbar/shop-active.png"
+      },
+      {
+        "pagePath": "pages/cart/cart",
+        "text": "购物车",
+        "iconPath": "images/tabbar/cart.png",
+        "selectedIconPath": "images/tabbar/cart-active.png"
       },
       {
         "pagePath": "pages/studio/studio",

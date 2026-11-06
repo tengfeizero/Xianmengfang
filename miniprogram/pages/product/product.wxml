@@ -100,8 +100,9 @@
     <view class="footer-total">
       合计 <text class="price">¥{{totalText}}</text>
     </view>
+    <button class="btn-outline footer-btn" disabled="{{submitting}}" bindtap="addCart">加入购物车</button>
     <button class="btn-pink footer-btn" disabled="{{submitting}}" bindtap="submit">
-      {{submitting ? '提交中...' : '模拟支付并下单'}}
+      {{submitting ? '提交中...' : '立即购买'}}
     </button>
   </view>
 </view>
