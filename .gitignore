@@ -1,0 +1,9 @@
+# 本地 AI 协作日记不入库（进仓库的现状以 docs/ 为准）
+.workbuddy/
+
+# Go 运行时数据与密钥
+server/data/
+*.db
+*.db-wal
+*.db-shm
+.jwt_secret
