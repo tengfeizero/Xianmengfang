@@ -1,6 +1,10 @@
 # 本地 AI 协作日记不入库（进仓库的现状以 docs/ 为准）
 .workbuddy/
 
+# 前端依赖与构建产物（部署时重新 npm install && npm run build）
+web/node_modules/
+web/dist/
+
 # 浏览器实测截图（临时证据）
 shots/
 .playwright-cli/
