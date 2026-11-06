@@ -1,11 +1,11 @@
 <view class="card">
   <view class="form-row">
     <text class="label">收货人</text>
-    <input class="input" value="{{name}}" data-field="name" bindinput="onInput" placeholder="姓名" />
+    <input class="input" value="{{name}}" data-field="name" bindinput="onInput" cursor-spacing="24" placeholder="姓名" />
   </view>
   <view class="form-row">
     <text class="label">手机号</text>
-    <input class="input" type="number" maxlength="11" value="{{phone}}" data-field="phone" bindinput="onInput" placeholder="11 位手机号" />
+    <input class="input" type="number" maxlength="11" value="{{phone}}" data-field="phone" bindinput="onInput" cursor-spacing="24" placeholder="11 位手机号" />
   </view>
   <view class="form-row">
     <text class="label">所在地区</text>
@@ -17,7 +17,7 @@
   </view>
   <view class="form-row col">
     <text class="label">详细地址</text>
-    <textarea class="input detail" value="{{detail}}" data-field="detail" bindinput="onInput" maxlength="120" placeholder="街道、门牌号、楼栋单元等" />
+    <input class="input detail" value="{{detail}}" data-field="detail" bindinput="onInput" maxlength="120" cursor-spacing="24" placeholder="街道、门牌号、楼栋单元等" />
   </view>
   <view class="form-row">
     <text class="label">设为默认</text>
