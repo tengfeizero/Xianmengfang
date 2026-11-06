@@ -61,6 +61,13 @@
 - skus：product_id / specs json（如 `{"尺码":"M","颜色":"白"}`）/ **price_cents int** / **stock int** / code
 - 字段取舍与 P1/P2 规划（attrs、skus.image_url、tags、起订量、运费模板等）见 PRD 3.2.1
 
+### cart_items（购物车，v1.0）
+- user_id（index）/ sku_id / work_id（可空，NULL 视为"未绑作品"参与唯一键）
+- **唯一键 (user_id, sku_id, work_id)**：同款同图重复加购 = 数量累加（单件 qty 上限 99，条数上限 50）
+- qty int / checked int（1 勾选 0 不勾，默认 1；勾选态存服务端，跨设备一致）
+- 不存快照：列表实时 join skus/products/works 渲染，金额一律按 SKU 现价；join 不上（商品下架/SKU 删除/作品软删）即渲染为"失效项"，标灰不可结算，由用户手动清理（SKU 删除有订单引用保护，物理删除罕见，不值得为它存快照）
+- 不锁库存：加购只校验库存 ≥ 1，扣减仍在下单事务里原子完成
+
 ### orders（订单）· order_items（明细）· shipments（发货）
 | 字段 | 说明 |
 |---|---|

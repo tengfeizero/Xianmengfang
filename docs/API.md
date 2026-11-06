@@ -25,6 +25,13 @@
 | GET | /user/orders/:id | 订单详情（明细含商品图/作品图 + 物流 + 状态流水 + 金额明细，结构见下文） | ✅ 已实现 |
 | POST | /user/orders/:id/confirm | 确认收货 | ✅ 已实现 |
 | POST | /user/orders/:id/cancel | 取消订单（仅待接单，恢复库存） | ✅ 已实现 |
+| GET | /user/cart | 购物车列表（实时 join 商品/SKU/作品；含勾选件数与金额汇总；失效项 `valid=false`） | ✅ 已实现 |
+| POST | /user/cart | 加购 `{sku_id, work_id?, qty}`（同款同图累加数量；单件 ≤99、≤50 条；校验上架与库存 ≥1） | ✅ 已实现 |
+| PUT | /user/cart/:id | 改数量 `{qty}` 或改勾选 `{checked}`（二选一或同传；归属校验 403） | ✅ 已实现 |
+| PUT | /user/cart | 批量勾选 `{checked, item_ids?}`（不传 item_ids 即全选/全不选） | ✅ 已实现 |
+| DELETE | /user/cart/:id | 删除单项 | ✅ 已实现 |
+| DELETE | /user/cart | 清空（`?checked=1` 只清已勾选） | ✅ 已实现 |
+| POST | /user/cart/checkout | 结算 `{address_id, item_ids}` → 一单多明细订单（复用下单校验与库存原子扣减），成功后移除对应购物车项 | ✅ 已实现 |
 | GET | /user/addresses | 收货地址列表（默认优先） | ✅ 已实现 |
 | POST | /user/addresses | 新增地址（第一个自动设默认；上限 20；手机号 ^1\d{10}$） | ✅ 已实现 |
 | PUT | /user/addresses/:id | 编辑地址（可改默认） | ✅ 已实现 |
@@ -70,6 +77,25 @@
 - `events`：`order_events` 流水，按发生顺序返回，可直接渲染时间轴；`operator` 形如 `user:12` / `admin:1`
 - `amounts`：订单表暂无运费/优惠独立字段，`shipping_cents` 与 `discount_cents` 由 `total_cents - items_cents` 反推（当前均为 0）
 - 他人订单 403、不存在 404（归属校验在 service 层）
+
+### 购物车响应约定（GET /user/cart）
+
+```json
+{
+  "items": [{
+    "id": 5, "sku_id": 1, "work_id": 3, "qty": 2, "checked": 1, "valid": true,
+    "title": "定制图案T恤", "specs": "{\"尺码\":\"M\",\"颜色\":\"白\"}",
+    "price_cents": 9900, "image_url": "/static/products/tee_main.png",
+    "work_thumb": "/static/collage_xxx.png", "stock": 99,
+    "invalid_reason": "", "created_at": "..."
+  }],
+  "summary": { "checked_count": 3, "checked_cents": 29700 }
+}
+```
+
+- `valid=false` 时 `invalid_reason` 为人话（商品已下架 / 商品规格已失效 / 作品已删除），前端标灰禁用勾选
+- `summary` 只统计勾选且有效项；价格是参考，结算以 SKU 现价为准
+- checkout 错误：`404 无可结算商品`、`400 请选择收货地址`、`409 商品库存不足`（下单原子扣减失败）、`400 含失效商品，请先移除`
 
 ## 管理后台 — 前缀 `/api/v1/admin`
 
