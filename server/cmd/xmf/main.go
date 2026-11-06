@@ -29,8 +29,9 @@ func main() {
 	var aiProvider service.Provider = service.MockProvider{}
 	if cfg.AIKey != "" {
 		aiProvider = &service.HunyuanProvider{
-			APIKey: cfg.AIKey, BaseURL: cfg.AIBaseURL,
-			Model: cfg.AIModel, Style: cfg.AIStyle,
+			APIKey: cfg.AIKey, SecretID: cfg.AISecretID,
+			BaseURL: cfg.AIBaseURL,
+			Model:   cfg.AIModel, Style: cfg.AIStyle,
 		}
 	}
 	h := &api.Handlers{

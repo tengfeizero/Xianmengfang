@@ -26,11 +26,12 @@ import (
 //   - "messages"（默认）：腾讯云 TokenHub /v1/wand/hunyuan-image/v35-generation
 //   - "images"：OpenAI 风格 /v1/images/generations（operation=text-to-image / image-edit）
 type HunyuanProvider struct {
-	APIKey  string
-	BaseURL string // 缺省 https://tokenhub-intl.tencentcloudmaas.com
-	Model   string // 缺省 hy-image-v3.5-preview
-	Style   string // messages | images
-	HTTP    *http.Client
+	APIKey   string // TokenHub SecretKey（sk），Bearer 鉴权用
+	SecretID string // TokenHub Key ID（ak），当前端点用不到，留档与预留签名类端点
+	BaseURL  string // 缺省 https://tokenhub-intl.tencentcloudmaas.com
+	Model    string // 缺省 hy-image-v3.5-preview
+	Style    string // messages | images
+	HTTP     *http.Client
 }
 
 const photoStylePrompt = "把这张照片转换成可爱扁平风格的卡通插画，Q版人物，柔和配色带轻微阴影，保持人物主体、姿势和构图完全不变，纯色简洁背景"

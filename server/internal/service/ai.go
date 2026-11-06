@@ -106,6 +106,10 @@ func (s *AIService) resolveProvider() Provider {
 	if err := s.DB.Where("key = ?", "ai_style").First(&c4).Error; err == nil && strings.TrimSpace(c4.Value) != "" {
 		p.Style = strings.TrimSpace(c4.Value)
 	}
+	var c5 model.Config
+	if err := s.DB.Where("key = ?", "ai_secret_id").First(&c5).Error; err == nil && strings.TrimSpace(c5.Value) != "" {
+		p.SecretID = strings.TrimSpace(c5.Value)
+	}
 	return p
 }
 

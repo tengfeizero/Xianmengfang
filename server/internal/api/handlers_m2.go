@@ -319,10 +319,17 @@ var configWhitelist = map[string]bool{
 	"ai_daily_free_limit": true,
 	"work_review_enabled": true,
 	// AI 生图（腾讯混元 hy-image）：api_key 留空 = 停用真实生图、回落 Mock
-	"ai_api_key":  true,
-	"ai_base_url": true,
-	"ai_model":    true,
-	"ai_style":    true,
+	"ai_api_key":   true,
+	"ai_secret_id": true, // TokenHub Key ID（ak），Bearer 鉴权只需 api_key(sk)，此值预留并留档
+	"ai_base_url":  true,
+	"ai_model":     true,
+	"ai_style":     true,
+}
+
+// secretConfigKeys 需要脱敏展示的配置项。
+var secretConfigKeys = map[string]bool{
+	"ai_api_key":   true,
+	"ai_secret_id": true,
 }
 
 // maskedSecret 密钥脱敏展示：保留前 5 后 4。
@@ -344,7 +351,7 @@ func (h *Handlers) adminConfigList(c *gin.Context) {
 		return
 	}
 	for i := range cfgs {
-		if cfgs[i].Key == "ai_api_key" {
+		if secretConfigKeys[cfgs[i].Key] {
 			cfgs[i].Value = maskedSecret(cfgs[i].Value)
 		}
 	}
@@ -373,6 +380,9 @@ func (h *Handlers) adminConfigUpdate(c *gin.Context) {
 		}
 	case "ai_api_key":
 		// 允许空值（清空 = 停用真实生图）；去首尾空白
+		req.Value = strings.TrimSpace(req.Value)
+	case "ai_secret_id":
+		// 允许空值；去首尾空白
 		req.Value = strings.TrimSpace(req.Value)
 	case "ai_base_url":
 		if !strings.HasPrefix(req.Value, "http://") && !strings.HasPrefix(req.Value, "https://") {

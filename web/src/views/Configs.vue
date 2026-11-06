@@ -13,12 +13,21 @@
 
     <el-divider content-position="left">AI 生图（腾讯混元 Hy Image）</el-divider>
     <el-form label-width="180px">
-      <el-form-item label="API Key">
+      <el-form-item label="Secret Key (sk)">
         <el-input
           v-model="aiApiKey"
           type="password"
           show-password
           :placeholder="keyMasked ? `已配置：${keyMasked}（留空不修改）` : '未配置，当前使用 mock 占位实现'"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="Secret ID (ak)">
+        <el-input
+          v-model="aiSecretId"
+          type="password"
+          show-password
+          :placeholder="sidMasked ? `已配置：${sidMasked}（留空不修改）` : '可选，TokenHub 控制台的 Key ID'"
           clearable
         />
       </el-form-item>
@@ -56,10 +65,12 @@ const aiLimit = ref(3)
 const saving = ref(false)
 
 const aiApiKey = ref('')
+const aiSecretId = ref('')
 const aiBaseUrl = ref('')
 const aiModel = ref('')
 const aiStyle = ref('messages')
 const keyMasked = ref('')
+const sidMasked = ref('')
 const savingAI = ref(false)
 
 onMounted(async () => {
@@ -72,6 +83,7 @@ onMounted(async () => {
     aiModel.value = get(CONFIG_KEYS.aiModel) ?? ''
     aiStyle.value = get(CONFIG_KEYS.aiStyle) ?? 'messages'
     keyMasked.value = get(CONFIG_KEYS.aiApiKey) ?? ''
+    sidMasked.value = get(CONFIG_KEYS.aiSecretId) ?? ''
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '加载失败')
   }
@@ -100,8 +112,13 @@ async function saveAI() {
       await updateConfig(CONFIG_KEYS.aiApiKey, aiApiKey.value.trim())
       aiApiKey.value = ''
     }
+    if (aiSecretId.value.trim() !== '') {
+      await updateConfig(CONFIG_KEYS.aiSecretId, aiSecretId.value.trim())
+      aiSecretId.value = ''
+    }
     const cfgs = await listConfigs()
     keyMasked.value = cfgs.find((c) => c.key === CONFIG_KEYS.aiApiKey)?.value ?? ''
+    sidMasked.value = cfgs.find((c) => c.key === CONFIG_KEYS.aiSecretId)?.value ?? ''
     ElMessage.success('AI 配置已保存，立即生效')
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '保存失败')
@@ -114,7 +131,9 @@ async function clearKey() {
   savingAI.value = true
   try {
     await updateConfig(CONFIG_KEYS.aiApiKey, '')
+    await updateConfig(CONFIG_KEYS.aiSecretId, '')
     keyMasked.value = ''
+    sidMasked.value = ''
     ElMessage.success('已清空密钥，AI 生成回落 mock')
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '操作失败')

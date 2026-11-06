@@ -1,5 +1,14 @@
 # CHANGELOG — 现梦坊
 
+## v1.3.1 (2026-11-06) — AI 配置补 Secret ID（ak）
+
+TokenHub 密钥是 AK（Key ID）+ SK（SecretKey）一对，v1.3 配置页只放了一个 API Key。补齐：
+
+- `configs` 新增 `ai_secret_id`：后台系统配置页可填（脱敏展示、留空不修改），随「清空密钥」一并清空
+- `HunyuanProvider` 增 `SecretID` 字段；当前 TokenHub 端点 Bearer 鉴权只需 sk（SecretKey），ak 当前用不到但留档，为将来签名类端点预留
+- 环境变量对应 `XMF_AI_SECRET_ID`；老库重启自动回填该配置行
+- 实测 8080：写入/脱敏（ak-20****2ed0）/清空/写回全通
+
 ## v1.3 (2026-11-06) — 接入真实 AI 生图（后台可配置）
 
 「文字生成图」「照片转风格」此前为 MockProvider 占位实现，产品核心卖点不可真实演示。选定**腾讯混元 Hy Image 3.5 preview**（一个模型同时覆盖文生图 + 参考图指令编辑，约 0.11 元/张，只对输出收费）。

@@ -19,10 +19,11 @@ type Config struct {
 	DataDir   string
 
 	// AI 生图：AIKey 有值即启用真实供应商（腾讯混元），否则回落 Mock
-	AIKey     string
-	AIBaseURL string
-	AIModel   string
-	AIStyle   string
+	AIKey      string
+	AISecretID string
+	AIBaseURL  string
+	AIModel    string
+	AIStyle    string
 }
 
 func Load() (*Config, error) {
@@ -33,10 +34,11 @@ func Load() (*Config, error) {
 		WxSecret: os.Getenv("XMF_WX_SECRET"),
 		DevLogin: envOr("XMF_DEV_LOGIN", "1") == "1",
 
-		AIKey:     os.Getenv("XMF_AI_API_KEY"),
-		AIBaseURL: os.Getenv("XMF_AI_BASE_URL"),
-		AIModel:   envOr("XMF_AI_MODEL", "hy-image-v3.5-preview"),
-		AIStyle:   envOr("XMF_AI_STYLE", "messages"),
+		AIKey:      os.Getenv("XMF_AI_API_KEY"),
+		AISecretID: os.Getenv("XMF_AI_SECRET_ID"),
+		AIBaseURL:  os.Getenv("XMF_AI_BASE_URL"),
+		AIModel:    envOr("XMF_AI_MODEL", "hy-image-v3.5-preview"),
+		AIStyle:    envOr("XMF_AI_STYLE", "messages"),
 	}
 	c.DataDir = filepath.Dir(c.DBPath)
 	if err := os.MkdirAll(c.DataDir, 0o755); err != nil {
