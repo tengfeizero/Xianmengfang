@@ -71,8 +71,10 @@ Page({
     }
     const done = (addr) => {
       wx.showToast({ title: '已保存', icon: 'success' })
-      if (this.selectMode && this.eventChannelOf()) {
-        this.eventChannelOf().emit('select', {
+      // 通知打开方（地址列表页）保存结果，由列表页决定刷新/回传选中
+      const ec = this.eventChannelOf()
+      if (ec) {
+        ec.emit('saved', {
           id: addr.id,
           name: addr.name,
           phone: addr.phone,

@@ -11,6 +11,10 @@ Page({
     this.selectMode = query.select === '1'
     this.setData({ selectMode: this.selectMode })
     this.eventChannel = this.getOpenerEventChannel()
+    // 首次加载放 onShow（onLoad 后必触发 onShow），从编辑页返回时也会刷新
+  },
+
+  onShow() {
     this.load()
   },
 
@@ -81,6 +85,18 @@ Page({
 
   add() {
     const url = this.selectMode ? '/pages/address/edit?select=1' : '/pages/address/edit'
-    wx.navigateTo({ url })
+    wx.navigateTo({
+      url,
+      events: {
+        // 编辑页保存成功：刷新列表；若处于选地址模式，直接把新地址回传商品页
+        saved: (addr) => {
+          this.load()
+          if (this.selectMode && this.eventChannel) {
+            this.eventChannel.emit('select', addr)
+            wx.navigateBack()
+          }
+        },
+      },
+    })
   },
 })

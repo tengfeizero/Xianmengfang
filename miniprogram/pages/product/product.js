@@ -20,7 +20,11 @@ Page({
     this.productId = Number(query.id)
     this.load()
     this.loadWorks()
-    this.loadAddresses()
+  },
+
+  // 从地址列表/编辑页返回时刷新地址
+  onShow() {
+    if (this.productId) this.loadAddresses()
   },
 
   load() {
@@ -100,10 +104,12 @@ Page({
           full: a.province + a.city + a.district + a.detail,
           isDefault: a.is_default === 1,
         }))
+        // 默认选中默认地址；已选地址若已被删除则回退到默认地址
+        const keep =
+          this.data.selectedAddress && addresses.find((a) => a.id === this.data.selectedAddress.id)
         this.setData({
           addresses,
-          // 默认选中默认地址（若尚未选择）
-          selectedAddress: this.data.selectedAddress || addresses.find((a) => a.isDefault) || null,
+          selectedAddress: keep || addresses.find((a) => a.isDefault) || null,
         })
       })
       .catch(() => {})
