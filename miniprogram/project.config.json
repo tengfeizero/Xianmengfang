@@ -1,0 +1,16 @@
+{
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "xianmengfang",
+  "libVersion": "3.4.10",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "ignoreDevUnusedFiles": false,
+    "ignoreUploadUnusedFiles": true
+  },
+  "condition": {}
+}

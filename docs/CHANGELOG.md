@@ -1,5 +1,15 @@
 # CHANGELOG — 现梦坊
 
+## v0.5 (2026-11-06) — M1.5 小程序端（原生）
+- miniprogram/ 原生工程：8 页面（登录/商店首页/商品详情/创作工坊/AI 生成/作品库/订单列表/订单详情），4 tab（商店/创作/作品/订单）
+- utils/request.js：Promise 封装 wx.request，JWT 自动携带、401 清 token 跳登录、业务码统一处理；config.js 集中管理 BASE 地址与图片地址拼接
+- 登录：wx.login→/auth/login 优先（配 appid 后即生效），失败自动露出开发者模拟登录入口（本地开发）
+- 创作工坊：canvas 2d 渲染底板+元素图层，触摸拖动改相对坐标（0~1）、滑块缩放（0.5~2）、虚线框选中、12 个上限，生成时 POST /collage/compose 由服务端合成（与前端预览同一套参数，所见即所得）
+- AI 生成：文生图（textarea）+ 照片转风格（chooseMedia→/upload→/ai/tasks），配额超限 429 直接展示后端文案
+- 下单：SKU 单选（含库存置灰）、数量、可选绑定作品，模拟支付；订单：状态筛选、取消（仅待接单）、确认收货、物流展示
+- 校验：JS 语法/JSON 全过；mp_e2e.py 模拟小程序完整调用链（登录→商品→素材→合成→作品→下单绑作品→接单发货收货）全通过，金额对账一致
+- WorkBuddy 应用预览卡已创建（wbapp_ropiy3qTft1ZvSw04r1E6t，未发布）
+
 ## v0.4 (2026-11-06) — M1.4 Web 管理后台
 - 后端新增：商品/分类/SKU 管理（删除保护：分类下有商品、SKU 有订单引用均拒绝）、系统配置白名单读写（ai_daily_free_limit 0~1000）、boards/elements 列表接口、后台上传
 - **修复真实 bug**：GORM 把 OrderItem.SKUID 列名转成 `skuid` 而非 `sku_id`，导致"有订单引用的 SKU 禁止删除"检查静默失效——单测抓到，加 `gorm:"column:sku_id"` 显式列名修复（旧开发库需删除重建）

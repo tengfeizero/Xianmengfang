@@ -1,0 +1,52 @@
+<view wx:if="{{product}}">
+  <view class="card">
+    <image class="p-cover" src="{{product.cover}}" mode="aspectFill" />
+    <view class="p-title">{{product.title}}</view>
+    <view class="muted">{{product.description}}</view>
+  </view>
+
+  <view class="card">
+    <view class="sec-title">选择规格</view>
+    <view class="sku-row">
+      <view
+        wx:for="{{skus}}"
+        wx:key="id"
+        class="sku-tag {{selectedSku && selectedSku.id === item.id ? 'active' : ''}} {{item.stock <= 0 ? 'disabled' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="pickSku"
+      >
+        {{item.specsText}} ¥{{item.priceText}}
+      </view>
+    </view>
+    <view class="qty-row">
+      <text>数量</text>
+      <input class="qty-input" type="number" value="{{qty}}" bindblur="onQty" />
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{works.length}}">
+    <view class="sec-title">使用我的作品（可不选）</view>
+    <scroll-view scroll-x class="works-scroll">
+      <view class="works-row">
+        <image
+          wx:for="{{works}}"
+          wx:key="id"
+          class="work-thumb {{selectedWork && selectedWork.id === item.id ? 'active' : ''}}"
+          src="{{item.cover}}"
+          data-id="{{item.id}}"
+          mode="aspectFill"
+          bindtap="pickWork"
+        />
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="footer">
+    <view class="footer-total">
+      合计 <text class="price">¥{{totalText}}</text>
+    </view>
+    <button class="btn-pink footer-btn" disabled="{{submitting}}" bindtap="submit">
+      {{submitting ? '提交中...' : '模拟支付并下单'}}
+    </button>
+  </view>
+</view>

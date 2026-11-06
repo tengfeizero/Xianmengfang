@@ -1,0 +1,31 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/studio/studio",
+    "pages/works/works",
+    "pages/orders/orders",
+    "pages/login/login",
+    "pages/product/product",
+    "pages/ai/ai",
+    "pages/order/order"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ff7ea0",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "现梦坊",
+    "backgroundColor": "#faf7f5"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#ff7ea0",
+    "backgroundColor": "#ffffff",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "商店" },
+      { "pagePath": "pages/studio/studio", "text": "创作" },
+      { "pagePath": "pages/works/works", "text": "作品" },
+      { "pagePath": "pages/orders/orders", "text": "订单" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

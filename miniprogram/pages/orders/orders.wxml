@@ -1,0 +1,46 @@
+<scroll-view scroll-x class="tab-scroll">
+  <view class="tab-row">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab-tag {{tabIdx === index ? 'active' : ''}}"
+      data-idx="{{index}}"
+      bindtap="switchTab"
+    >
+      {{item.label}}
+    </view>
+  </view>
+</scroll-view>
+
+<view wx:if="{{loading}}" class="muted center-tip">加载中...</view>
+<view wx:elif="{{!orders.length}}" class="muted center-tip">暂无订单</view>
+
+<view class="card order" wx:for="{{orders}}" wx:key="id" data-id="{{item.id}}" bindtap="detail">
+  <view class="order-head">
+    <text class="order-no">{{item.orderNo}}</text>
+    <text class="order-status" style="color: {{item.statusColor}}">{{item.statusLabel}}</text>
+  </view>
+  <view class="order-item" wx:for="{{item.items}}" wx:for-item="it" wx:key="title">
+    <text class="oi-title">{{it.title}}（{{it.specsText}}）</text>
+    <text class="muted">x{{it.qty}}</text>
+  </view>
+  <view class="order-foot">
+    <text>合计 <text class="price">¥{{item.totalText}}</text></text>
+    <view class="order-btns">
+      <button
+        wx:if="{{item.status === 'pending_accept'}}"
+        size="mini"
+        data-id="{{item.id}}"
+        catchtap="cancel"
+      >取消订单</button>
+      <button
+        wx:if="{{item.status === 'shipped'}}"
+        size="mini"
+        class="btn-pink"
+        data-id="{{item.id}}"
+        catchtap="confirm"
+      >确认收货</button>
+    </view>
+  </view>
+  <view class="muted" wx:if="{{item.shipment}}">物流：{{item.shipment.company}} {{item.shipment.trackingNo}}</view>
+</view>

@@ -1,0 +1,12 @@
+<view wx:if="{{loading}}" class="muted center-tip">加载中...</view>
+<view wx:elif="{{!works.length}}" class="empty">
+  <view class="muted center-tip">还没有作品，去创作第一个吧</view>
+  <button class="btn-pink empty-btn" bindtap="goStudio">去创作</button>
+</view>
+
+<view class="grid">
+  <view class="work-item" wx:for="{{works}}" wx:key="id">
+    <image class="work-img" src="{{item.cover}}" mode="aspectFill" data-id="{{item.id}}" bindtap="preview" />
+    <view class="work-del" data-id="{{item.id}}" catchtap="del">删</view>
+  </view>
+</view>

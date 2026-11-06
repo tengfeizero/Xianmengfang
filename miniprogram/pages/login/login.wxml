@@ -1,0 +1,14 @@
+<view class="login-page">
+  <view class="logo-wrap">
+    <view class="logo">现梦坊</view>
+    <view class="slogan">创意走进现实</view>
+  </view>
+
+  <button class="btn-pink login-btn" disabled="{{loading}}" bindtap="wxLogin">微信一键登录</button>
+
+  <view class="dev-box" wx:if="{{realLoginFailed}}">
+    <view class="muted">本地开发模式（后端未配置微信 appid）</view>
+    <input class="dev-input" value="{{openid}}" bindinput="onOpenIDInput" placeholder="输入模拟 openid" />
+    <button class="btn-pink" disabled="{{loading}}" bindtap="devLogin">开发者模拟登录</button>
+  </view>
+</view>

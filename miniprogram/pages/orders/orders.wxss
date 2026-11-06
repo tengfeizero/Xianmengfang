@@ -1,0 +1,63 @@
+.tab-scroll {
+  white-space: nowrap;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.tab-row {
+  display: flex;
+  gap: 14rpx;
+  padding: 20rpx;
+}
+.tab-tag {
+  background: #faf7f5;
+  border-radius: 30rpx;
+  padding: 10rpx 30rpx;
+  font-size: 26rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+.tab-tag.active {
+  background: #ff7ea0;
+  color: #fff;
+}
+.center-tip {
+  text-align: center;
+  padding: 100rpx 0;
+}
+.order-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+.order-no {
+  color: #666;
+  font-size: 24rpx;
+}
+.order-status {
+  font-size: 26rpx;
+  font-weight: 600;
+}
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8rpx 0;
+}
+.oi-title {
+  flex: 1;
+  margin-right: 16rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.order-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+}
+.order-btns {
+  display: flex;
+  gap: 14rpx;
+}

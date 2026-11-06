@@ -11,6 +11,9 @@ shots/
 login.yaml
 orders.yaml
 
+# WorkBuddy 应用卡内部标记
+.wbapp_*.genie
+
 # Go 运行时数据与密钥
 server/data/
 *.db

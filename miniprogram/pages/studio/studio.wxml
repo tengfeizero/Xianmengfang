@@ -1,0 +1,68 @@
+<view class="studio">
+  <canvas
+    type="2d"
+    id="stage"
+    class="stage"
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+  ></canvas>
+
+  <view class="sel-bar" wx:if="{{selectedIdx >= 0}}">
+    <text class="muted">已选中「{{placements[selectedIdx].name}}」</text>
+    <slider
+      class="sel-slider"
+      min="0.5"
+      max="2"
+      step="0.1"
+      value="{{scaleVal}}"
+      activeColor="#ff7ea0"
+      bindchange="onScale"
+    />
+    <button size="mini" bindtap="removeSelected">移除</button>
+  </view>
+
+  <view class="board-row" wx:if="{{boards.length > 1}}">
+    <view
+      wx:for="{{boards}}"
+      wx:key="id"
+      class="board-item {{boardIdx === index ? 'active' : ''}}"
+      data-idx="{{index}}"
+      bindtap="pickBoard"
+    >
+      <image class="board-thumb" src="{{item.thumb}}" mode="aspectFill" />
+      <text class="board-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <scroll-view scroll-x class="cat-scroll">
+    <view class="cat-row">
+      <view
+        wx:for="{{cats}}"
+        wx:key="key"
+        class="cat-tag {{catIdx === index ? 'active' : ''}}"
+        data-idx="{{index}}"
+        bindtap="pickCat"
+      >
+        {{item.label}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <scroll-view scroll-x class="el-scroll">
+    <view class="el-row">
+      <view class="el-item" wx:for="{{elements}}" wx:key="id" data-id="{{item.id}}" bindtap="addElement">
+        <image class="el-img" src="{{item.full}}" mode="aspectFit" />
+        <text class="el-name">{{item.name}}</text>
+      </view>
+      <view wx:if="{{!elements.length}}" class="muted el-empty">该分类暂无素材</view>
+    </view>
+  </scroll-view>
+
+  <view class="actions">
+    <button class="btn-pink act-btn" plain bindtap="goAI">AI 生成</button>
+    <button class="btn-pink act-btn" disabled="{{composing}}" bindtap="compose">
+      {{composing ? '生成中...' : '生成作品'}}
+    </button>
+  </view>
+</view>

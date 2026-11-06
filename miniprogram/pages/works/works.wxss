@@ -1,0 +1,36 @@
+.center-tip {
+  text-align: center;
+  padding: 100rpx 0;
+}
+.empty-btn {
+  width: 300rpx;
+}
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  padding: 20rpx;
+}
+.work-item {
+  position: relative;
+  width: 345rpx;
+}
+.work-img {
+  width: 345rpx;
+  height: 420rpx;
+  border-radius: 14rpx;
+  background: #f5f0ee;
+}
+.work-del {
+  position: absolute;
+  right: 12rpx;
+  top: 12rpx;
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 24rpx;
+}

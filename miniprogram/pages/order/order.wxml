@@ -1,0 +1,39 @@
+<view wx:if="{{order}}">
+  <view class="card">
+    <view class="row-between">
+      <text class="status" style="color: {{order.statusColor}}">{{order.statusLabel}}</text>
+      <text class="muted">{{order.payType}}</text>
+    </view>
+    <view class="muted">单号 {{order.orderNo}}</view>
+    <view class="muted">下单时间 {{order.createdAt}}</view>
+    <view class="muted warn" wx:if="{{order.cancelReason}}">取消原因：{{order.cancelReason}}</view>
+  </view>
+
+  <view class="card">
+    <view class="order-item" wx:for="{{order.items}}" wx:key="title">
+      <view class="oi-left">
+        <view>{{it.title}}</view>
+        <view class="muted">{{it.specsText}}</view>
+      </view>
+      <view class="oi-right">
+        <text class="price">¥{{it.priceText}}</text>
+        <text class="muted">x{{it.qty}}</text>
+      </view>
+    </view>
+    <view class="row-between total-row">
+      <text>合计</text>
+      <text class="price">¥{{order.totalText}}</text>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{order.shipment}}">
+    <view class="sec-title">物流信息</view>
+    <view>{{order.shipment.company}}　{{order.shipment.trackingNo}}</view>
+  </view>
+
+  <button
+    wx:if="{{order.status === 'shipped'}}"
+    class="btn-pink confirm-btn"
+    bindtap="confirm"
+  >确认收货</button>
+</view>

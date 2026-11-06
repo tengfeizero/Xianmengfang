@@ -1,0 +1,39 @@
+<view class="ai-page">
+  <view class="mode-row">
+    <view class="mode-tag {{mode === 'ai_text' ? 'active' : ''}}" data-mode="ai_text" bindtap="switchMode">
+      文字生成图
+    </view>
+    <view class="mode-tag {{mode === 'ai_photo' ? 'active' : ''}}" data-mode="ai_photo" bindtap="switchMode">
+      照片转风格
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{mode === 'ai_text'}}">
+    <view class="sec-title">描述你想要的作品</view>
+    <textarea
+      class="prompt-input"
+      value="{{prompt}}"
+      bindinput="onPrompt"
+      maxlength="200"
+      placeholder="例如：扎双马尾的可爱小姑娘，粉色背景，卡通风格"
+    />
+  </view>
+
+  <view class="card" wx:else>
+    <view class="sec-title">选一张照片</view>
+    <view class="photo-box" bindtap="choosePhoto">
+      <image wx:if="{{photoPath}}" class="photo-preview" src="{{photoPath}}" mode="aspectFill" />
+      <view wx:else class="muted photo-tip">点击拍照或从相册选择</view>
+    </view>
+  </view>
+
+  <button class="btn-pink gen-btn" disabled="{{generating}}" bindtap="generate">
+    {{generating ? 'AI 生成中...' : '开始生成（每日有免费次数）'}}
+  </button>
+
+  <view class="card result-card" wx:if="{{result}}">
+    <view class="sec-title">生成结果</view>
+    <image class="result-img" src="{{result.cover}}" mode="aspectFit" />
+    <button class="btn-pink" size="mini" bindtap="goWorks">去作品库看看</button>
+  </view>
+</view>

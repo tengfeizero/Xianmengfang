@@ -1,0 +1,30 @@
+page {
+  background: #faf7f5;
+  color: #333;
+  font-size: 28rpx;
+}
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  margin: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.04);
+}
+.btn-pink {
+  background: #ff7ea0;
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+}
+.btn-pink[disabled] {
+  background: #f5c1cf;
+  color: #fff;
+}
+.muted {
+  color: #999;
+  font-size: 24rpx;
+}
+.price {
+  color: #ff5c7a;
+  font-weight: 600;
+}

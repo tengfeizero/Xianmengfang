@@ -1,0 +1,57 @@
+.mode-row {
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx 20rpx 0;
+}
+.mode-tag {
+  background: #fff;
+  border-radius: 30rpx;
+  padding: 12rpx 32rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+.mode-tag.active {
+  background: #ff7ea0;
+  color: #fff;
+}
+.sec-title {
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+.prompt-input {
+  width: 100%;
+  height: 200rpx;
+  background: #faf7f5;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+}
+.photo-box {
+  width: 300rpx;
+  height: 300rpx;
+  border: 2rpx dashed #ddd;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.photo-preview {
+  width: 100%;
+  height: 100%;
+}
+.photo-tip {
+  padding: 20rpx;
+  text-align: center;
+}
+.gen-btn {
+  margin: 30rpx 20rpx;
+}
+.result-img {
+  width: 100%;
+  height: 500rpx;
+  background: #faf7f5;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}

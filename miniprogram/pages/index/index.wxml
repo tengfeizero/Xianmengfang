@@ -1,0 +1,19 @@
+<view class="banner card">
+  <view class="banner-title">把你的创意印在现实里</view>
+  <view class="muted">去「创作」拼一个小姑娘，或用 AI 画出作品 → 选商品下单</view>
+  <button class="btn-pink banner-btn" size="mini" bindtap="goStudio">去创作</button>
+</view>
+
+<view wx:if="{{loading}}" class="muted center-tip">加载中...</view>
+<view wx:elif="{{!products.length}}" class="muted center-tip">暂无上架商品</view>
+
+<view class="goods-list">
+  <view class="goods card" wx:for="{{products}}" wx:key="id" data-id="{{item.id}}" bindtap="goProduct">
+    <image class="goods-img" src="{{item.cover}}" mode="aspectFill" />
+    <view class="goods-info">
+      <view class="goods-title">{{item.title}}</view>
+      <view class="muted goods-desc">{{item.description}}</view>
+      <view class="price">¥{{item.priceText}} 起</view>
+    </view>
+  </view>
+</view>
