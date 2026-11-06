@@ -34,7 +34,7 @@
     <view class="p-title">{{product.title}}</view>
     <view wx:if="{{product.subtitle}}" class="p-subtitle">{{product.subtitle}}</view>
     <view class="price-row">
-      <view class="p-price">¥{{product.priceText}}<text wx:if="{{skus.length > 1}}" class="p-price-suffix"> 起</text></view>
+      <view class="p-price">¥{{product.priceText}}</view>
       <view wx:if="{{product.originalText}}" class="p-origin">¥{{product.originalText}}</view>
     </view>
     <view wx:if="{{product.serviceNotes}}" class="service-notes">

@@ -112,7 +112,7 @@ func (h *Handlers) productList(c *gin.Context) {
 	list := make([]vo, 0, len(products))
 	for _, p := range products {
 		var skus []model.SKU
-		h.DB.Where("product_id = ?", p.ID).Find(&skus)
+		h.DB.Where("product_id = ?", p.ID).Order("id").Find(&skus)
 		list = append(list, vo{Product: p, SKUs: skus})
 	}
 	ok(c, list)
@@ -125,7 +125,8 @@ func (h *Handlers) productDetail(c *gin.Context) {
 		return
 	}
 	var skus []model.SKU
-	h.DB.Where("product_id = ?", p.ID).Find(&skus)
+	// 按 id 升序：小程序默认选中第一个规格，顺序必须稳定（= 后台录入顺序）
+	h.DB.Where("product_id = ?", p.ID).Order("id").Find(&skus)
 	ok(c, gin.H{"product": p, "skus": skus})
 }
 

@@ -142,10 +142,6 @@
   font-weight: 600;
   color: #ff5c8a;
 }
-.p-price-suffix {
-  font-size: 24rpx;
-  font-weight: 400;
-}
 .p-origin {
   font-size: 24rpx;
   color: #b8b0aa;

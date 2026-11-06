@@ -35,36 +35,38 @@ Page({
           id: s.id,
           specsText: this.specsText(s.specs),
           priceText: fen2yuan(s.price_cents),
+          priceCents: s.price_cents,
           stock: s.stock,
         }))
         const p = d.product
-        const rawSkus = d.skus || []
-        const minCents = rawSkus.length
-          ? Math.min.apply(
-              null,
-              rawSkus.map((s) => s.price_cents)
-            )
-          : 0
-        this.setData({
-          product: {
-            id: p.id,
-            title: p.title,
-            subtitle: p.subtitle,
-            images: this.parseList(p.images).map(img),
-            priceText: fen2yuan(minCents),
-            // 划线价只有高于最低售价才有"优惠"含义
-            originalText: p.original_price_cents > minCents ? fen2yuan(p.original_price_cents) : '',
-            unit: p.unit || '件',
-            detailParagraphs: (p.detail || '')
-              .split(/\n\s*\n/)
-              .map((s) => s.trim())
-              .filter(Boolean),
-            detailImages: this.parseList(p.detail_images).map(img),
-            serviceNotes: p.service_notes,
+        // 默认选中第一个有货规格（全部无货时选第一个，提交会提示缺货）
+        const firstSku = skus.find((s) => s.stock > 0) || skus[0] || null
+        // 顶部价格跟随选中规格，避免"起价"与实际应付金额对不上
+        const curCents = firstSku ? firstSku.priceCents : 0
+        this.originalCents = p.original_price_cents || 0
+        this.setData(
+          {
+            product: {
+              id: p.id,
+              title: p.title,
+              subtitle: p.subtitle,
+              images: this.parseList(p.images).map(img),
+              priceText: fen2yuan(curCents),
+              // 划线价只有高于当前售价才有"优惠"含义
+              originalText: this.originalCents > curCents ? fen2yuan(this.originalCents) : '',
+              unit: p.unit || '件',
+              detailParagraphs: (p.detail || '')
+                .split(/\n\s*\n/)
+                .map((s) => s.trim())
+                .filter(Boolean),
+              detailImages: this.parseList(p.detail_images).map(img),
+              serviceNotes: p.service_notes,
+            },
+            skus,
+            selectedSku: firstSku,
           },
-          skus,
-          selectedSku: skus.length === 1 ? skus[0] : null,
-        })
+          () => this.computeTotal()
+        )
       })
       .catch((e) => wx.showToast({ title: e.message, icon: 'none' }))
   },
@@ -116,7 +118,8 @@ Page({
       this.setData({ totalText: '--' })
       return
     }
-    this.setData({ totalText: fen2yuan(parseFloat(s.priceText) * 100 * this.data.qty) })
+    // 用分计算再换算，避免 9.9*100 这类浮点误差
+    this.setData({ totalText: fen2yuan(s.priceCents * this.data.qty) })
   },
 
   loadAddresses() {
@@ -156,8 +159,16 @@ Page({
 
   pickSku(e) {
     const sku = this.data.skus.find((s) => s.id === e.currentTarget.dataset.id)
-    this.setData({ selectedSku: sku })
-    this.computeTotal()
+    if (!sku) return
+    if (sku.stock <= 0) {
+      wx.showToast({ title: '该规格暂时缺货', icon: 'none' })
+      return
+    }
+    // 顶部价格随选中规格变化
+    const product = Object.assign({}, this.data.product)
+    product.priceText = fen2yuan(sku.priceCents)
+    product.originalText = this.originalCents > sku.priceCents ? fen2yuan(this.originalCents) : ''
+    this.setData({ selectedSku: sku, product }, () => this.computeTotal())
   },
 
   pickWork(e) {
@@ -179,6 +190,10 @@ Page({
     }
     if (!this.data.selectedSku) {
       wx.showToast({ title: '请先选择规格', icon: 'none' })
+      return
+    }
+    if (this.data.selectedSku.stock <= 0) {
+      wx.showToast({ title: '该规格暂时缺货', icon: 'none' })
       return
     }
     this.setData({ submitting: true })

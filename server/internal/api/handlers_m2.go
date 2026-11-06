@@ -134,7 +134,7 @@ func (h *Handlers) adminProductList(c *gin.Context) {
 	list := make([]vo, 0, len(products))
 	for _, p := range products {
 		var skus []model.SKU
-		h.DB.Where("product_id = ?", p.ID).Find(&skus)
+		h.DB.Where("product_id = ?", p.ID).Order("id").Find(&skus)
 		list = append(list, vo{Product: p, SKUs: skus})
 	}
 	ok(c, list)
