@@ -66,6 +66,13 @@ func Router(h *Handlers) *gin.Engine {
 		ug.GET("/works", h.workList)
 		ug.GET("/works/:id", h.workDetail)
 		ug.DELETE("/works/:id", h.workDelete)
+
+		// 收货地址（M1.5）
+		ug.GET("/addresses", h.addressList)
+		ug.POST("/addresses", h.addressCreate)
+		ug.PUT("/addresses/:id", h.addressUpdate)
+		ug.DELETE("/addresses/:id", h.addressDelete)
+		ug.POST("/addresses/:id/default", h.addressSetDefault)
 	}
 
 	// 管理后台（需管理员）

@@ -17,11 +17,16 @@
 | POST | /auth/dev_login | 开发者模拟登录（仅 XMF_DEV_LOGIN=1，默认开） | ✅ 已实现 |
 | GET | /products | 商品列表（含 SKU） | ✅ 已实现 |
 | GET | /products/:id | 商品详情 | ✅ 已实现 |
-| POST | /orders | 下单（sku_id、work_id 可空、qty；mock 支付直达待接单） | ✅ 已实现 |
+| POST | /orders | 下单（address_id 必传、items:[{sku_id、work_id 可空、qty}]；mock 支付直达待接单；收货信息快照进订单） | ✅ 已实现 |
 | GET | /orders | 我的订单（?status= 筛选） | ✅ 已实现 |
-| GET | /orders/:id | 订单详情（含明细+物流） | ✅ 已实现 |
+| GET | /orders/:id | 订单详情（含明细+物流+收货快照） | ✅ 已实现 |
 | POST | /orders/:id/confirm | 确认收货 | ✅ 已实现 |
 | POST | /orders/:id/cancel | 取消订单（仅待接单，恢复库存） | ✅ 已实现 |
+| GET | /addresses | 收货地址列表（默认优先） | ✅ 已实现 |
+| POST | /addresses | 新增地址（第一个自动设默认；上限 20；手机号 ^1\d{10}$） | ✅ 已实现 |
+| PUT | /addresses/:id | 编辑地址（可改默认） | ✅ 已实现 |
+| DELETE | /addresses/:id | 删除地址（软删；删默认自动补位最新一条） | ✅ 已实现 |
+| POST | /addresses/:id/default | 设为默认（唯一默认） | ✅ 已实现 |
 | POST | /upload | 上传图片（multipart，jpg/png/webp ≤10MB），返回 /static/ 地址 | ✅ 已实现 |
 | GET | /collage/boards | 底板列表 | ✅ 已实现 |
 | GET | /collage/elements?category= | 元素列表 | ✅ 已实现 |

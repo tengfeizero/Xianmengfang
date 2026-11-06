@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+
 	"xmf/internal/model"
 	"xmf/internal/service"
 
@@ -13,6 +15,7 @@ type Handlers struct {
 	Secret     string
 	Auth       *service.AuthService
 	Orders     *service.OrderService
+	Addresses  *service.AddressService
 	AI         *service.AIService
 	UploadsDir string
 	Dev        bool // 是否允许开发者模拟登录
@@ -128,7 +131,8 @@ func (h *Handlers) productDetail(c *gin.Context) {
 // ---- 订单（用户端） ----
 
 type createOrderReq struct {
-	Items []struct {
+	AddressID int64 `json:"address_id"` // 收货地址（M1.5 起必传，快照进订单）
+	Items     []struct {
 		SKUID  int64  `json:"sku_id"`
 		WorkID *int64 `json:"work_id"`
 		Qty    int    `json:"qty"`
@@ -142,11 +146,27 @@ func (h *Handlers) orderCreate(c *gin.Context) {
 		fail(c, 400, "参数错误")
 		return
 	}
+	var addr *model.Address
+	if req.AddressID > 0 {
+		a, err := h.Addresses.GetForOrder(claims.UserID, req.AddressID)
+		if err != nil {
+			if errors.Is(err, service.ErrAddressForbidden) {
+				fail(c, 403, "无权使用该地址")
+			} else {
+				fail(c, 400, "收货地址不存在，请重新选择")
+			}
+			return
+		}
+		addr = a
+	} else {
+		fail(c, 400, "请选择收货地址")
+		return
+	}
 	items := make([]service.ItemInput, 0, len(req.Items))
 	for _, it := range req.Items {
 		items = append(items, service.ItemInput{SKUID: it.SKUID, WorkID: it.WorkID, Qty: it.Qty})
 	}
-	res, err := h.Orders.Create(claims.UserID, items)
+	res, err := h.Orders.Create(claims.UserID, items, addr)
 	if err != nil {
 		failErr(c, err)
 		return

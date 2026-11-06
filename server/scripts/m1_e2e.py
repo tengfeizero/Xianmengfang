@@ -38,6 +38,7 @@ def upload(token, filename, data):
 
 
 ut = req("POST", "/auth/dev_login", body={"openid": "m1user"})["data"]["token"]
+ADDR = req("POST", "/addresses", ut, {"name": "张三", "phone": "13800001111", "province": "广东省", "city": "深圳市", "district": "南山区", "detail": "科技园 1 号楼"})["data"]["id"]
 at = req("POST", "/admin/auth/login", body={"username": "admin", "password": "admin123"})["data"]["token"]
 
 # 1. 素材
@@ -92,7 +93,7 @@ assert len(works) == 4, "作品数量应为4"
 
 # 7. 用拼装作品下单（绑定作品）
 sku = req("GET", "/products", ut)["data"][0]["skus"][0]
-r = req("POST", "/orders", ut, {"items": [{"sku_id": sku["id"], "work_id": work["id"], "qty": 1}]})
+r = req("POST", "/orders", ut, {"address_id": ADDR, "items": [{"sku_id": sku["id"], "work_id": work["id"], "qty": 1}]})
 assert r["code"] == 0, "下单失败: %s" % r
 oid = r["data"]["order"]["id"]
 req("POST", "/admin/orders/%d/accept" % oid, at)

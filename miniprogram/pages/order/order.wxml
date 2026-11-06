@@ -26,6 +26,12 @@
     </view>
   </view>
 
+  <view class="card" wx:if="{{order.receiver}}">
+    <view class="sec-title">收货信息</view>
+    <view>{{order.receiver}}</view>
+    <view class="muted">{{order.receiverAddress}}</view>
+  </view>
+
   <view class="card" wx:if="{{order.shipment}}">
     <view class="sec-title">物流信息</view>
     <view>{{order.shipment.company}}　{{order.shipment.trackingNo}}</view>

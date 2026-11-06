@@ -1,6 +1,6 @@
 {
   "compileType": "miniprogram",
-  "appid": "touristappid",
+  "appid": "wx7ada7b476212e840",
   "projectname": "xianmengfang",
   "libVersion": "3.4.10",
   "setting": {
@@ -10,7 +10,29 @@
     "postcss": true,
     "minified": true,
     "ignoreDevUnusedFiles": false,
-    "ignoreUploadUnusedFiles": true
+    "ignoreUploadUnusedFiles": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {}
 }

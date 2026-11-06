@@ -20,6 +20,10 @@ Page({
             totalText: fen2yuan(d.order.total_cents),
             payType: d.order.pay_type === 'mock' ? '模拟支付' : '微信支付',
             cancelReason: d.order.cancel_reason,
+            receiver: d.order.receiver_name
+              ? d.order.receiver_name + '　' + d.order.receiver_phone
+              : '',
+            receiverAddress: d.order.receiver_address || '',
             createdAt: (d.order.created_at || '').replace('T', ' ').slice(0, 19),
             items: (d.items || []).map((it) => ({
               title: it.title,

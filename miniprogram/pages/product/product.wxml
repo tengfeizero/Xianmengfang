@@ -1,4 +1,19 @@
 <view wx:if="{{product}}">
+  <view class="card addr-card {{selectedAddress ? '' : 'addr-empty'}}" bindtap="chooseAddress">
+    <block wx:if="{{selectedAddress}}">
+      <view class="addr-line">
+        <text class="addr-name">{{selectedAddress.name}}</text>
+        <text class="muted">{{selectedAddress.phone}}</text>
+        <text wx:if="{{selectedAddress.isDefault}}" class="addr-tag">默认</text>
+      </view>
+      <view class="muted">{{selectedAddress.full}}</view>
+    </block>
+    <block wx:else>
+      <view class="addr-pick-tip">📍 请选择收货地址</view>
+    </block>
+    <view class="addr-manage" catchtap="manageAddress">管理地址 ›</view>
+  </view>
+
   <view class="card">
     <image class="p-cover" src="{{product.cover}}" mode="aspectFill" />
     <view class="p-title">{{product.title}}</view>

@@ -39,6 +39,10 @@ Page({
           statusLabel: statusText(d.order.status),
           statusColor: statusColor(d.order.status),
           totalText: fen2yuan(d.order.total_cents),
+          receiver: d.order.receiver_name
+            ? d.order.receiver_name + ' ' + d.order.receiver_phone
+            : '',
+          receiverAddress: d.order.receiver_address || '',
           items: (d.items || []).map((it) => ({
             title: it.title,
             specsText: it.specs,
@@ -96,5 +100,9 @@ Page({
 
   detail(e) {
     wx.navigateTo({ url: '/pages/order/order?id=' + e.currentTarget.dataset.id })
+  },
+
+  manageAddress() {
+    wx.navigateTo({ url: '/pages/address/list' })
   },
 })

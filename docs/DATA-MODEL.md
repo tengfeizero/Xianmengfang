@@ -17,6 +17,16 @@
 | nickname / avatar | text | 可后补 |
 | status | int | 1 正常 / 0 禁用 |
 
+### addresses（收货地址，M1.5）
+| 字段 | 说明 |
+|---|---|
+| user_id | 归属（上限 20 条/人） |
+| name / phone | 收货人（phone 校验 `^1\d{10}$`） |
+| province / city / district / detail | 地区与详址 |
+| is_default | 1 默认（每用户唯一；第一个自动默认；删除默认后最新一条自动补位） |
+| status | 1 正常 / 0 已删除（软删） |
+- 下单时快照 receiver_name / receiver_phone / receiver_address 到订单，地址后续修改不影响历史订单。
+
 ### works（作品）
 | 字段 | 类型 | 说明 |
 |---|---|---|

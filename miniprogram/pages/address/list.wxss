@@ -1,0 +1,48 @@
+.center-tip {
+  text-align: center;
+  padding: 100rpx 0;
+}
+.addr-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 10rpx;
+}
+.addr-name {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.default-tag {
+  background: #ff7ea0;
+  color: #fff;
+  font-size: 20rpx;
+  border-radius: 8rpx;
+  padding: 2rpx 12rpx;
+}
+.addr-detail {
+  color: #666;
+  margin-bottom: 16rpx;
+}
+.addr-actions {
+  display: flex;
+  gap: 14rpx;
+  justify-content: flex-end;
+}
+.tip {
+  text-align: center;
+  padding: 10rpx 0;
+}
+.footer-space {
+  height: 140rpx;
+}
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
+  background: #faf7f5;
+}
+.footer-btn {
+  width: 100%;
+}

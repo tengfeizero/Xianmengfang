@@ -22,6 +22,7 @@ def req(method, path, token=None, body=None):
 
 
 ut = req("POST", "/auth/dev_login", body={"openid": "testuser001"})["data"]["token"]
+ADDR = req("POST", "/addresses", ut, {"name": "张三", "phone": "13800001111", "province": "广东省", "city": "深圳市", "district": "南山区", "detail": "科技园 1 号楼"})["data"]["id"]
 at = req("POST", "/admin/auth/login", body={"username": "admin", "password": "admin123"})["data"]["token"]
 
 # 权限校验：用户 token 不能访问后台接口
@@ -29,15 +30,15 @@ r = req("GET", "/admin/orders", ut)
 print("权限校验:", "通过(403)" if r["code"] == 403 else "!! 漏洞: " + str(r))
 
 # 未登录不能下单
-r = req("POST", "/orders", body={"items": [{"sku_id": 1, "qty": 1}]})
+r = req("POST", "/orders", body={"address_id": ADDR, "items": [{"sku_id": 1, "qty": 1}]})
 print("鉴权校验:", "通过(401)" if r["code"] == 401 else "!! 漏洞: " + str(r))
 
 # 库存不足
-r = req("POST", "/orders", ut, {"items": [{"sku_id": 1, "qty": 999}]})
+r = req("POST", "/orders", ut, {"address_id": ADDR, "items": [{"sku_id": 1, "qty": 999}]})
 print("库存不足返回:", r["code"], r["msg"])
 
 # 正常下单 + UTF-8 中文物流名
-o = req("POST", "/orders", ut, {"items": [{"sku_id": 2, "qty": 1}]})["data"]["order"]
+o = req("POST", "/orders", ut, {"address_id": ADDR, "items": [{"sku_id": 2, "qty": 1}]})["data"]["order"]
 oid = o["id"]
 print("下单成功:", o["order_no"], "金额(分):", o["total_cents"], "状态:", o["status"])
 

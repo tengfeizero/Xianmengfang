@@ -62,13 +62,44 @@ st, d = req("GET", "/works", ut)
 assert st == 200 and any(w["id"] == work_id for w in d["data"])
 steps.append("作品库 OK（%d 件）" % len(d["data"]))
 
-# 7. 下单绑定作品（pages/product submit）
-st, d = req("POST", "/orders", ut, {"items": [{"sku_id": sku["id"], "work_id": work_id, "qty": 1}]})
+# 6.5 地址管理（pages/address/list、pages/address/edit）
+addr_body = {"name": "李雷", "phone": "13800138000", "province": "广东省",
+             "city": "深圳市", "district": "南山区", "detail": "科技园 8 栋 501", "is_default": True}
+st, d = req("POST", "/addresses", ut, addr_body)
+assert st == 200 and d["data"]["is_default"] == 1, (st, d)
+ADDR = d["data"]["id"]
+st, d = req("POST", "/addresses", ut, dict(addr_body, name="韩梅梅", is_default=False))
+assert st == 200 and d["data"]["is_default"] == 0
+ADDR2 = d["data"]["id"]
+st, d = req("POST", "/addresses/%d/default" % ADDR2, ut)
+assert st == 200
+st, d = req("GET", "/addresses", ut)
+assert len(d["data"]) == 2 and sum(1 for a in d["data"] if a["is_default"] == 1) == 1
+st, d = req("PUT", "/addresses/%d" % ADDR, ut, dict(addr_body, name="李雷改"))
+assert st == 200
+st, d = req("DELETE", "/addresses/%d" % ADDR2, ut)  # 删默认 → 剩余一条自动补默认
+assert st == 200
+st, d = req("GET", "/addresses", ut)
+assert len(d["data"]) == 1 and d["data"][0]["id"] == ADDR and d["data"][0]["is_default"] == 1
+steps.append("地址管理 OK（增/设默认/唯一默认/编辑/删默认自动补位）")
+
+# 7. 下单绑定作品+地址（pages/product submit）
+st, d = req("POST", "/orders", ut, {"address_id": ADDR, "items": [{"sku_id": sku["id"], "work_id": work_id, "qty": 1}]})
 assert st == 200, (st, d)
 oid = d["data"]["order"]["id"]
 total = d["data"]["total_cents"]
 assert total == sku["price_cents"]
-steps.append("下单绑作品 OK（订单 %d，金额 %d 分对账一致）" % (oid, total))
+o = d["data"]["order"]
+assert o["receiver_name"] == "李雷改" and o["receiver_phone"] == "13800138000"
+assert o["receiver_address"] == "广东省深圳市南山区科技园 8 栋 501"
+steps.append("下单绑作品+地址 OK（订单 %d，金额 %d 分对账一致，收货快照正确）" % (oid, total))
+
+# 7.5 无地址/他人地址下单应拒绝
+st, d = req("POST", "/orders", ut, {"items": [{"sku_id": sku["id"], "qty": 1}]})
+assert st == 400, (st, d)
+st, d = req("POST", "/orders", ut, {"address_id": 99999, "items": [{"sku_id": sku["id"], "qty": 1}]})
+assert st == 400, (st, d)
+steps.append("无地址/非法地址下单被拒 OK")
 
 # 8. 订单列表/详情/确认收货（pages/orders、pages/order）
 st, d = req("GET", "/orders", ut)

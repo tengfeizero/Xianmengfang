@@ -92,19 +92,37 @@ type Work struct {
 	Status       int    `json:"status"` // 1 正常 0 已删除 2 被下架
 }
 
+// Address 用户收货地址
+type Address struct {
+	Model
+	UserID    int64  `gorm:"index" json:"user_id"`
+	Name      string `gorm:"size:32" json:"name"`
+	Phone     string `gorm:"size:16" json:"phone"`
+	Province  string `gorm:"size:32" json:"province"`
+	City      string `gorm:"size:32" json:"city"`
+	District  string `gorm:"size:32" json:"district"`
+	Detail    string `gorm:"size:255" json:"detail"`
+	IsDefault int    `json:"is_default"` // 1 默认 0 普通
+	Status    int    `json:"status"`     // 1 正常 0 已删除
+}
+
 // Order 订单
 type Order struct {
 	Model
-	OrderNo      string     `gorm:"uniqueIndex;size:32" json:"order_no"`
-	UserID       int64      `gorm:"index" json:"user_id"`
-	Status       string     `gorm:"size:20;index" json:"status"`
-	PayType      string     `gorm:"size:10" json:"pay_type"` // mock / wxpay
-	TotalCents   int64      `json:"total_cents"`
-	RefundFlag   int        `json:"refund_flag"` // 仅标记，MVP 无退款资金流
-	CancelReason string     `json:"cancel_reason"`
-	PaidAt       *time.Time `json:"paid_at"`
-	ShippedAt    *time.Time `json:"shipped_at"`
-	DoneAt       *time.Time `json:"done_at"`
+	OrderNo        string     `gorm:"uniqueIndex;size:32" json:"order_no"`
+	UserID         int64      `gorm:"index" json:"user_id"`
+	Status         string     `gorm:"size:20;index" json:"status"`
+	PayType        string     `gorm:"size:10" json:"pay_type"` // mock / wxpay
+	TotalCents     int64      `json:"total_cents"`
+	RefundFlag     int        `json:"refund_flag"` // 仅标记，MVP 无退款资金流
+	CancelReason   string     `json:"cancel_reason"`
+	// 收货信息快照（下单时从 Address 复制，地址后续修改不影响历史订单）
+	ReceiverName    string     `gorm:"size:32" json:"receiver_name"`
+	ReceiverPhone   string     `gorm:"size:16" json:"receiver_phone"`
+	ReceiverAddress string     `gorm:"size:255" json:"receiver_address"`
+	PaidAt          *time.Time `json:"paid_at"`
+	ShippedAt       *time.Time `json:"shipped_at"`
+	DoneAt          *time.Time `json:"done_at"`
 }
 
 // OrderItem 订单明细（SKU 快照 + 绑定作品）
@@ -154,7 +172,7 @@ type AITask struct {
 // AllMigrations 全部迁移模型，AutoMigrate 幂等
 func AllMigrations() []any {
 	return []any{
-		&User{}, &Admin{}, &Config{},
+		&User{}, &Admin{}, &Config{}, &Address{},
 		&ProductCategory{}, &Product{}, &SKU{}, &Work{},
 		&Board{}, &Element{},
 		&Order{}, &OrderItem{}, &OrderEvent{}, &Shipment{}, &AITask{},

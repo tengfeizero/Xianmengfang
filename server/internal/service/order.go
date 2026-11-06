@@ -46,7 +46,8 @@ type CreateResult struct {
 }
 
 // Create 下单（mock 支付：直接进入待接单）。库存原子扣减，任何一步失败整体回滚。
-func (s *OrderService) Create(userID int64, items []ItemInput) (*CreateResult, error) {
+// addr 非空时把收货信息快照进订单（地址后续修改不影响历史订单）。
+func (s *OrderService) Create(userID int64, items []ItemInput, addr *model.Address) (*CreateResult, error) {
 	if len(items) == 0 {
 		return nil, ErrEmptyItems
 	}
@@ -58,6 +59,11 @@ func (s *OrderService) Create(userID int64, items []ItemInput) (*CreateResult, e
 		Status:   StatusPendingAccept,
 		PayType:  "mock",
 		PaidAt:   &now,
+	}
+	if addr != nil {
+		order.ReceiverName = addr.Name
+		order.ReceiverPhone = addr.Phone
+		order.ReceiverAddress = addr.Province + addr.City + addr.District + addr.Detail
 	}
 	err := s.DB.Transaction(func(tx *gorm.DB) error {
 		total = 0

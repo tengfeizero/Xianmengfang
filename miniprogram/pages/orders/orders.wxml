@@ -1,3 +1,8 @@
+<view class="page-head">
+  <view class="head-title">我的订单</view>
+  <view class="head-link" bindtap="manageAddress">收货地址 ›</view>
+</view>
+
 <scroll-view scroll-x class="tab-scroll">
   <view class="tab-row">
     <view
@@ -42,5 +47,6 @@
       >确认收货</button>
     </view>
   </view>
+  <view class="muted" wx:if="{{item.receiver}}">收货：{{item.receiver}}　{{item.receiverAddress}}</view>
   <view class="muted" wx:if="{{item.shipment}}">物流：{{item.shipment.company}} {{item.shipment.trackingNo}}</view>
 </view>

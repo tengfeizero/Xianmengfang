@@ -30,6 +30,7 @@ func main() {
 		Secret:     cfg.JWTSecret,
 		Auth:       service.NewAuthService(db, cfg.WxAppID, cfg.WxSecret),
 		Orders:     &service.OrderService{DB: db},
+		Addresses:  &service.AddressService{DB: db},
 		AI:         &service.AIService{DB: db, Provider: service.MockProvider{}, UploadsDir: uploadsDir},
 		UploadsDir: uploadsDir,
 		Dev:        cfg.DevLogin,

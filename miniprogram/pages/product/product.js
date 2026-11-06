@@ -10,6 +10,8 @@ Page({
     qty: 1,
     works: [], // 可绑定的作品
     selectedWork: null,
+    addresses: [],
+    selectedAddress: null,
     submitting: false,
     totalText: '--',
   },
@@ -18,6 +20,7 @@ Page({
     this.productId = Number(query.id)
     this.load()
     this.loadWorks()
+    this.loadAddresses()
   },
 
   load() {
@@ -86,6 +89,39 @@ Page({
     this.setData({ totalText: fen2yuan(parseFloat(s.priceText) * 100 * this.data.qty) })
   },
 
+  loadAddresses() {
+    api
+      .request('GET', '/addresses')
+      .then((list) => {
+        const addresses = (list || []).map((a) => ({
+          id: a.id,
+          name: a.name,
+          phone: a.phone,
+          full: a.province + a.city + a.district + a.detail,
+          isDefault: a.is_default === 1,
+        }))
+        this.setData({
+          addresses,
+          // 默认选中默认地址（若尚未选择）
+          selectedAddress: this.data.selectedAddress || addresses.find((a) => a.isDefault) || null,
+        })
+      })
+      .catch(() => {})
+  },
+
+  chooseAddress() {
+    wx.navigateTo({
+      url: '/pages/address/list?select=1',
+      events: {
+        select: (addr) => this.setData({ selectedAddress: addr }),
+      },
+    })
+  },
+
+  manageAddress() {
+    wx.navigateTo({ url: '/pages/address/list' })
+  },
+
   pickSku(e) {
     const sku = this.data.skus.find((s) => s.id === e.currentTarget.dataset.id)
     this.setData({ selectedSku: sku })
@@ -105,6 +141,10 @@ Page({
   },
 
   submit() {
+    if (!this.data.selectedAddress) {
+      wx.showToast({ title: '请选择收货地址', icon: 'none' })
+      return
+    }
     if (!this.data.selectedSku) {
       wx.showToast({ title: '请先选择规格', icon: 'none' })
       return
@@ -113,7 +153,7 @@ Page({
     const item = { sku_id: this.data.selectedSku.id, qty: this.data.qty }
     if (this.data.selectedWork) item.work_id = this.data.selectedWork.id
     api
-      .request('POST', '/orders', { items: [item] })
+      .request('POST', '/orders', { address_id: this.data.selectedAddress.id, items: [item] })
       .then((d) => {
         wx.showToast({ title: '下单成功', icon: 'success' })
         setTimeout(() => wx.switchTab({ url: '/pages/orders/orders' }), 800)

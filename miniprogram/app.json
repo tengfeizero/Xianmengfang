@@ -7,7 +7,9 @@
     "pages/login/login",
     "pages/product/product",
     "pages/ai/ai",
-    "pages/order/order"
+    "pages/order/order",
+    "pages/address/list",
+    "pages/address/edit"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ff7ea0",

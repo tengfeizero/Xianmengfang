@@ -38,7 +38,7 @@ func newTestDB(t *testing.T) *gorm.DB {
 func TestCreate_MockPay_TotalAndStock(t *testing.T) {
 	db := newTestDB(t)
 	svc := &OrderService{DB: db}
-	res, err := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 2}, {SKUID: 2, Qty: 1}})
+	res, err := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 2}, {SKUID: 2, Qty: 1}}, nil)
 	if err != nil {
 		t.Fatalf("下单失败: %v", err)
 	}
@@ -72,7 +72,7 @@ func TestCreate_StockInsufficient(t *testing.T) {
 	db := newTestDB(t)
 	svc := &OrderService{DB: db}
 	// SKU1 只有 3 件库存
-	_, err := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 4}})
+	_, err := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 4}}, nil)
 	if err != ErrStockInsufficient {
 		t.Fatalf("应报库存不足，得到: %v", err)
 	}
@@ -92,7 +92,7 @@ func TestCreate_StockInsufficient(t *testing.T) {
 func TestCreate_ProductOffShelf(t *testing.T) {
 	db := newTestDB(t)
 	svc := &OrderService{DB: db}
-	_, err := svc.Create(1, []ItemInput{{SKUID: 3, Qty: 1}})
+	_, err := svc.Create(1, []ItemInput{{SKUID: 3, Qty: 1}}, nil)
 	if err == nil || err.Error() != "商品已下架" {
 		t.Fatalf("下架商品应不可下单: %v", err)
 	}
@@ -101,14 +101,14 @@ func TestCreate_ProductOffShelf(t *testing.T) {
 func TestFullLifecycle_MockPay(t *testing.T) {
 	db := newTestDB(t)
 	svc := &OrderService{DB: db}
-	res, _ := svc.Create(1, []ItemInput{{SKUID: 2, Qty: 1}}) // 库存仅 1 件
+	res, _ := svc.Create(1, []ItemInput{{SKUID: 2, Qty: 1}}, nil) // 库存仅 1 件
 	oid := res.Order.ID
 
 	// 用户不能接单/发货；这里只验证用户取消受限
 	if err := svc.Cancel(oid, 1, false, "不想要了"); err == nil {
 		// 用户可取消待接单，属合法；重新下一单继续
 	}
-	res2, _ := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 1}})
+	res2, _ := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 1}}, nil)
 	oid2 := res2.Order.ID
 
 	if err := svc.Accept(oid2, 9); err != nil {
@@ -140,7 +140,7 @@ func TestFullLifecycle_MockPay(t *testing.T) {
 func TestCancel_RestoresStock(t *testing.T) {
 	db := newTestDB(t)
 	svc := &OrderService{DB: db}
-	res, _ := svc.Create(1, []ItemInput{{SKUID: 2, Qty: 1}}) // L 码库存 1→0
+	res, _ := svc.Create(1, []ItemInput{{SKUID: 2, Qty: 1}}, nil) // L 码库存 1→0
 	if err := svc.Cancel(res.Order.ID, 1, false, "拍错了"); err != nil {
 		t.Fatalf("用户取消待接单失败: %v", err)
 	}
@@ -150,14 +150,14 @@ func TestCancel_RestoresStock(t *testing.T) {
 		t.Fatalf("取消后库存未恢复: %d", sku.Stock)
 	}
 	// 已发货不可取消
-	res2, _ := svc.Create(1, []ItemInput{{SKUID: 2, Qty: 1}})
+	res2, _ := svc.Create(1, []ItemInput{{SKUID: 2, Qty: 1}}, nil)
 	svc.Accept(res2.Order.ID, 9)
 	svc.Ship(res2.Order.ID, 9, "顺丰", "SF001")
 	if err := svc.Cancel(res2.Order.ID, 1, false, "test"); err != ErrIllegalTransition {
 		t.Fatalf("已发货用户取消应被拒绝: %v", err)
 	}
 	// 管理员可取消待发货
-	res3, _ := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 1}})
+	res3, _ := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 1}}, nil)
 	svc.Accept(res3.Order.ID, 9)
 	if err := svc.Cancel(res3.Order.ID, 9, true, "缺货"); err != nil {
 		t.Fatalf("管理员取消待发货失败: %v", err)
@@ -172,7 +172,7 @@ func TestCancel_RestoresStock(t *testing.T) {
 func TestMarkRefund(t *testing.T) {
 	db := newTestDB(t)
 	svc := &OrderService{DB: db}
-	res, _ := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 1}})
+	res, _ := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 1}}, nil)
 	// 待接单不能标记退款
 	if err := svc.MarkRefund(res.Order.ID, 9); err != ErrIllegalTransition {
 		t.Fatalf("待接单不应可标记退款: %v", err)
