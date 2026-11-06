@@ -26,6 +26,13 @@ func main() {
 	}
 
 	orders := &service.OrderService{DB: db}
+	var aiProvider service.Provider = service.MockProvider{}
+	if cfg.AIKey != "" {
+		aiProvider = &service.HunyuanProvider{
+			APIKey: cfg.AIKey, BaseURL: cfg.AIBaseURL,
+			Model: cfg.AIModel, Style: cfg.AIStyle,
+		}
+	}
 	h := &api.Handlers{
 		DB:         db,
 		Secret:     cfg.JWTSecret,
@@ -33,7 +40,7 @@ func main() {
 		Orders:     orders,
 		Carts:      &service.CartService{DB: db, Orders: orders},
 		Addresses:  &service.AddressService{DB: db},
-		AI:         &service.AIService{DB: db, Provider: service.MockProvider{}, UploadsDir: uploadsDir},
+		AI:         &service.AIService{DB: db, Provider: aiProvider, UploadsDir: uploadsDir},
 		UploadsDir: uploadsDir,
 		Dev:        cfg.DevLogin,
 	}

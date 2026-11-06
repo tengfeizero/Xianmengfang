@@ -17,6 +17,12 @@ type Config struct {
 	WxSecret  string
 	DevLogin  bool // 本地开发模拟登录开关
 	DataDir   string
+
+	// AI 生图：AIKey 有值即启用真实供应商（腾讯混元），否则回落 Mock
+	AIKey     string
+	AIBaseURL string
+	AIModel   string
+	AIStyle   string
 }
 
 func Load() (*Config, error) {
@@ -26,6 +32,11 @@ func Load() (*Config, error) {
 		WxAppID:  os.Getenv("XMF_WX_APPID"),
 		WxSecret: os.Getenv("XMF_WX_SECRET"),
 		DevLogin: envOr("XMF_DEV_LOGIN", "1") == "1",
+
+		AIKey:     os.Getenv("XMF_AI_API_KEY"),
+		AIBaseURL: os.Getenv("XMF_AI_BASE_URL"),
+		AIModel:   envOr("XMF_AI_MODEL", "hy-image-v3.5-preview"),
+		AIStyle:   envOr("XMF_AI_STYLE", "messages"),
 	}
 	c.DataDir = filepath.Dir(c.DBPath)
 	if err := os.MkdirAll(c.DataDir, 0o755); err != nil {

@@ -35,9 +35,9 @@ func (s *AuthService) DevLogin(openID string) (*model.User, error) {
 }
 
 type wxSessionResp struct {
-	OpenID string `json:"openid"`
-	ErrMsg string `json:"errmsg"`
-	ErrCode int   `json:"errcode"`
+	OpenID  string `json:"openid"`
+	ErrMsg  string `json:"errmsg"`
+	ErrCode int    `json:"errcode"`
 }
 
 // WxLogin 微信 code 换 openid

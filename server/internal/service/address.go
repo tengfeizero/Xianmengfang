@@ -17,10 +17,10 @@ const (
 var phoneRe = regexp.MustCompile(`^1\d{10}$`)
 
 var (
-	ErrAddressNotFound = errors.New("地址不存在")
+	ErrAddressNotFound  = errors.New("地址不存在")
 	ErrAddressForbidden = errors.New("无权操作该地址")
-	ErrAddressLimit    = errors.New("收货地址最多 20 条")
-	ErrAddressInvalid  = errors.New("地址信息不完整")
+	ErrAddressLimit     = errors.New("收货地址最多 20 条")
+	ErrAddressInvalid   = errors.New("地址信息不完整")
 )
 
 // AddressInput 新增/编辑地址入参

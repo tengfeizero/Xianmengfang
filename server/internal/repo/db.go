@@ -57,6 +57,11 @@ func Seed(db *gorm.DB, uploadsDir string) error {
 	defaults := map[string]string{
 		"ai_daily_free_limit": "3",
 		"work_review_enabled": "false",
+		// AI 生图（腾讯混元 hy-image）：api_key 留空 = 走 Mock；后台系统配置页可改
+		"ai_api_key":  "",
+		"ai_base_url": "https://tokenhub.tencentmaas.com",
+		"ai_model":    "hy-image-v3.5-preview",
+		"ai_style":    "messages",
 	}
 	for k, v := range defaults {
 		var n int64

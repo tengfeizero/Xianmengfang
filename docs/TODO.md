@@ -1,6 +1,15 @@
 # TODO — 现梦坊
 
+## 接入真实 AI 生图（腾讯混元 Hy Image 3.5 preview）✅ 已完成（2026-11-06，v1.3）
+选定模型：腾讯混元 `hy-image-v3.5-preview`（一个模型同时支持文生图 + 参考图指令编辑，正好对应 ai_text / ai_photo 两种任务；按张计费约 0.11 元/张，只对输出收费）。
+- [x] `service.HunyuanProvider`：实现 Provider 接口两方法；messages 格式（腾讯云 TokenHub）为主，预留 images 格式（OpenAI 风格端点）；结果 URL 立即下载落盘（返回的 URL 12 小时过期），统一转码 PNG
+- [x] **后台可配置**（用户要求，密钥不进代码仓库）：`configs` 表新增 `ai_api_key` / `ai_base_url` / `ai_model` / `ai_style` 四键，后台系统配置页可改；密钥列表脱敏展示（前5后4），留空 = 停用真实生图回落 Mock；AIService 每次任务前 resolveProvider（DB 配置 → 注入兜底）
+- [x] 单测：httptest 假服务验证请求结构与图片落盘；resolveProvider 解析与回落；配置校验/脱敏；配额逻辑不变（ai_daily_free_limit）
+- [x] 真实 key 联调（8080 主库实测）：文生图（水彩柴犬咖啡店）+ 照片转风格（简笔画→卡通插画，构图保持）全通；m0/m1/mp/cart 四套 e2e 在隔离 Mock 实例全过
+- 备注：国内站端点为 `https://tokenhub.tencentmaas.com`（Bearer 用控制台 sk- 开头的 SecretKey，ak- 是 Key ID 不参与鉴权）；回归测试须用隔离实例（无 key → Mock），避免真实计费
+
 ## 购物车 ✅ 已完成（2026-11-06，v1.0，规划见 PRD 3.2.2）
+
 - [x] 后端：cart_items 模型（唯一键 user+sku+work、checked 默认 1）+ CartService + 8 个接口（列表/加购/单项改/批量勾选/删单项/清空/checkout）
 - [x] checkout 复用 OrderService.Create 一单多明细，成功后移除对应项；失效项拦截
 - [x] 小程序：tabBar 第 5 个「购物车」页（勾选/全选/数量步进/失效标灰/删除/地址选择/结算 + tabBar 角标）；商品页加「加入购物车」双按钮；tabBar 图标程序生成

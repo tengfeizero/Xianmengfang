@@ -76,8 +76,37 @@ func (MockProvider) PhotoStyle(srcPath, outPath string) error {
 // AIService AI 生成任务
 type AIService struct {
 	DB         *gorm.DB
-	Provider   Provider
+	Provider   Provider // 兜底供应商（无后台密钥配置时使用，通常是 Mock 或环境变量注入的实现）
 	UploadsDir string
+}
+
+// resolveProvider 后台配置优先：configs.ai_api_key 有值即按腾讯混元调用（base_url/model/style 可配），
+// 未配置则回落注入的 Provider（环境变量注入的真实实现或 Mock）。
+func (s *AIService) resolveProvider() Provider {
+	var cfg model.Config
+	if err := s.DB.Where("key = ?", "ai_api_key").First(&cfg).Error; err != nil || strings.TrimSpace(cfg.Value) == "" {
+		return s.Provider
+	}
+	p := &HunyuanProvider{
+		APIKey:  strings.TrimSpace(cfg.Value),
+		BaseURL: "https://tokenhub.tencentmaas.com",
+		Model:   "hy-image-v3.5-preview",
+		Style:   "messages",
+	}
+	// 注意：GORM 复用已填充的结构体做 First 会带上一次主键条件，必须每次用新变量
+	var c model.Config
+	if err := s.DB.Where("key = ?", "ai_base_url").First(&c).Error; err == nil && strings.TrimSpace(c.Value) != "" {
+		p.BaseURL = strings.TrimSpace(c.Value)
+	}
+	var c3 model.Config
+	if err := s.DB.Where("key = ?", "ai_model").First(&c3).Error; err == nil && strings.TrimSpace(c3.Value) != "" {
+		p.Model = strings.TrimSpace(c3.Value)
+	}
+	var c4 model.Config
+	if err := s.DB.Where("key = ?", "ai_style").First(&c4).Error; err == nil && strings.TrimSpace(c4.Value) != "" {
+		p.Style = strings.TrimSpace(c4.Value)
+	}
+	return p
 }
 
 // CreateTask 创建并同步执行生成任务（MVP 同步；量大后再改异步队列）
@@ -113,9 +142,10 @@ func (s *AIService) CreateTask(userID int64, taskType, prompt, photoURL string) 
 	outName := fmt.Sprintf("ai_%s_%04d.png", time.Now().Format("20060102150405"), rand.Intn(10000))
 	outPath := filepath.Join(s.UploadsDir, outName)
 
+	provider := s.resolveProvider()
 	task := &model.AITask{
 		UserID: userID, Type: taskType, Status: "pending",
-		Provider: s.Provider.Name(), QuotaDate: today,
+		Provider: provider.Name(), QuotaDate: today,
 		Params: prompt,
 	}
 	if taskType == "ai_photo" {
@@ -124,11 +154,11 @@ func (s *AIService) CreateTask(userID int64, taskType, prompt, photoURL string) 
 			return nil, nil, err
 		}
 		task.Params = photoURL
-		if err := s.Provider.PhotoStyle(srcPath, outPath); err != nil {
+		if err := provider.PhotoStyle(srcPath, outPath); err != nil {
 			return nil, nil, err
 		}
 	} else {
-		if err := s.Provider.Text2Image(prompt, outPath); err != nil {
+		if err := provider.Text2Image(prompt, outPath); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -140,8 +170,8 @@ func (s *AIService) CreateTask(userID int64, taskType, prompt, photoURL string) 
 	work := &model.Work{
 		UserID: userID, Type: taskType,
 		ImageURL: task.ResultURL, ThumbnailURL: task.ResultURL,
-		Meta:    fmt.Sprintf(`{"task_id":%d,"prompt":%q}`, task.ID, prompt),
-		Status:  1,
+		Meta:   fmt.Sprintf(`{"task_id":%d,"prompt":%q}`, task.ID, prompt),
+		Status: 1,
 	}
 	if err := s.DB.Create(work).Error; err != nil {
 		return nil, nil, err

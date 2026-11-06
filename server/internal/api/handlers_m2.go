@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"strings"
 
 	"xmf/internal/model"
 
@@ -317,6 +318,23 @@ func (h *Handlers) adminElementList(c *gin.Context) {
 var configWhitelist = map[string]bool{
 	"ai_daily_free_limit": true,
 	"work_review_enabled": true,
+	// AI 生图（腾讯混元 hy-image）：api_key 留空 = 停用真实生图、回落 Mock
+	"ai_api_key":  true,
+	"ai_base_url": true,
+	"ai_model":    true,
+	"ai_style":    true,
+}
+
+// maskedSecret 密钥脱敏展示：保留前 5 后 4。
+func maskedSecret(v string) string {
+	v = strings.TrimSpace(v)
+	if v == "" {
+		return ""
+	}
+	if len(v) <= 9 {
+		return "******"
+	}
+	return v[:5] + "****" + v[len(v)-4:]
 }
 
 func (h *Handlers) adminConfigList(c *gin.Context) {
@@ -325,13 +343,18 @@ func (h *Handlers) adminConfigList(c *gin.Context) {
 		fail(c, 500, "获取配置失败，请稍后再试")
 		return
 	}
+	for i := range cfgs {
+		if cfgs[i].Key == "ai_api_key" {
+			cfgs[i].Value = maskedSecret(cfgs[i].Value)
+		}
+	}
 	ok(c, cfgs)
 }
 
 func (h *Handlers) adminConfigUpdate(c *gin.Context) {
 	var req struct {
 		Key   string `json:"key" binding:"required"`
-		Value string `json:"value" binding:"required"`
+		Value string `json:"value"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		fail(c, 400, "参数错误")
@@ -341,16 +364,40 @@ func (h *Handlers) adminConfigUpdate(c *gin.Context) {
 		fail(c, 400, "不支持的配置项")
 		return
 	}
-	if req.Key == "ai_daily_free_limit" {
+	switch req.Key {
+	case "ai_daily_free_limit":
 		var n int
 		if _, err := fmt.Sscanf(req.Value, "%d", &n); err != nil || n < 0 || n > 1000 {
 			fail(c, 400, "每日免费次数必须是 0~1000 的整数")
 			return
 		}
+	case "ai_api_key":
+		// 允许空值（清空 = 停用真实生图）；去首尾空白
+		req.Value = strings.TrimSpace(req.Value)
+	case "ai_base_url":
+		if !strings.HasPrefix(req.Value, "http://") && !strings.HasPrefix(req.Value, "https://") {
+			fail(c, 400, "接口地址必须以 http:// 或 https:// 开头")
+			return
+		}
+	case "ai_model":
+		if len(strings.TrimSpace(req.Value)) == 0 || len(req.Value) > 64 {
+			fail(c, 400, "模型 ID 不能为空且不超过 64 字符")
+			return
+		}
+	case "ai_style":
+		if req.Value != "messages" && req.Value != "images" {
+			fail(c, 400, "请求格式只支持 messages 或 images")
+			return
+		}
 	}
-	res := h.DB.Model(&model.Config{}).Where("key = ?", req.Key).Update("value", req.Value)
-	if res.Error != nil || res.RowsAffected == 0 {
-		fail(c, 404, "配置项不存在或更新失败")
+	var cfg model.Config
+	if err := h.DB.Where("key = ?", req.Key).First(&cfg).Error; err != nil {
+		fail(c, 404, "配置项不存在")
+		return
+	}
+	cfg.Value = req.Value
+	if err := h.DB.Save(&cfg).Error; err != nil {
+		fail(c, 500, "配置保存失败，请稍后再试")
 		return
 	}
 	ok(c, nil)

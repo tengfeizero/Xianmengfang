@@ -31,6 +31,10 @@ func newM2TestEnv(t *testing.T) (*gorm.DB, *gin.Engine) {
 		&model.SKU{ProductID: 1, Specs: `{"尺码":"L"}`, PriceCents: 9900, Stock: 5, Code: "T2"},
 		&model.Config{Key: "ai_daily_free_limit", Value: "3"},
 		&model.Config{Key: "work_review_enabled", Value: "false"},
+		&model.Config{Key: "ai_api_key", Value: ""},
+		&model.Config{Key: "ai_base_url", Value: "https://tokenhub.tencentmaas.com"},
+		&model.Config{Key: "ai_model", Value: "hy-image-v3.5-preview"},
+		&model.Config{Key: "ai_style", Value: "messages"},
 	}
 	for _, s := range seed {
 		if err := db.Create(s).Error; err != nil {
@@ -109,5 +113,46 @@ func TestAdminConfigUpdate(t *testing.T) {
 	db.Where("key = ?", "ai_daily_free_limit").First(&cfg)
 	if cfg.Value != "5" {
 		t.Fatalf("配置未生效: %s", cfg.Value)
+	}
+}
+
+func TestAdminConfig_AIKeys(t *testing.T) {
+	db, r := newM2TestEnv(t)
+	// ai_style 非法值拒绝
+	w := doReq(r, "PUT", "/admin/configs", `{"key":"ai_style","value":"graphql"}`)
+	if w.Code != 400 {
+		t.Fatalf("ai_style 非法值应拒绝: %d", w.Code)
+	}
+	// ai_base_url 非 http 拒绝
+	w = doReq(r, "PUT", "/admin/configs", `{"key":"ai_base_url","value":"ftp://x"}`)
+	if w.Code != 400 {
+		t.Fatalf("ai_base_url 非 http 应拒绝: %d", w.Code)
+	}
+	// ai_api_key 允许空值（清空 = 停用）
+	w = doReq(r, "PUT", "/admin/configs", `{"key":"ai_api_key","value":""}`)
+	if w.Code != http.StatusOK {
+		t.Fatalf("清空 ai_api_key 应通过: %d %s", w.Code, w.Body.String())
+	}
+	// 写入密钥（自动去首尾空白）
+	w = doReq(r, "PUT", "/admin/configs", `{"key":"ai_api_key","value":"  sk-test1234567890abcd  "}`)
+	if w.Code != http.StatusOK {
+		t.Fatalf("写入 ai_api_key 应通过: %d %s", w.Code, w.Body.String())
+	}
+	var cfg model.Config
+	db.Where("key = ?", "ai_api_key").First(&cfg)
+	if cfg.Value != "sk-test1234567890abcd" {
+		t.Fatalf("密钥未正确保存: %q", cfg.Value)
+	}
+	// 列表脱敏：不含完整密钥
+	h := &Handlers{DB: db}
+	gin.SetMode(gin.TestMode)
+	r2 := gin.New()
+	r2.GET("/admin/configs", h.adminConfigList)
+	w = doReq(r2, "GET", "/admin/configs", "")
+	if strings.Contains(w.Body.String(), "sk-test1234567890abcd") {
+		t.Fatalf("列表泄露完整密钥: %s", w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), "sk-te****abcd") {
+		t.Fatalf("列表未返回脱敏形式: %s", w.Body.String())
 	}
 }
