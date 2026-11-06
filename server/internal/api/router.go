@@ -126,6 +126,8 @@ func Router(h *Handlers) *gin.Engine {
 		ag.PUT("/configs", h.adminConfigUpdate)
 		ag.GET("/users", h.adminUserList)
 		ag.PUT("/users/:id/status", h.adminUserSetStatus)
+		ag.GET("/works", h.adminWorkList)
+		ag.PUT("/works/:id/status", h.adminWorkSetStatus)
 	}
 
 	return r

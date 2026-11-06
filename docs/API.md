@@ -114,6 +114,8 @@
 | GET/PUT | /admin/configs | 系统配置（白名单键，ai_daily_free_limit 0~1000） | ✅ 已实现 |
 | GET | /admin/users | 用户列表（含订单数/作品数统计；keyword 按昵称模糊、status=0/1 过滤） | ✅ 已实现 |
 | PUT | /admin/users/:id/status | 启用/禁用用户（{status:0\|1}）。禁用后无法登录；已签发 JWT 在过期前仍有效 | ✅ 已实现 |
+| GET | /admin/works | 全站作品列表（含作者昵称；type=collage/ai_text/ai_photo、status=0/1/2 过滤） | ✅ 已实现 |
+| PUT | /admin/works/:id/status | 上架(1)/下架(2)。用户已删除(status=0)的作品不可变更，返回 409 | ✅ 已实现 |
 | POST | /admin/upload | 后台上传图片（与用户端 /upload 同逻辑） | ✅ 已实现 |
 
 ## 状态码约定

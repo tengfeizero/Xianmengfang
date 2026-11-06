@@ -361,6 +361,72 @@ func (h *Handlers) adminUserSetStatus(c *gin.Context) {
 	ok(c, nil)
 }
 
+// ---- 后台：作品管理 ----
+
+// adminWorkList 全站作品列表（含作者昵称），支持 type（collage/ai_text/ai_photo）与 status 过滤。
+func (h *Handlers) adminWorkList(c *gin.Context) {
+	q := h.DB.Order("id desc")
+	if t := c.Query("type"); t == "collage" || t == "ai_text" || t == "ai_photo" {
+		q = q.Where("type = ?", t)
+	}
+	if s := c.Query("status"); s == "0" || s == "1" || s == "2" {
+		q = q.Where("status = ?", s)
+	}
+	var works []model.Work
+	if err := q.Find(&works).Error; err != nil {
+		fail(c, 500, "获取作品失败，请稍后再试")
+		return
+	}
+	// 批量取作者昵称
+	ids := make([]int64, 0, len(works))
+	for _, w := range works {
+		ids = append(ids, w.UserID)
+	}
+	nick := map[int64]string{}
+	if len(ids) > 0 {
+		var us []model.User
+		if err := h.DB.Where("id IN ?", ids).Find(&us).Error; err == nil {
+			for _, u := range us {
+				nick[u.ID] = u.Nickname
+			}
+		}
+	}
+	type workRow struct {
+		model.Work
+		Nickname string `json:"nickname"`
+	}
+	rows := make([]workRow, 0, len(works))
+	for _, w := range works {
+		rows = append(rows, workRow{Work: w, Nickname: nick[w.UserID]})
+	}
+	ok(c, rows)
+}
+
+// adminWorkSetStatus 上架(1)/下架(2)。status=0 是用户自删语义，后台不可设置；也不允许把已删除作品恢复。
+func (h *Handlers) adminWorkSetStatus(c *gin.Context) {
+	var req struct {
+		Status int `json:"status" binding:"oneof=1 2"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		fail(c, 400, "参数错误：status 只能为 1（上架）或 2（下架）")
+		return
+	}
+	var w model.Work
+	if err := h.DB.First(&w, paramID(c)).Error; err != nil {
+		fail(c, 404, "作品不存在")
+		return
+	}
+	if w.Status == 0 {
+		fail(c, 409, "作品已被用户删除，无法变更状态")
+		return
+	}
+	if err := h.DB.Model(&w).Update("status", req.Status).Error; err != nil {
+		fail(c, 500, "更新失败，请稍后再试")
+		return
+	}
+	ok(c, nil)
+}
+
 // ---- 后台：系统配置 ----
 
 var configWhitelist = map[string]bool{

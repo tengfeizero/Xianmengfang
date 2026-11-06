@@ -17,6 +17,7 @@ const routes: RouteRecordRaw[] = [
       },
       { path: 'assets', name: 'assets', component: () => import('@/views/Assets.vue'), meta: { title: '素材管理' } },
       { path: 'users', name: 'users', component: () => import('@/views/Users.vue'), meta: { title: '用户管理' } },
+      { path: 'works', name: 'works', component: () => import('@/views/Works.vue'), meta: { title: '作品管理' } },
       {
         path: 'configs',
         name: 'configs',
