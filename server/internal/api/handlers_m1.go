@@ -7,6 +7,7 @@ import (
 	"image"
 	"math/rand"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -123,8 +124,14 @@ func (h *Handlers) collageCompose(c *gin.Context) {
 			fail(c, 400, "元素放缩超出范围")
 			return
 		}
-		placements = append(placements, imageutil.Placement{Img: img, RelX: p.X, RelY: p.Y, Scale: scale})
+		placements = append(placements, imageutil.Placement{
+			Img: img, RelX: p.X, RelY: p.Y, Scale: scale,
+			Z: categoryZ(el.Category),
+		})
 	}
+	// 图层顺序按分类固定（与游戏换装一致）：服装 < 头发 < 表情 < 睫毛 < 帽子 < 配饰，
+	// 用户添加顺序不再影响遮挡关系
+	sort.SliceStable(placements, func(i, j int) bool { return placements[i].Z < placements[j].Z })
 	out, err := imageutil.Compose(boardImg, placements)
 	if err != nil {
 		fail(c, 500, "作品合成失败，请稍后再试")
@@ -336,4 +343,23 @@ func validElementCategory(cat string) bool {
 		return true
 	}
 	return false
+}
+
+// categoryZ 拼装图层顺序（小者底层）：服装 < 头发 < 表情 < 睫毛 < 帽子 < 配饰
+func categoryZ(cat string) int {
+	switch cat {
+	case "outfit":
+		return 0
+	case "hair":
+		return 1
+	case "expression":
+		return 2
+	case "lash":
+		return 3
+	case "hat":
+		return 4
+	case "accessory":
+		return 5
+	}
+	return 3
 }

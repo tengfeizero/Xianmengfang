@@ -2,6 +2,9 @@ const api = require('../../utils/request')
 const { ELEMENT_CATS } = require('../../utils/util')
 const { img } = require('../../config')
 
+// 拼装图层顺序（与服务端 categoryZ 一致）：服装 < 头发 < 表情 < 睫毛 < 帽子 < 配饰
+const CAT_Z = { outfit: 0, hair: 1, expression: 2, lash: 3, hat: 4, accessory: 5 }
+
 Page({
   data: {
     boards: [],
@@ -81,6 +84,7 @@ Page({
               id: el.id,
               name: el.name,
               url: el.image_url,
+              category: el.category,
               full: img(el.image_url),
               anchor,
             }
@@ -115,7 +119,15 @@ Page({
       return
     }
     const placements = this.data.placements.concat([
-      { elementId: el.id, name: el.name, url: el.url, x: el.anchor.x || 0.5, y: el.anchor.y || 0.5, scale: el.anchor.scale || 1 },
+      {
+        elementId: el.id,
+        name: el.name,
+        url: el.url,
+        cat: el.category,
+        x: el.anchor.x || 0.5,
+        y: el.anchor.y || 0.5,
+        scale: el.anchor.scale || 1,
+      },
     ])
     this.setData({ placements, selectedIdx: placements.length - 1, scaleVal: el.anchor.scale || 1 })
     this.ensureImg(el.url, () => this.draw())
@@ -215,21 +227,25 @@ Page({
     } else {
       this.ensureImg(this.board.url, () => this.draw())
     }
-    this.data.placements.forEach((p) => {
-      const im = this.imgCache[p.url]
-      if (!im) {
-        this.ensureImg(p.url, () => this.draw())
-        return
-      }
-      const r = this.placementRect(p)
-      ctx.drawImage(im, r.x, r.y, r.w, r.h)
-      if (this.data.placements.indexOf(p) === this.data.selectedIdx) {
-        ctx.strokeStyle = '#ff7ea0'
-        ctx.setLineDash([6, 4])
-        ctx.strokeRect(r.x, r.y, r.w, r.h)
-        ctx.setLineDash([])
-      }
-    })
+    this.data.placements
+      .map((p, i) => i)
+      .sort((a, b) => CAT_Z[this.data.placements[a].cat] - CAT_Z[this.data.placements[b].cat])
+      .forEach((idx) => {
+        const p = this.data.placements[idx]
+        const im = this.imgCache[p.url]
+        if (!im) {
+          this.ensureImg(p.url, () => this.draw())
+          return
+        }
+        const r = this.placementRect(p)
+        ctx.drawImage(im, r.x, r.y, r.w, r.h)
+        if (idx === this.data.selectedIdx) {
+          ctx.strokeStyle = '#ff7ea0'
+          ctx.setLineDash([6, 4])
+          ctx.strokeRect(r.x, r.y, r.w, r.h)
+          ctx.setLineDash([])
+        }
+      })
   },
 
   // ---- 生成作品 ----

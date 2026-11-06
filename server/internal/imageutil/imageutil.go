@@ -167,6 +167,7 @@ type Placement struct {
 	RelY      float64
 	Scale     float64
 	AlphaOver bool
+	Z         int // 图层顺序，小者先画（在底层）
 }
 
 func Compose(board image.Image, placements []Placement) (*image.RGBA, error) {
