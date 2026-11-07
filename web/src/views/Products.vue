@@ -50,7 +50,7 @@
           <span class="count">{{ products.length }} 款</span>
         </div>
       </div>
-      <el-table v-loading="loading" :data="products">
+      <el-table v-loading="loading" :data="pageRows">
         <el-table-column label="商品" min-width="200">
           <template #default="{ row }">
             <div class="p-cell">
@@ -102,6 +102,8 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <TablePager v-model:page="page" v-model:size="size" :total="total" />
     </div>
 
     <el-dialog v-model="productVisible" :title="productForm.id ? '编辑商品' : '新增商品'" width="640px">
@@ -244,6 +246,8 @@ import {
 import type { ProductInput } from '@/api/modules/products'
 import type { Category, Product, Sku } from '@/types'
 import { cents } from '@/utils/money'
+import { usePager } from '@/utils/pager'
+import TablePager from '@/components/TablePager.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -251,6 +255,9 @@ const auth = useAuthStore()
 const categories = ref<Category[]>([])
 const products = ref<Product[]>([])
 const loading = ref(false)
+
+/** 前端分页（商品一次拉全量，便于分类名映射） */
+const { page, size, total, rows: pageRows } = usePager(products)
 const newCat = ref('')
 
 const productVisible = ref(false)

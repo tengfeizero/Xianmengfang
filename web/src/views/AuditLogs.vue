@@ -70,18 +70,13 @@
       </el-table-column>
     </el-table>
 
-      <div class="panel-foot">
-        <span class="hint">共 {{ total }} 条记录</span>
-        <el-pagination
-          layout="sizes, prev, pager, next"
-          :total="total"
-          :page-size="filters.size"
-          :current-page="filters.page"
-          :page-sizes="[20, 50, 100]"
-          @current-change="onPage"
-          @size-change="onSize"
-        />
-      </div>
+      <TablePager
+        :total="total"
+        :page="filters.page"
+        :size="filters.size"
+        @update:page="onPage"
+        @update:size="onSize"
+      />
     </div>
   </div>
 </template>
@@ -90,13 +85,15 @@
 import { onMounted, reactive, ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import PageHeader from '@/components/PageHeader.vue'
+import TablePager from '@/components/TablePager.vue'
+import { DEFAULT_PAGE_SIZE } from '@/utils/pager'
 import { listAuditLogs } from '@/api/modules/rbac'
 import type { AuditLogRow } from '@/types'
 
 const rows = ref<AuditLogRow[]>([])
 const total = ref(0)
 const loading = ref(false)
-const filters = reactive({ keyword: '', action: '', result: '', page: 1, size: 20 })
+const filters = reactive({ keyword: '', action: '', result: '', page: 1, size: DEFAULT_PAGE_SIZE })
 
 const ACTION_TEXT: Record<string, string> = {
   'auth.login': '登录',
@@ -169,6 +166,7 @@ function reset() {
 }
 
 function onPage(p: number) {
+  if (p === filters.page) return
   filters.page = p
   load()
 }

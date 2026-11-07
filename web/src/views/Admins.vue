@@ -9,7 +9,7 @@
     </PageHeader>
 
     <div class="panel">
-      <el-table v-loading="loading" :data="admins">
+      <el-table v-loading="loading" :data="pageRows">
       <el-table-column prop="username" label="用户名" width="140">
         <template #default="{ row }">
           <span class="mono">{{ row.username }}</span>
@@ -55,6 +55,8 @@
         </template>
       </el-table-column>
     </el-table>
+
+      <TablePager v-model:page="page" v-model:size="size" :total="total" />
     </div>
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑管理员' : '新增管理员'" width="480px">
@@ -97,6 +99,8 @@
 import { onMounted, reactive, ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import PageHeader from '@/components/PageHeader.vue'
+import TablePager from '@/components/TablePager.vue'
+import { usePager } from '@/utils/pager'
 import { createAdmin, deleteAdmin, listAdmins, listRoles, updateAdmin } from '@/api/modules/rbac'
 import { useAuthStore } from '@/stores/auth'
 import type { AdminRow, RoleRow } from '@/types'
@@ -105,6 +109,9 @@ const auth = useAuthStore()
 const admins = ref<AdminRow[]>([])
 const roles = ref<RoleRow[]>([])
 const loading = ref(false)
+
+/** 前端分页（账号数量少，一次拉全量） */
+const { page, size, total, rows: pageRows } = usePager(admins)
 const saving = ref(false)
 const dialogVisible = ref(false)
 const editing = ref<AdminRow | null>(null)

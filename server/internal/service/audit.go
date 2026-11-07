@@ -82,8 +82,9 @@ func (s *AuditService) Query(q AuditQuery) (*AuditPage, error) {
 	if q.Page <= 0 {
 		q.Page = 1
 	}
+	// 分页规格与前端一致：默认 10 条/页，单页上限 100
 	if q.Size <= 0 || q.Size > 100 {
-		q.Size = 20
+		q.Size = 10
 	}
 	db := s.DB.Model(&model.AuditLog{})
 	if q.AdminID > 0 {

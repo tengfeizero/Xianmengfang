@@ -14,7 +14,7 @@
           <span class="count">{{ boards.length }} 个</span>
         </div>
       </div>
-      <el-table :data="boards">
+      <el-table :data="boardRows">
         <el-table-column label="预览" width="88">
           <template #default="{ row }">
             <el-image :src="row.url" class="preview" fit="contain" />
@@ -47,6 +47,8 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <TablePager v-model:page="boardPage" v-model:size="boardSize" :total="boardTotal" />
     </div>
 
     <div class="panel">
@@ -59,7 +61,7 @@
           <el-option v-for="c in CATEGORIES" :key="c.value" :label="c.label" :value="c.value" />
         </el-select>
       </div>
-      <el-table :data="elements">
+      <el-table :data="elementRows">
         <el-table-column label="预览" width="80">
           <template #default="{ row }">
             <el-image :src="row.image_url" class="preview square" fit="contain" />
@@ -93,6 +95,8 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <TablePager v-model:page="elementPage" v-model:size="elementSize" :total="elementTotal" />
     </div>
 
     <el-dialog v-model="boardVisible" title="新增底板" width="440px">
@@ -161,6 +165,8 @@ import {
 import type { Board, ElementItem } from '@/types'
 import { Plus } from '@element-plus/icons-vue'
 import PageHeader from '@/components/PageHeader.vue'
+import TablePager from '@/components/TablePager.vue'
+import { usePager } from '@/utils/pager'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -177,6 +183,15 @@ const CATEGORIES = [
 const boards = ref<Board[]>([])
 const elements = ref<ElementItem[]>([])
 const catFilter = ref('')
+
+/** 两个列表各自分页：元素列表按分类筛选后回到第 1 页 */
+const { page: boardPage, size: boardSize, total: boardTotal, rows: boardRows } = usePager(boards)
+const {
+  page: elementPage,
+  size: elementSize,
+  total: elementTotal,
+  rows: elementRows,
+} = usePager(elements, () => catFilter.value)
 
 const boardVisible = ref(false)
 const boardForm = reactive({ name: '', url: '', width: 400, height: 500 })

@@ -9,7 +9,7 @@
     </PageHeader>
 
     <div class="panel">
-      <el-table v-loading="loading" :data="roles">
+      <el-table v-loading="loading" :data="pageRows">
       <el-table-column prop="name" label="角色名称" width="160" />
       <el-table-column label="标识" width="110">
         <template #default="{ row }"><span class="mono">{{ row.code }}</span></template>
@@ -53,6 +53,8 @@
         </template>
       </el-table-column>
     </el-table>
+
+      <TablePager v-model:page="page" v-model:size="size" :total="total" />
     </div>
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑角色' : '新增角色'" width="720px" top="6vh">
@@ -114,6 +116,8 @@
 import { onMounted, reactive, ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import PageHeader from '@/components/PageHeader.vue'
+import TablePager from '@/components/TablePager.vue'
+import { usePager } from '@/utils/pager'
 import { createRole, deleteRole, getPermCatalog, listRoles, updateRole } from '@/api/modules/rbac'
 import { useAuthStore } from '@/stores/auth'
 import type { PermGroup, RoleRow } from '@/types'
@@ -122,6 +126,9 @@ const auth = useAuthStore()
 const roles = ref<RoleRow[]>([])
 const groups = ref<PermGroup[]>([])
 const loading = ref(false)
+
+/** 前端分页（角色数量少，一次拉全量） */
+const { page, size, total, rows: pageRows } = usePager(roles)
 const saving = ref(false)
 const dialogVisible = ref(false)
 const editing = ref<RoleRow | null>(null)

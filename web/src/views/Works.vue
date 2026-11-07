@@ -17,11 +17,9 @@
           <el-option label="已删除" value="0" />
         </el-select>
         <el-button @click="load">查询</el-button>
-        <span class="spacer" />
-        <span class="count-hint">共 {{ rows.length }} 件</span>
       </div>
 
-      <el-table v-loading="loading" :data="rows">
+      <el-table v-loading="loading" :data="pageRows">
       <el-table-column prop="id" label="ID" width="70" />
       <el-table-column label="预览" width="90">
         <template #default="{ row }">
@@ -72,6 +70,8 @@
         </template>
       </el-table-column>
     </el-table>
+
+      <TablePager v-model:page="page" v-model:size="size" :total="total" />
     </div>
   </div>
 </template>
@@ -80,6 +80,8 @@
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import PageHeader from '@/components/PageHeader.vue'
+import TablePager from '@/components/TablePager.vue'
+import { usePager } from '@/utils/pager'
 import { listWorks, setWorkStatus, type AdminWorkRow } from '@/api/modules/works'
 import { useAuthStore } from '@/stores/auth'
 
@@ -89,6 +91,9 @@ const rows = ref<AdminWorkRow[]>([])
 const typeFilter = ref('')
 const statusFilter = ref('')
 const loading = ref(false)
+
+/** 前端分页：改类型/状态筛选回到第 1 页 */
+const { page, size, total, rows: pageRows } = usePager(rows, () => [typeFilter.value, statusFilter.value])
 
 onMounted(load)
 
@@ -154,9 +159,5 @@ async function setStatus(row: AdminWorkRow, status: 1 | 2) {
   border-radius: 6px;
   background: var(--fill-1);
   display: block;
-}
-.count-hint {
-  font-size: 12px;
-  color: var(--text-3);
 }
 </style>

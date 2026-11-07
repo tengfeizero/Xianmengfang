@@ -29,11 +29,9 @@
           :prefix-icon="Search"
           class="w280"
         />
-        <span class="spacer" />
-        <span class="count-hint">共 {{ filtered.length }} 条</span>
       </div>
 
-      <el-table v-loading="loading" :data="filtered">
+      <el-table v-loading="loading" :data="pageRows">
         <el-table-column label="订单号" width="190">
           <template #default="{ row }"><span class="mono">{{ row.order.order_no }}</span></template>
         </el-table-column>
@@ -128,6 +126,8 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <TablePager v-model:page="page" v-model:size="size" :total="total" />
     </div>
 
     <!-- 订单详情 -->
@@ -252,6 +252,8 @@ import { useRoute } from 'vue-router'
 import { ArrowDown, Refresh, Search } from '@element-plus/icons-vue'
 import PageHeader from '@/components/PageHeader.vue'
 import StatusTag from '@/components/StatusTag.vue'
+import TablePager from '@/components/TablePager.vue'
+import { usePager } from '@/utils/pager'
 import { getOrderDetail, listOrders, orderAction, shipOrder, type OrderAction } from '@/api/modules/orders'
 import { useAuthStore } from '@/stores/auth'
 import { yuan } from '@/utils/money'
@@ -308,6 +310,9 @@ const filtered = computed(() => {
 function pick(v: string) {
   statusFilter.value = v
 }
+
+/** 前端分页：切页签/改关键词都回到第 1 页 */
+const { page, size, total, rows: pageRows } = usePager(filtered, () => [statusFilter.value, keyword.value])
 
 async function load() {
   loading.value = true
@@ -467,11 +472,6 @@ onMounted(load)
   background: var(--brand-soft);
   color: var(--brand);
 }
-.count-hint {
-  font-size: 12px;
-  color: var(--text-3);
-}
-
 .buyer {
   display: flex;
   align-items: center;

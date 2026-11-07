@@ -19,11 +19,9 @@
           <el-option label="禁用" value="0" />
         </el-select>
         <el-button @click="load">查询</el-button>
-        <span class="spacer" />
-        <span class="count-hint">共 {{ rows.length }} 人</span>
       </div>
 
-      <el-table v-loading="loading" :data="rows">
+      <el-table v-loading="loading" :data="pageRows">
       <el-table-column prop="id" label="ID" width="70" />
       <el-table-column label="头像" width="70">
         <template #default="{ row }">
@@ -60,6 +58,8 @@
         </template>
       </el-table-column>
     </el-table>
+
+      <TablePager v-model:page="page" v-model:size="size" :total="total" />
     </div>
   </div>
 </template>
@@ -69,6 +69,8 @@ import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import PageHeader from '@/components/PageHeader.vue'
+import TablePager from '@/components/TablePager.vue'
+import { usePager } from '@/utils/pager'
 import { listUsers, setUserStatus, type AdminUserRow } from '@/api/modules/users'
 import { useAuthStore } from '@/stores/auth'
 
@@ -78,6 +80,9 @@ const rows = ref<AdminUserRow[]>([])
 const keyword = ref('')
 const statusFilter = ref('')
 const loading = ref(false)
+
+/** 前端分页：改搜索/状态筛选回到第 1 页 */
+const { page, size, total, rows: pageRows } = usePager(rows, () => [keyword.value, statusFilter.value])
 
 onMounted(load)
 
@@ -118,9 +123,5 @@ function fmtTime(v: string | null | undefined): string {
 }
 .w140 {
   width: 140px;
-}
-.count-hint {
-  font-size: 12px;
-  color: var(--text-3);
 }
 </style>

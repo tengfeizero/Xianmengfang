@@ -177,7 +177,7 @@ func (h *Handlers) adminAuditLogs(c *gin.Context) {
 		q.AdminID, _ = strconv.ParseInt(v, 10, 64)
 	}
 	q.Page, _ = strconv.Atoi(c.DefaultQuery("page", "1"))
-	q.Size, _ = strconv.Atoi(c.DefaultQuery("size", "20"))
+	q.Size, _ = strconv.Atoi(c.DefaultQuery("size", "10"))
 	page, err := h.Audit.Query(q)
 	if err != nil {
 		fail(c, 500, "获取日志失败，请稍后再试")
