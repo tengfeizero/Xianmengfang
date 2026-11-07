@@ -32,26 +32,8 @@
     </view>
   </view>
 
-  <!-- 内容资产 -->
-  <view class="assets rise d1">
-    <view class="a-item" hover-class="press" bindtap="goWorks">
-      <view class="a-n num">{{stats.works || 0}}</view>
-      <view class="a-t">作品</view>
-    </view>
-    <view class="a-line"></view>
-    <view class="a-item" hover-class="press" bindtap="goLiked">
-      <view class="a-n num">{{stats.liked || 0}}</view>
-      <view class="a-t">点赞</view>
-    </view>
-    <view class="a-line"></view>
-    <view class="a-item" hover-class="press" bindtap="goPlaza">
-      <view class="a-n num">{{stats.public_works || 0}}</view>
-      <view class="a-t">已发布</view>
-    </view>
-  </view>
-
   <!-- 订单 -->
-  <view class="panel rise d2">
+  <view class="panel rise d1">
     <view class="panel-head">
       <text class="h3">我的订单</text>
       <view class="more" hover-class="press-soft" bindtap="goOrders">
@@ -78,7 +60,7 @@
   </view>
 
   <!-- 服务列表 -->
-  <view class="panel rise d3">
+  <view class="panel rise d2">
     <view
       class="cell"
       wx:for="{{cells}}"

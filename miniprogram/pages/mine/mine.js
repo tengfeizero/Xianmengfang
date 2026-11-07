@@ -71,10 +71,6 @@ Page({
     wx.navigateTo({ url: '/pages/points/points' })
   },
 
-  goPlaza() {
-    wx.switchTab({ url: '/pages/plaza/plaza' })
-  },
-
   tapCell(e) {
     const key = e.currentTarget.dataset.key
     const map = {
@@ -85,14 +81,6 @@ Page({
       about: '/pages/about/about',
     }
     if (map[key]) wx.navigateTo({ url: map[key] })
-  },
-
-  goWorks() {
-    wx.switchTab({ url: '/pages/works/works' })
-  },
-
-  goLiked() {
-    wx.navigateTo({ url: '/pages/search/search?tab=liked' })
   },
 
   // 编辑昵称：showModal editable（基础库 2.17+）

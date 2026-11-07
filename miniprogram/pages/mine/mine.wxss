@@ -113,38 +113,6 @@
   font-weight: 600;
 }
 
-/* 资产 */
-.assets {
-  display: flex;
-  align-items: center;
-  margin: 22rpx 32rpx 0;
-  padding: 28rpx 0;
-  background: #fff;
-  border-radius: var(--r-lg);
-  box-shadow: var(--sh-1);
-}
-.a-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4rpx;
-  transition: transform 0.18s ease;
-}
-.a-n {
-  font-size: 38rpx;
-  font-weight: 700;
-}
-.a-t {
-  font-size: 22rpx;
-  color: var(--ink-3);
-}
-.a-line {
-  width: 2rpx;
-  height: 52rpx;
-  background: var(--line);
-}
-
 /* 面板通用 */
 .panel {
   margin: 24rpx 32rpx 0;
