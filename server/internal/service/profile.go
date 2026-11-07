@@ -2,7 +2,9 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strings"
+	"time"
 
 	"xmf/internal/model"
 
@@ -16,8 +18,9 @@ type ProfileService struct {
 }
 
 var (
-	ErrProfileNotFound = errors.New("用户不存在")
-	ErrNicknameInvalid = errors.New("昵称需 1~16 个字")
+	ErrProfileNotFound    = errors.New("用户不存在")
+	ErrNicknameInvalid    = errors.New("昵称需 1~16 个字")
+	ErrAlreadyDeactivated = errors.New("账号已注销")
 )
 
 // OrderStats 各状态订单数（只统计在途 + 已完成，取消不进「我的」入口）
@@ -144,4 +147,53 @@ func (s *CommunityService) LogsPage(userID int64, page, size int) (int64, []mode
 	err := s.DB.Where("user_id = ?", userID).
 		Order("id desc").Offset((page - 1) * size).Limit(size).Find(&logs).Error
 	return total, logs, err
+}
+
+// Deactivate 账号注销（v2.1）。
+//
+// 语义：用户主动「删除账号」。行不物理删除（订单、积分流水要与财务/售后对得上），
+// 而是打上 deactivated_at、禁用、清资料，并把 open_id 换成 tombstone —— 唯一键腾出来后，
+// 同一微信再次登录会拿到一个全新的空账号，不用人工介入解绑。
+//
+// 清理范围：作品全部下架并软删（广场不可见）、购物车清空、收货地址软删。
+// 保留：订单（交易凭证）、积分流水（与订单对应）。
+func (s *ProfileService) Deactivate(userID int64) error {
+	return s.DB.Transaction(func(tx *gorm.DB) error {
+		var u model.User
+		if err := tx.First(&u, userID).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrProfileNotFound
+			}
+			return err
+		}
+		if u.DeactivatedAt != nil {
+			return ErrAlreadyDeactivated
+		}
+		now := time.Now()
+		tomb := fmt.Sprintf("deleted:%d:%d", u.ID, now.UnixNano())
+		if err := tx.Model(&model.User{}).Where("id = ?", userID).Updates(map[string]any{
+			"open_id":        tomb,
+			"status":         0,
+			"deactivated_at": now,
+			"nickname":       "已注销用户",
+			"avatar":         "",
+		}).Error; err != nil {
+			return err
+		}
+		// 作品：下架 + 软删（status=0），广场不再可见
+		if err := tx.Model(&model.Work{}).Where("user_id = ?", userID).
+			Updates(map[string]any{"status": 0, "is_public": 0}).Error; err != nil {
+			return err
+		}
+		// 购物车：直接清空（无历史价值）
+		if err := tx.Where("user_id = ?", userID).Delete(&model.CartItem{}).Error; err != nil {
+			return err
+		}
+		// 地址：软删（订单快照里已有收货信息，地址本身不删行）
+		if err := tx.Model(&model.Address{}).Where("user_id = ?", userID).
+			Update("status", 0).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 }

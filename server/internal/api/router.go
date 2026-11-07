@@ -74,6 +74,7 @@ func Router(h *Handlers) *gin.Engine {
 		// 个人中心（v2.0）：「我的」页资料/资产/订单角标一次取全
 		ug.GET("/me", h.userMe)
 		ug.PUT("/me", h.userMeUpdate)
+		ug.DELETE("/me", h.userMeDeactivate) // v2.1 账号注销
 
 		// 作品社区与积分（v1.7）
 		ug.PUT("/works/:id/publish", h.workPublish)

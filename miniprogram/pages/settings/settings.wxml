@@ -16,18 +16,18 @@
       </view>
       <x-icon name="right" size="24" color="#c4bdd1" />
     </view>
-    <view class="cell" hover-class="press-soft" bindtap="goHelp">
-      <view class="cell-ic" style="background:#eaf1ff"><x-icon name="help" size="34" color="#3b82f6" /></view>
-      <text class="cell-t grow">帮助与反馈</text>
-      <x-icon name="right" size="24" color="#c4bdd1" />
-    </view>
-    <view class="cell" hover-class="press-soft" bindtap="goAbout">
-      <view class="cell-ic" style="background:#fff6e4"><x-icon name="info" size="34" color="#f5a623" /></view>
-      <text class="cell-t grow">关于现梦坊</text>
-      <x-icon name="right" size="24" color="#c4bdd1" />
-    </view>
   </view>
 
-  <view class="btn btn-ghost btn-block logout rise d1" hover-class="press" bindtap="logout">退出登录</view>
+  <!-- 账号：注销（不可逆，红）/ 退出登录（可再登回） -->
+  <view class="panel rise d1 danger">
+    <view class="d-row" hover-class="press-soft" bindtap="deactivate">
+      <text class="d-t red">注销账号</text>
+    </view>
+    <view class="d-row" hover-class="press-soft" bindtap="logout">
+      <text class="d-t">退出登录</text>
+    </view>
+  </view>
+  <view class="cap tip rise d2">注销将清空作品、点赞、购物车与收货地址，且无法恢复</view>
+
   <view class="cap ver">现梦坊 {{version}}</view>
 </view>

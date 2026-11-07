@@ -113,7 +113,7 @@ w('pages_mine_mine', {
     })
   ),
   cells: mineCells,
-  version: 'v2.0.0',
+  version: 'v2.1.0',
 })
 
 // 商品详情
@@ -292,7 +292,7 @@ w('pages_ai_ai', {
 
 // 登录 / 设置 / 帮助 / 关于 / 地址
 w('pages_login_login', { openid: 'wx_dev_48321', loading: false, realLoginFailed: true })
-w('pages_settings_settings', { notify: true, cacheText: '128 KB', version: 'v2.0.0' })
+w('pages_settings_settings', { notify: true, cacheText: '128 KB', version: 'v2.1.0' })
 w('pages_help_help', {
   openIdx: 0,
   faqs: [

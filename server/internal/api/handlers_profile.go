@@ -50,6 +50,24 @@ func (h *Handlers) userMeUpdate(c *gin.Context) {
 	ok(c, u)
 }
 
+// userMeDeactivate 账号注销：清空作品/购物车/地址、禁用账号并释放 openid。
+// 前端拿到成功响应后直接清 token 回登录页。
+func (h *Handlers) userMeDeactivate(c *gin.Context) {
+	claims := c.MustGet("claims").(*service.Claims)
+	if err := h.Profile.Deactivate(claims.UserID); err != nil {
+		switch {
+		case errors.Is(err, service.ErrAlreadyDeactivated):
+			fail(c, 409, "账号已注销")
+		case errors.Is(err, service.ErrProfileNotFound):
+			fail(c, 404, "用户不存在")
+		default:
+			fail(c, 500, "注销失败，请稍后再试")
+		}
+		return
+	}
+	ok(c, gin.H{"deactivated": true})
+}
+
 // workDetailView 作品详情（作品详情页用）：作品 + 作者 + 我是否点过赞。
 // 与 GET /works/:id 保持并存：后者是老的扁平结构，已有脚本按它断言。
 func (h *Handlers) workDetailView(c *gin.Context) {

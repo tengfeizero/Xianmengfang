@@ -23,7 +23,7 @@ Page({
     stats: { works: 0, public_works: 0, liked: 0, cart_count: 0, orders: {} },
     orderEntries: ORDER_ENTRIES,
     cells: CELLS,
-    version: 'v2.0.0',
+    version: 'v2.1.0',
   },
 
   onShow() {

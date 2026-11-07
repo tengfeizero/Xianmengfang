@@ -27,10 +27,34 @@
 .cell-t {
   font-size: 28rpx;
 }
-.logout {
-  margin: 32rpx 32rpx 0;
+
+/* 账号操作：整行居中，iOS 设置页的写法 */
+.danger {
+  padding: 0 28rpx;
+}
+.d-row {
+  padding: 30rpx 0;
+  text-align: center;
+  transition: transform 0.18s ease;
+}
+.d-row + .d-row {
+  border-top: 2rpx solid var(--line);
+}
+.d-t {
+  font-size: 30rpx;
+  color: var(--ink-1);
+}
+.d-t.red {
   color: var(--red);
 }
+
+.tip {
+  display: block;
+  padding: 18rpx 44rpx 0;
+  text-align: center;
+  line-height: 32rpx;
+}
+
 .ver {
   text-align: center;
   padding: 28rpx 0;

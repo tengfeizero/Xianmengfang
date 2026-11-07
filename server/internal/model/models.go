@@ -12,11 +12,13 @@ type Model struct {
 // User 小程序用户
 type User struct {
 	Model
-	OpenID   string `gorm:"uniqueIndex;size:64" json:"-"`
+	OpenID   string `gorm:"uniqueIndex;size:64" json:"-"` // 注销时会改成 tombstone，释放给同一微信重新注册
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
 	Status   int    `json:"status"` // 1 正常 0 禁用
 	Points   int    `gorm:"default:0" json:"points"` // 积分余额（v1.7）；只允许事务内条件更新，不可为负
+	// 注销时间（v2.1）：非空即已注销。注销只置位不删行，订单与积分流水留档给售后/财务核对
+	DeactivatedAt *time.Time `json:"deactivated_at,omitempty"`
 }
 
 // Admin 后台管理员（v1.4 起归属角色，权限由角色决定）

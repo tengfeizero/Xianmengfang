@@ -4,7 +4,7 @@ Page({
   data: {
     notify: true,
     cacheText: '',
-    version: 'v2.0.0',
+    version: 'v2.1.0',
   },
 
   onLoad() {
@@ -44,12 +44,30 @@ Page({
     })
   },
 
-  goAbout() {
-    wx.navigateTo({ url: '/pages/about/about' })
-  },
-
-  goHelp() {
-    wx.navigateTo({ url: '/pages/help/help' })
+  // 注销账号：不可逆，二次确认后清空数据并回登录页
+  deactivate() {
+    wx.showModal({
+      title: '注销账号',
+      content: '注销后作品、点赞、购物车与收货地址将被清空且无法恢复；订单与积分记录会保留。确定注销？',
+      confirmText: '注销',
+      confirmColor: '#f04452',
+      success: (r) => {
+        if (!r.confirm) return
+        wx.showLoading({ title: '正在注销', mask: true })
+        api
+          .request('DELETE', '/me')
+          .then(() => {
+            wx.hideLoading()
+            api.clearToken()
+            wx.removeStorageSync('xmf_cart_count')
+            wx.reLaunch({ url: '/pages/login/login' })
+          })
+          .catch((e) => {
+            wx.hideLoading()
+            wx.showToast({ title: e.message, icon: 'none' })
+          })
+      },
+    })
   },
 
   logout() {
