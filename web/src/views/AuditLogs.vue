@@ -35,33 +35,39 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="时间" width="170">
+      <el-table-column label="时间" min-width="170">
         <template #default="{ row }">{{ fmtTime(row.created_at) }}</template>
       </el-table-column>
-      <el-table-column label="操作人" width="130">
+      <el-table-column label="操作人" min-width="140">
         <template #default="{ row }">{{ row.admin_name || '—' }}<span v-if="row.admin_id" class="muted"> #{{ row.admin_id }}</span></template>
       </el-table-column>
-      <el-table-column label="动作" width="170">
+      <el-table-column label="动作" min-width="200">
         <template #default="{ row }">
           <span>{{ actionText(row.action) }}</span>
           <div class="mono sub">{{ row.action }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="目标" width="120">
+      <el-table-column label="目标" min-width="160">
         <template #default="{ row }">
           <span v-if="row.target_id">{{ row.target_type }} #{{ row.target_id }}</span>
           <span v-else class="muted">{{ row.target_type || '—' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="结果" width="100">
+      <el-table-column label="结果" width="110">
         <template #default="{ row }">
           <el-tag :type="RESULT_TAG[row.result] || 'info'" size="small">{{ RESULT_TEXT[row.result] || row.result }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="状态码" width="80">
-        <template #default="{ row }">{{ row.status_code }}</template>
+      <el-table-column label="状态码" width="90" align="center">
+        <template #default="{ row }">
+          <span :class="row.status_code >= 400 ? 'err' : ''">{{ row.status_code }}</span>
+        </template>
       </el-table-column>
-      <el-table-column prop="ip" label="IP" width="130" />
+      <el-table-column min-width="150" label="IP">
+        <template #default="{ row }">
+          <span class="mono sub">{{ row.ip || '—' }}</span>
+        </template>
+      </el-table-column>
     </el-table>
 
       <div class="panel-foot">
@@ -223,10 +229,5 @@ onMounted(load)
 }
 .err {
   color: var(--el-color-danger);
-}
-.pager {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
 }
 </style>
