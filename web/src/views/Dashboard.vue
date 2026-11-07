@@ -29,42 +29,19 @@
       </div>
     </div>
 
-    <div class="two-col">
-      <!-- 订单进度 -->
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">订单进度</div>
-          <el-button v-if="can('order:view')" link type="primary" @click="router.push('/orders')">
-            进入订单管理
-          </el-button>
-        </div>
-        <div class="panel-body">
-          <div v-if="can('order:view')" class="flow">
-            <button v-for="(f, i) in flow" :key="f.status" class="flow-step" @click="goStatus(f.status)">
-              <span class="step-index">{{ i + 1 }}</span>
-              <span class="step-label">{{ f.label }}</span>
-              <b class="step-num">{{ f.num }}</b>
-              <span class="step-desc">{{ f.desc }}</span>
-            </button>
-          </div>
-          <p v-else class="empty-hint">当前角色没有订单查看权限。</p>
-        </div>
+    <!-- 快捷入口 -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">快捷入口</div>
       </div>
-
-      <!-- 快捷入口 -->
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">快捷入口</div>
+      <div class="panel-body">
+        <div v-if="quick.length" class="quick-grid">
+          <button v-for="q in quick" :key="q.to" class="quick-item" @click="router.push(q.to)">
+            <el-icon><component :is="q.icon" /></el-icon>
+            <span>{{ q.title }}</span>
+          </button>
         </div>
-        <div class="panel-body">
-          <div v-if="quick.length" class="quick-grid">
-            <button v-for="q in quick" :key="q.to" class="quick-item" @click="router.push(q.to)">
-              <el-icon><component :is="q.icon" /></el-icon>
-              <span>{{ q.title }}</span>
-            </button>
-          </div>
-          <p v-else class="empty-hint">当前角色为只读账号，暂无快捷操作。</p>
-        </div>
+        <p v-else class="empty-hint">当前角色为只读账号，暂无快捷操作。</p>
       </div>
     </div>
 
@@ -233,13 +210,6 @@ const cards = computed<StatCard[]>(() => {
   return out
 })
 
-const flow = computed(() => [
-  { status: 'pending_accept', label: '待接单', num: byStatus('pending_accept'), desc: '等待确认' },
-  { status: 'producing', label: '生产中', num: byStatus('producing'), desc: '工厂制作' },
-  { status: 'packing', label: '打包中', num: byStatus('packing'), desc: '等待打包' },
-  { status: 'pending_ship', label: '待发货', num: byStatus('pending_ship'), desc: '待填物流' },
-])
-
 const quick = computed(() => {
   const list: { title: string; to: string; icon: Component }[] = []
   if (can('product:edit')) list.push({ title: '新增商品', to: '/products', icon: Goods })
@@ -263,10 +233,6 @@ async function load() {
   // 并行加载，单个接口失败不影响其他区块
   await Promise.allSettled(jobs)
   loading.value = false
-}
-
-function goStatus(status: string) {
-  router.push({ path: '/orders', query: { status } })
 }
 
 function isToday(v: string): boolean {
@@ -375,88 +341,30 @@ onMounted(load)
   text-overflow: ellipsis;
 }
 
-.two-col {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
-}
-@media (max-width: 1100px) {
-  .two-col {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* 订单进度：四步流水 */
-.flow {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-.flow-step {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 14px 14px 12px;
-  text-align: left;
-  background: var(--fill-1);
-  border: 1px solid var(--line-2);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-  font: inherit;
-}
-.flow-step:hover {
-  background: #fff;
-  border-color: var(--brand-line);
-}
-.step-index {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  font-size: 11px;
-  color: var(--text-4);
-}
-.step-label {
-  font-size: 12px;
-  color: var(--text-3);
-}
-.step-num {
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--text-1);
-  font-variant-numeric: tabular-nums;
-}
-.step-desc {
-  font-size: 11.5px;
-  color: var(--text-4);
-}
-
-/* 快捷入口 */
+/* 快捷入口：占满整行，按可用宽度自适应列数 */
 .quick-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 12px;
 }
 .quick-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
-  padding: 16px 8px;
+  justify-content: center;
+  gap: 8px;
+  min-height: 92px;
+  padding: 18px 8px;
   background: var(--fill-1);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   color: var(--text-2);
-  font-size: 12.5px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .quick-item .el-icon {
-  font-size: 19px;
+  font-size: 21px;
   color: var(--text-3);
   transition: color 0.15s ease;
 }
