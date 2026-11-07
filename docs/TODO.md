@@ -1,5 +1,17 @@
 # TODO — 现梦坊
 
+## RBAC 多用户权限 + 敏感操作审计日志 ✅ 已完成（2026-11-07，v1.4）
+起因：全站只有 `admin/admin123` 一个全权账号、操作无留痕，多人协作时客服能改 AI 密钥、运营能删账号，出事无法追溯。
+- [x] 权限模型：新增 `roles` 表（code/name/perms JSON/builtin/status），`admins` 加 `role_id`/`nickname`/`last_login_at`；权限码按模块细分 20 个（订单 5 / 商品 2 / 素材 2 / 用户 2 / 作品 2 / 配置 2 / 权限与日志 5，见 API.md「权限码」）
+- [x] 鉴权链重构：JWT 只带 admin_id，`AdminAuthRequired` 每请求查库载入账号与角色 → `PermRequired(code)` 按权限码拦截；**禁用账号、改权限立即生效**，不等 token 过期
+- [x] 内置角色：super（`["*"]`，权限不可改）、ops、viewer；支持自建（如只给订单查看+发货的仓库角色）
+- [x] 保护规则：不能禁用/降级/删除自己；必须保留至少一个启用超管；内置角色不可删、在用角色不可删（均 409）
+- [x] 审计：新增 `audit_logs` 表 + `AuditWrite` 中间件，记录管理端全部写操作、登录成功/失败、越权拦截（deny）；password/secret/token/api_key 及 `{key,value}` 形态的敏感配置值自动脱敏
+- [x] 接口：`/admin/me`、`/admin/permissions`、`/admin/roles*`、`/admin/admins*`、`/admin/audit-logs`
+- [x] Web：`config/menu.ts` 单一菜单源 + 路由 `meta.perm` + `auth.hasPerm` 控制按钮；新增「角色权限」「管理员账号」「操作日志」三页
+- [x] 验证：`scripts/rbac_e2e.py` 覆盖越权/即时生效/保护规则/日志脱敏；`go test ./...` 全绿（修好 v1.3.5 遗留的 order_test）
+- 遗留：token 黑名单（目前禁用靠每请求查库已失效，无需黑名单）；上线前必须改掉 admin123 并按下岗位拆分账号
+
 ## 接入真实 AI 生图（腾讯混元 Hy Image 3.5 preview）✅ 已完成（2026-11-06，v1.3）
 选定模型：腾讯混元 `hy-image-v3.5-preview`（一个模型同时支持文生图 + 参考图指令编辑，正好对应 ai_text / ai_photo 两种任务；按张计费约 0.11 元/张，只对输出收费）。
 - [x] `service.HunyuanProvider`：实现 Provider 接口两方法；messages 格式（腾讯云 TokenHub）为主，预留 images 格式（OpenAI 风格端点）；结果 URL 立即下载落盘（返回的 URL 12 小时过期），统一转码 PNG

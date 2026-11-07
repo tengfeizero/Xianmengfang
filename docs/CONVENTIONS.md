@@ -128,3 +128,5 @@ miniprogram/
 
 20. **一端一个命名空间**：用户端 `/api/v1/user/*`（含登录与商品浏览等公开接口），管理后台 `/api/v1/admin/*`；`/api/v1` 根下不挂业务接口。新增接口必须归入其一，路由只在 `api/router.go` 的对应 group 里注册。
 21. **路径形态**：资源用复数（`/orders`、`/addresses`），状态变动用子路径 `POST`（`/orders/:id/confirm`），禁止 `/confirmOrder` 这类动词根路径；前端各端只认自己的前缀（小程序 `config.js` 的 `API`、web 的 `VITE_API_BASE`），页面/module 内只写资源段。
+22. **管理端接口必须挂权限码**：`/admin/*` 下每条路由都要 `PermRequired("<模块>:<动作>")`，无权限码的路由等于对所有人开放。新功能先加权限码（`service.PermGroups()`）再挂路由，并同步 API.md「权限码」表；**权限码只增不改**——改名会让已存在角色的 `perms` 静默失效。前端按钮/.菜单同步用 `auth.hasPerm()` 过滤，但**权限判定只认后端**，前端过滤仅作展示。
+23. **敏感操作必须留痕**：管理端写操作（`POST/PUT/DELETE`）由 `AuditWrite` 中间件统一记录，新增动作需在 `service/audit.go` 的 action 映射里登记中文动作名与 `target_type`；越权拦截（403）也写 `deny` 日志。**日志里禁止出现明文密钥**：新增字段若含 password/secret/token/api_key 语义，必须走 `MaskDetail` 脱敏（有单测锁定）。
