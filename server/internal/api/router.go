@@ -94,6 +94,7 @@ func Router(h *Handlers) *gin.Engine {
 	ag := v1.Group("/admin", AuthRequired(h.Secret), RoleRequired("admin"))
 	{
 		ag.GET("/orders", h.adminOrderList)
+		ag.GET("/orders/:id", h.adminOrderDetail)
 		ag.POST("/orders/:id/accept", h.adminOrderAccept)
 		ag.POST("/orders/:id/ship", h.adminOrderShip)
 		ag.POST("/orders/:id/cancel", h.adminOrderCancel)

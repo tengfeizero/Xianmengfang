@@ -1,8 +1,17 @@
 import { http } from '@/api/http'
-import type { AdminOrderRow } from '@/types'
+import type { AdminOrderDetail, AdminOrderRow } from '@/types'
 
-export function listOrders(status?: string) {
-  return http.get<AdminOrderRow[]>('/admin/orders' + (status ? `?status=${status}` : ''))
+export function listOrders(params?: { status?: string; order_no?: string; user_id?: string }) {
+  const qs = new URLSearchParams()
+  if (params?.status) qs.set('status', params.status)
+  if (params?.order_no) qs.set('order_no', params.order_no)
+  if (params?.user_id) qs.set('user_id', params.user_id)
+  const s = qs.toString()
+  return http.get<AdminOrderRow[]>('/admin/orders' + (s ? `?${s}` : ''))
+}
+
+export function getOrderDetail(id: number) {
+  return http.get<AdminOrderDetail>(`/admin/orders/${id}`)
 }
 
 export type OrderAction = 'accept' | 'cancel' | 'refund_mark'

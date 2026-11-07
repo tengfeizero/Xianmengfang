@@ -49,31 +49,79 @@ export interface OrderInfo {
   status: OrderStatus
   total_cents: number
   user_id: number
+  pay_type: string
   refund_flag: number
   cancel_reason: string
   receiver_name: string
   receiver_phone: string
   receiver_address: string
+  created_at: string
+  paid_at: string | null
+  shipped_at: string | null
+  done_at: string | null
 }
 
 export interface OrderItem {
   id: number
+  order_id: number
+  sku_id: number
   title: string
   specs: string
   qty: number
   price_cents: number
   work_id: number | null
+  /** 管理端详情接口返回：商品首图 */
+  image_url?: string
+  /** 管理端详情接口返回：绑定作品图 */
+  work_image_url?: string
 }
 
 export interface Shipment {
+  id: number
+  order_id: number
   company: string
   tracking_no: string
+  created_at: string
+}
+
+export interface OrderEvent {
+  id: number
+  order_id: number
+  from: string
+  to: string
+  operator: string
+  note: string
+  created_at: string
+}
+
+export interface OrderAmounts {
+  items_cents: number
+  shipping_cents: number
+  discount_cents: number
+  total_cents: number
+}
+
+export interface OrderBuyer {
+  id: number
+  nickname: string
+  avatar: string
 }
 
 export interface AdminOrderRow {
   order: OrderInfo
   items: OrderItem[]
   shipment: Shipment | null
+  user?: OrderBuyer
+}
+
+/** 管理端订单详情（GET /admin/orders/:id） */
+export interface AdminOrderDetail {
+  order: OrderInfo
+  items: OrderItem[]
+  shipment: Shipment | null
+  events: OrderEvent[]
+  amounts: OrderAmounts
+  user?: OrderBuyer
 }
 
 export interface Board {

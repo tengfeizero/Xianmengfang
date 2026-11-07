@@ -21,3 +21,7 @@ server/data/
 *.db-shm
 .jwt_secret
 miniprogram/project.private.config.json
+
+# AI 素材管线中间产物（生成后已筛选入库 aipack，原始图不入仓库）
+generated-images/
+web/tsconfig.tsbuildinfo

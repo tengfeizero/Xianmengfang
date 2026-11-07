@@ -231,11 +231,58 @@ func (h *Handlers) adminOrderList(c *gin.Context) {
 	if s := c.Query("status"); s != "" {
 		q = q.Where("status = ?", s)
 	}
+	if no := c.Query("order_no"); no != "" {
+		q = q.Where("order_no LIKE ?", "%"+no+"%")
+	}
+	if uid := c.Query("user_id"); uid != "" {
+		q = q.Where("user_id = ?", uid)
+	}
 	if err := q.Find(&orders).Error; err != nil {
 		fail(c, 500, "获取订单失败，请稍后再试")
 		return
 	}
-	ok(c, withDetails(h.DB, orders))
+	list := withDetails(h.DB, orders)
+
+	// 批量补买家昵称（列表页直接可见，免得只看到 user_id）
+	ids := make([]int64, 0, len(orders))
+	seen := map[int64]bool{}
+	for _, o := range orders {
+		if !seen[o.UserID] {
+			seen[o.UserID] = true
+			ids = append(ids, o.UserID)
+		}
+	}
+	users := map[int64]model.User{}
+	if len(ids) > 0 {
+		var us []model.User
+		if err := h.DB.Where("id IN ?", ids).Find(&us).Error; err == nil {
+			for _, u := range us {
+				users[u.ID] = u
+			}
+		}
+	}
+	for i := range list {
+		o := list[i]["order"].(model.Order)
+		if u, ok := users[o.UserID]; ok {
+			list[i]["user"] = gin.H{"id": u.ID, "nickname": u.Nickname, "avatar": u.Avatar}
+		}
+	}
+	ok(c, list)
+}
+
+// adminOrderDetail 管理端单条订单完整详情：明细（含图）、物流、状态流水、金额明细、买家信息
+func (h *Handlers) adminOrderDetail(c *gin.Context) {
+	var o model.Order
+	if err := h.DB.First(&o, paramID(c)).Error; err != nil {
+		fail(c, 404, "订单不存在")
+		return
+	}
+	view := orderDetailView(h.DB, o)
+	var u model.User
+	if err := h.DB.First(&u, o.UserID).Error; err == nil {
+		view["user"] = gin.H{"id": u.ID, "nickname": u.Nickname, "avatar": u.Avatar}
+	}
+	ok(c, view)
 }
 
 func (h *Handlers) adminOrderAccept(c *gin.Context) {

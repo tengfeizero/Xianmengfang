@@ -102,7 +102,8 @@
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
 | POST | /admin/auth/login | 管理员登录 | ✅ 已实现 |
-| GET | /admin/orders | 订单列表（筛选状态） | ✅ 已实现 |
+| GET | /admin/orders | 订单列表（筛选状态；order_no 模糊 / user_id 过滤；行含买家昵称头像） | ✅ 已实现 |
+| GET | /admin/orders/:id | 订单详情（明细含商品图/作品图、物流、状态流水、金额明细、买家信息） | ✅ 已实现 |
 | POST | /admin/orders/:id/accept | 接单 | ✅ 已实现 |
 | POST | /admin/orders/:id/ship | 发货（物流公司+单号） | ✅ 已实现 |
 | POST | /admin/orders/:id/cancel | 后台取消（待接单/待发货，恢复库存） | ✅ 已实现 |
