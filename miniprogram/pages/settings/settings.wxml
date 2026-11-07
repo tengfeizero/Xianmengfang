@@ -1,4 +1,5 @@
 <view class="page">
+  <!-- 通用 -->
   <view class="panel rise">
     <view class="cell">
       <view class="cell-ic" style="background:#f1eeff"><x-icon name="bell" size="34" color="#6c5ce7" /></view>
@@ -19,15 +20,24 @@
   </view>
 
   <!-- 账号：注销（不可逆，红）/ 退出登录（可再登回） -->
-  <view class="panel rise d1 danger">
-    <view class="d-row" hover-class="press-soft" bindtap="deactivate">
-      <text class="d-t red">注销账号</text>
+  <view class="panel rise d1">
+    <view class="cell" hover-class="press-soft" bindtap="deactivate">
+      <view class="cell-ic" style="background:#ffecef"><x-icon name="trash" size="34" color="#f04452" /></view>
+      <view class="col grow">
+        <text class="cell-t red">注销账号</text>
+        <text class="cap mt8">清空作品、点赞、购物车与地址，无法恢复</text>
+      </view>
+      <x-icon name="right" size="24" color="#c4bdd1" />
     </view>
-    <view class="d-row" hover-class="press-soft" bindtap="logout">
-      <text class="d-t">退出登录</text>
+    <view class="cell" hover-class="press-soft" bindtap="logout">
+      <view class="cell-ic" style="background:#f3f1f7"><x-icon name="logout" size="34" color="#5d576e" /></view>
+      <view class="col grow">
+        <text class="cell-t">退出登录</text>
+        <text class="cap mt8">需重新登录才能继续使用</text>
+      </view>
+      <x-icon name="right" size="24" color="#c4bdd1" />
     </view>
   </view>
-  <view class="cap tip rise d2">注销将清空作品、点赞、购物车与收货地址，且无法恢复</view>
 
   <view class="cap ver">现梦坊 {{version}}</view>
 </view>
