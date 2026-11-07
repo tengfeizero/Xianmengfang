@@ -110,8 +110,11 @@ type Board struct {
 }
 
 // Element 拼装元素（PNG 图层素材）
+// 一对多：每个元素归属一块底板（board_id），元素画布与锚点都按该底板计算，
+// 拼装页只展示所属底板的元素，合成时也会校验归属。
 type Element struct {
 	Model
+	BoardID  int64  `gorm:"index" json:"board_id"`
 	Category string `gorm:"size:16;index" json:"category"` // hair/hat/lash/expression/outfit/accessory
 	Name     string `gorm:"size:32" json:"name"`
 	ImageURL string `gorm:"size:255" json:"image_url"`

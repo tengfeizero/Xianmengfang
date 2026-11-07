@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"xmf/internal/model"
@@ -291,17 +292,48 @@ func (h *Handlers) adminSKUDelete(c *gin.Context) {
 
 // ---- 后台：素材与底板列表（含下架） ----
 
+// adminBoardRow 底板列表行：附带启用元素数，底板页直接看到「一块底板挂了多少素材」
+type adminBoardRow struct {
+	model.Board
+	ElementCount int64 `json:"element_count"`
+}
+
 func (h *Handlers) adminBoardList(c *gin.Context) {
 	var boards []model.Board
 	if err := h.DB.Order("id").Find(&boards).Error; err != nil {
 		fail(c, 500, "获取底板失败，请稍后再试")
 		return
 	}
-	ok(c, boards)
+	type groupCount struct {
+		BoardID int64
+		N       int64
+	}
+	var rows []groupCount
+	if err := h.DB.Model(&model.Element{}).
+		Select("board_id, count(*) as n").Where("status = 1").
+		Group("board_id").Scan(&rows).Error; err != nil {
+		fail(c, 500, "获取底板失败，请稍后再试")
+		return
+	}
+	counts := make(map[int64]int64, len(rows))
+	for _, r := range rows {
+		counts[r.BoardID] = r.N
+	}
+	out := make([]adminBoardRow, 0, len(boards))
+	for _, b := range boards {
+		out = append(out, adminBoardRow{Board: b, ElementCount: counts[b.ID]})
+	}
+	ok(c, out)
 }
 
+// adminElementList 后台元素列表：board_id 必填（元素页按底板维护），category 可选
 func (h *Handlers) adminElementList(c *gin.Context) {
-	q := h.DB.Order("category, sort, id")
+	boardID, err := strconv.ParseInt(c.Query("board_id"), 10, 64)
+	if err != nil || boardID <= 0 {
+		fail(c, 400, "请先选择底板")
+		return
+	}
+	q := h.DB.Where("board_id = ?", boardID).Order("category, sort, id")
 	if cat := c.Query("category"); cat != "" {
 		q = q.Where("category = ?", cat)
 	}

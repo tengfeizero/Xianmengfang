@@ -95,9 +95,39 @@ func demoElements() []demoElement {
 // 旧版几何占位素材的遗留记录名，种子时删除
 var legacyElementNames = []string{"波波头", "长直发", "可爱睫毛"}
 
+// demoBoardSet 每块底板可用的元素范围（一对多：元素挂在具体底板下）。
+// 现有 aipack 部件是在小姑娘画布上产出的，因此：
+//   - 小姑娘底板：全部 24 个部件
+//   - 小男孩/小兔子/小熊猫：只放中性部件（帽子/表情/配饰），不放头发、裙子、睫毛等女装向素材
+type demoBoardSet struct {
+	name string
+	cats []string
+	skip map[string]bool
+}
+
+func demoBoardSets() []demoBoardSet {
+	neutral := []string{"hat", "expression", "accessory"}
+	return []demoBoardSet{
+		{name: "底板·小姑娘", cats: []string{"hair", "hat", "lash", "expression", "outfit", "accessory"}},
+		{name: "底板·小男孩", cats: neutral, skip: map[string]bool{"蝴蝶结": true}},
+		{name: "底板·小兔子", cats: neutral},
+		{name: "底板·小熊猫", cats: neutral},
+	}
+}
+
+func contains(list []string, v string) bool {
+	for _, s := range list {
+		if s == v {
+			return true
+		}
+	}
+	return false
+}
+
 // SeedCatalogAssets 写入底板与元素的数据库记录。
 // 演示素材升级为 AI 生成套件（v1.2）：同名记录直接更新文件与锚点（素材已整体换代，
 // 旧锚点不再适用）；旧版遗留记录删除；后台自建的非演示记录不受影响。
+// v1.6 起元素归属底板：老库里 board_id=0 的元素统一归到「底板·小姑娘」（它们本就是小姑娘画布上抠出来的）。
 func SeedCatalogAssets(db *gorm.DB) error {
 	boards := []model.Board{
 		{Name: "底板·小姑娘", URL: "/static/board_girl.png", Width: 400, Height: 500, Status: 1},
@@ -117,34 +147,61 @@ func SeedCatalogAssets(db *gorm.DB) error {
 		}
 	}
 
+	// 底板名 → id（后面按底板归置元素）
+	var all []model.Board
+	if err := db.Find(&all).Error; err != nil {
+		return err
+	}
+	boardID := make(map[string]int64, len(all))
+	for _, b := range all {
+		boardID[b.Name] = b.ID
+	}
+
 	for _, legacy := range legacyElementNames {
 		if err := db.Where("name = ?", legacy).Delete(&model.Element{}).Error; err != nil {
 			return err
 		}
 	}
 
-	for _, e := range demoElements() {
-		anchor := fmt.Sprintf(`{"x":%s,"y":%s,"scale":1}`,
-			strconv.FormatFloat(e.x, 'f', -1, 64), strconv.FormatFloat(e.y, 'f', -1, 64))
-		var el model.Element
-		err := db.Where("name = ?", e.name).First(&el).Error
-		if err == gorm.ErrRecordNotFound {
-			el = model.Element{
-				Category: e.cat, Name: e.name,
-				ImageURL: "/static/elements/" + e.file, Anchor: anchor, Sort: e.sort, Status: 1,
-			}
-			if err := db.Create(&el).Error; err != nil {
-				return err
-			}
+	// 老数据迁移：v1.6 之前元素没有归属，全部来自小姑娘画布 → 归到小姑娘底板
+	girlID := boardID["底板·小姑娘"]
+	if girlID > 0 {
+		if err := db.Model(&model.Element{}).Where("board_id = 0").Update("board_id", girlID).Error; err != nil {
+			return err
+		}
+	}
+
+	for _, set := range demoBoardSets() {
+		bid := boardID[set.name]
+		if bid == 0 {
 			continue
 		}
-		if err != nil {
-			return err
-		}
-		if err := db.Model(&model.Element{}).Where("id = ?", el.ID).Updates(map[string]any{
-			"category": e.cat, "image_url": "/static/elements/" + e.file, "anchor": anchor, "sort": e.sort,
-		}).Error; err != nil {
-			return err
+		for _, e := range demoElements() {
+			if !contains(set.cats, e.cat) || set.skip[e.name] {
+				continue
+			}
+			anchor := fmt.Sprintf(`{"x":%s,"y":%s,"scale":1}`,
+				strconv.FormatFloat(e.x, 'f', -1, 64), strconv.FormatFloat(e.y, 'f', -1, 64))
+			var el model.Element
+			err := db.Where("board_id = ? AND name = ?", bid, e.name).First(&el).Error
+			if err == gorm.ErrRecordNotFound {
+				el = model.Element{
+					BoardID: bid, Category: e.cat, Name: e.name,
+					ImageURL: "/static/elements/" + e.file, Anchor: anchor, Sort: e.sort, Status: 1,
+				}
+				if err := db.Create(&el).Error; err != nil {
+					return err
+				}
+				continue
+			}
+			if err != nil {
+				return err
+			}
+			if err := db.Model(&model.Element{}).Where("id = ?", el.ID).Updates(map[string]any{
+				"category": e.cat, "image_url": "/static/elements/" + e.file, "anchor": anchor, "sort": e.sort,
+			}).Error; err != nil {
+				return err
+			}
 		}
 	}
 	return nil

@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -56,8 +57,15 @@ func (h *Handlers) collageBoards(c *gin.Context) {
 	ok(c, boards)
 }
 
+// collageElements 用户端元素列表：按底板取（一对多）。
+// board_id 必填——元素是挂在具体底板画布上的素材，跨底板混用会错位/串风格。
 func (h *Handlers) collageElements(c *gin.Context) {
-	q := h.DB.Where("status = 1").Order("category, sort, id")
+	boardID, err := strconv.ParseInt(c.Query("board_id"), 10, 64)
+	if err != nil || boardID <= 0 {
+		fail(c, 400, "请先选择底板")
+		return
+	}
+	q := h.DB.Where("status = 1 AND board_id = ?", boardID).Order("category, sort, id")
 	if cat := c.Query("category"); cat != "" {
 		q = q.Where("category = ?", cat)
 	}
@@ -109,6 +117,11 @@ func (h *Handlers) collageCompose(c *gin.Context) {
 		var el model.Element
 		if err := h.DB.Where("status = 1").First(&el, p.ElementID).Error; err != nil {
 			fail(c, 404, fmt.Sprintf("素材不存在或已下架（id=%d）", p.ElementID))
+			return
+		}
+		// 一对多归属校验：元素必须是该底板下的素材，防止跨底板拼出风格错乱的图
+		if el.BoardID != board.ID {
+			fail(c, 400, fmt.Sprintf("「%s」不属于当前底板，请重新选择", el.Name))
 			return
 		}
 		img, err := h.loadStaticImage(el.ImageURL)
@@ -270,7 +283,18 @@ func (h *Handlers) adminBoardUpdate(c *gin.Context) {
 }
 
 func (h *Handlers) adminBoardDelete(c *gin.Context) {
-	res := h.DB.Model(&model.Board{}).Where("id = ?", c.Param("id")).Update("status", 0)
+	id := paramID(c)
+	// 一对多保护：底板下还有启用元素时不允许下架，否则会出现「底板不可选、元素仍挂在启用列表」
+	var n int64
+	if err := h.DB.Model(&model.Element{}).Where("board_id = ? AND status = 1", id).Count(&n).Error; err != nil {
+		fail(c, 500, "下架失败，请稍后再试")
+		return
+	}
+	if n > 0 {
+		fail(c, 409, fmt.Sprintf("该底板下还有 %d 个启用元素，请先下架元素", n))
+		return
+	}
+	res := h.DB.Model(&model.Board{}).Where("id = ?", id).Update("status", 0)
 	if res.Error != nil || res.RowsAffected == 0 {
 		fail(c, 404, "底板不存在或下架失败")
 		return
@@ -279,11 +303,26 @@ func (h *Handlers) adminBoardDelete(c *gin.Context) {
 }
 
 type elementReq struct {
+	BoardID  int64  `json:"board_id" binding:"required"`
 	Category string `json:"category" binding:"required"`
 	Name     string `json:"name" binding:"required"`
 	ImageURL string `json:"image_url" binding:"required"`
 	Anchor   string `json:"anchor"`
 	Sort     int    `json:"sort"`
+}
+
+// checkElementBoard 校验元素归属底板存在且上架；返回 false 时已写好响应
+func (h *Handlers) checkElementBoard(c *gin.Context, boardID int64) bool {
+	var n int64
+	if err := h.DB.Model(&model.Board{}).Where("id = ? AND status = 1", boardID).Count(&n).Error; err != nil {
+		fail(c, 500, "校验底板失败，请稍后再试")
+		return false
+	}
+	if n == 0 {
+		fail(c, 400, "底板不存在或已下架")
+		return false
+	}
+	return true
 }
 
 func (h *Handlers) adminElementCreate(c *gin.Context) {
@@ -296,10 +335,16 @@ func (h *Handlers) adminElementCreate(c *gin.Context) {
 		fail(c, 400, "元素分类不合法")
 		return
 	}
+	if !h.checkElementBoard(c, req.BoardID) {
+		return
+	}
 	if req.Anchor == "" {
 		req.Anchor = `{"x":0.5,"y":0.5,"scale":1}`
 	}
-	el := model.Element{Category: req.Category, Name: req.Name, ImageURL: req.ImageURL, Anchor: req.Anchor, Sort: req.Sort, Status: 1}
+	el := model.Element{
+		BoardID: req.BoardID, Category: req.Category, Name: req.Name,
+		ImageURL: req.ImageURL, Anchor: req.Anchor, Sort: req.Sort, Status: 1,
+	}
 	if err := h.DB.Create(&el).Error; err != nil {
 		fail(c, 500, "创建失败，请稍后再试")
 		return
@@ -317,8 +362,11 @@ func (h *Handlers) adminElementUpdate(c *gin.Context) {
 		fail(c, 400, "元素分类不合法")
 		return
 	}
+	if !h.checkElementBoard(c, req.BoardID) {
+		return
+	}
 	res := h.DB.Model(&model.Element{}).Where("id = ?", c.Param("id")).Updates(map[string]any{
-		"category": req.Category, "name": req.Name, "image_url": req.ImageURL,
+		"board_id": req.BoardID, "category": req.Category, "name": req.Name, "image_url": req.ImageURL,
 		"anchor": req.Anchor, "sort": req.Sort,
 	})
 	if res.Error != nil || res.RowsAffected == 0 {

@@ -35,7 +35,7 @@
     </view>
   </view>
 
-  <scroll-view scroll-x class="cat-scroll">
+  <scroll-view scroll-x class="cat-scroll" wx:if="{{cats.length}}">
     <view class="cat-row">
       <view
         wx:for="{{cats}}"
@@ -55,7 +55,9 @@
         <image class="el-img" src="{{item.full}}" mode="aspectFit" />
         <text class="el-name">{{item.name}}</text>
       </view>
-      <view wx:if="{{!elements.length}}" class="muted el-empty">该分类暂无素材</view>
+      <view wx:if="{{!elements.length}}" class="muted el-empty">
+        {{cats.length ? '该分类暂无元素' : '该底板还没有配置元素'}}
+      </view>
     </view>
   </scroll-view>
 

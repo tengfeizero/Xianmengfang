@@ -32,7 +32,8 @@ export const MENU: MenuItem[] = [
 
   { path: '/products', title: '商品管理', perm: 'product:view', icon: 'Goods', group: 'goods' },
 
-  { path: '/assets', title: '拼装素材', perm: 'asset:view', icon: 'Picture', group: 'content' },
+  { path: '/boards', title: '拼装底板', perm: 'asset:view', icon: 'Picture', group: 'content' },
+  { path: '/elements', title: '拼装元素', perm: 'asset:view', icon: 'Brush', group: 'content' },
   { path: '/works', title: '用户作品', perm: 'work:view', icon: 'MagicStick', group: 'content' },
 
   { path: '/users', title: '用户管理', perm: 'user:view', icon: 'User', group: 'customer' },

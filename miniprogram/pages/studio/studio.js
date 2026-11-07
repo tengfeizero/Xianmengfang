@@ -9,7 +9,7 @@ Page({
   data: {
     boards: [],
     boardIdx: 0,
-    cats: ELEMENT_CATS,
+    cats: [], // 只显示当前底板真正有元素的分类
     catIdx: 0,
     elements: [], // 当前分类的元素
     placements: [], // {elementId, name, x, y, scale}（坐标为相对底板的 0~1）
@@ -65,49 +65,76 @@ Page({
             thumb: img(b.url),
           })),
         })
-        if (this.data.boards.length) this.pickBoard({ detail: { value: 0 } })
+        if (this.data.boards.length) this.selectBoard(0, true)
       })
       .catch((e) => wx.showToast({ title: e.message, icon: 'none' }))
   },
 
-  loadElements(catKey) {
+  loadElements() {
+    if (!this.board) return
+    // 元素按底板归属（一对多）：一次取本底板全部元素，再按分类本地切换
     api
-      .request('GET', '/collage/elements?category=' + catKey)
+      .request('GET', '/collage/elements?board_id=' + this.board.id)
       .then((list) => {
-        this.setData({
-          elements: (list || []).map((el) => {
-            let anchor = { x: 0.5, y: 0.5, scale: 1 }
-            try {
-              anchor = JSON.parse(el.anchor || '{}')
-            } catch (e) {}
-            return {
-              id: el.id,
-              name: el.name,
-              url: el.image_url,
-              category: el.category,
-              full: img(el.image_url),
-              anchor,
-            }
-          }),
+        this.allElements = (list || []).map((el) => {
+          let anchor = { x: 0.5, y: 0.5, scale: 1 }
+          try {
+            anchor = JSON.parse(el.anchor || '{}')
+          } catch (e) {}
+          return {
+            id: el.id,
+            name: el.name,
+            url: el.image_url,
+            category: el.category,
+            full: img(el.image_url),
+            anchor,
+          }
         })
+        this.applyCat()
       })
       .catch((e) => wx.showToast({ title: e.message, icon: 'none' }))
+  },
+
+  // 只保留有元素的分类；当前分类没素材时回退到第一个可用分类
+  applyCat() {
+    const all = this.allElements || []
+    const cats = ELEMENT_CATS.filter((c) => all.some((el) => el.category === c.key))
+    let idx = cats.findIndex((c) => c.key === this.catKey)
+    if (idx < 0) idx = 0
+    const key = cats[idx] ? cats[idx].key : ''
+    this.catKey = key
+    this.setData({
+      cats,
+      catIdx: idx,
+      elements: key ? all.filter((el) => el.category === key) : [],
+    })
   },
 
   // ---- 交互 ----
   pickBoard(e) {
-    const idx = Number(e.currentTarget.dataset.idx)
-    if (!(idx >= 0) || idx >= this.data.boards.length || idx === this.data.boardIdx) return
-    this.setData({ boardIdx: idx, placements: [], selectedIdx: -1 })
+    this.selectBoard(Number(e.currentTarget.dataset.idx))
+  },
+
+  // force=true 用于首次进入：boardIdx 初始就是 0，不能按「已选中」直接返回
+  selectBoard(idx, force) {
+    if (!(idx >= 0) || idx >= this.data.boards.length) return
+    if (!force && idx === this.data.boardIdx) return
+    // 换底板：已放置的元素属于上一块底板，必须清空重选
+    this.catKey = ''
+    this.allElements = []
+    this.setData({ boardIdx: idx, placements: [], selectedIdx: -1, elements: [], cats: [], catIdx: 0 })
     this.board = this.data.boards[idx]
-    this.loadElements(this.data.cats[this.data.catIdx].key)
+    this.loadElements()
     this.draw()
   },
 
   pickCat(e) {
     const idx = e.currentTarget.dataset.idx
+    const cat = this.data.cats[idx]
+    if (!cat) return
+    this.catKey = cat.key
     this.setData({ catIdx: idx })
-    this.loadElements(this.data.cats[idx].key)
+    this.applyCat()
   },
 
   // 点选元素 → 加到底板上（用素材默认锚点）

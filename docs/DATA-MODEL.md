@@ -36,12 +36,30 @@
 | meta | json | 拼装记录（元素 id、坐标缩放）或生成参数，便于复刻 |
 | status | int | 1 正常（可用于商品）/ 0 已删除 / 2 被下架 |
 
-### elements（拼装元素）· boards（底板）
+### boards（底板）· elements（拼装元素）
+
+**关系：一块底板 → 多个元素（一对多，`elements.board_id`）。** 元素只在所属底板的拼装页出现，
+合成接口会校验放置的每个元素都属于请求里的底板，跨底板混搭直接 400。
+理由：素材是在某张底板的画布（尺寸/人物位置/风格）上产出的，混用到别的底板会错位、串风格
+（例如小男孩底板出现裙子和双马尾）。
+
+boards
 | 字段 | 说明 |
 |---|---|
-| category | 元素分类：hat/lash/hair/face/expression/outfit/accessory 等 |
+| name / url | 底板名称与 PNG（透明背景，画布基准，如 400×500） |
+| width / height | 画布像素尺寸，锚点与相对坐标都以此为准 |
+| status | 1 上架（小程序可选）/ 0 下架 |
+
+elements
+| 字段 | 说明 |
+|---|---|
+| **board_id** | **所属底板（必填，索引）；元素的尺寸与锚点按该底板画布计算** |
+| category | 元素分类：hair/hat/lash/expression/outfit/accessory（决定图层叠放顺序） |
 | name / image_url / sort / status | PNG 素材、排序、上下架 |
 | anchor | json，槽位锚点（x/y/scale），拼装时按锚点定位 |
+
+约束：下架底板前必须先下架该底板下所有元素（接口 409 拦截），避免「底板不可选、元素却仍挂在启用列表」；
+删除底板/元素均为软删（status=0），历史作品里的合成图不受影响。
 
 ### ai_tasks（AI 生成任务）
 | 字段 | 说明 |

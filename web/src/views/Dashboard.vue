@@ -243,7 +243,7 @@ const flow = computed(() => [
 const quick = computed(() => {
   const list: { title: string; to: string; icon: Component }[] = []
   if (can('product:edit')) list.push({ title: '新增商品', to: '/products', icon: Goods })
-  if (can('asset:view')) list.push({ title: '拼装素材', to: '/assets', icon: Picture })
+  if (can('asset:view')) list.push({ title: '拼装底板', to: '/boards', icon: Picture })
   if (can('work:view')) list.push({ title: '用户作品', to: '/works', icon: MagicStick })
   if (can('config:edit')) list.push({ title: 'AI 配置', to: '/configs', icon: Setting })
   if (can('audit:view')) list.push({ title: '操作日志', to: '/audit', icon: Document })

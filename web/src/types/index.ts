@@ -138,10 +138,14 @@ export interface Board {
   width: number
   height: number
   status: number
+  /** 该底板下启用元素数（后台列表返回） */
+  element_count?: number
 }
 
 export interface ElementItem {
   id: number
+  /** 所属底板（一对多），元素的画布与锚点按该底板计算 */
+  board_id: number
   category: string
   name: string
   image_url: string

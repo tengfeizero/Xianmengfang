@@ -38,9 +38,9 @@
 | DELETE | /user/addresses/:id | 删除地址（软删；删默认自动补位最新一条） | ✅ 已实现 |
 | POST | /user/addresses/:id/default | 设为默认（唯一默认） | ✅ 已实现 |
 | POST | /user/upload | 上传图片（multipart，jpg/png/webp ≤10MB），返回 /static/ 地址 | ✅ 已实现 |
-| GET | /user/collage/boards | 底板列表 | ✅ 已实现 |
-| GET | /user/collage/elements?category= | 元素列表 | ✅ 已实现 |
-| POST | /user/collage/compose | 拼装合成（board_id + placements[x,y,scale]），服务端合成 PNG 并存为作品 | ✅ 已实现 |
+| GET | /user/collage/boards | 底板列表（仅上架） | ✅ 已实现 |
+| GET | /user/collage/elements?board_id=1&category=hair | 元素列表；**board_id 必填**，只返回该底板下的上架元素（缺 board_id 返回 400） | ✅ 已实现 |
+| POST | /user/collage/compose | 拼装合成（board_id + placements[x,y,scale]），服务端合成 PNG 并存为作品；**元素必须属于该底板**，否则 400 | ✅ 已实现 |
 | POST | /user/ai/tasks | 发起 AI 生成（ai_text/ai_photo，每日配额超限返回 429；当前 mock 供应商） | ✅ 已实现 |
 | GET | /user/works | 我的作品库 | ✅ 已实现 |
 | GET | /user/works/:id | 作品详情 | ✅ 已实现 |
@@ -113,7 +113,12 @@
 | GET/POST/PUT/DELETE | /admin/products… | 商品管理（列表含下架，删除=下架）。v0.9 起支持 subtitle / images / original_price_cents / unit / detail / detail_images / service_notes / sort；images 与 detail_images 为 JSON 数组字符串；update 为全量覆盖语义，前端上下架时必须带全字段 | ✅ 已实现 |
 | POST/PUT/DELETE | /admin/skus… | SKU 管理（有订单引用的 SKU 禁止删除） | ✅ 已实现 |
 | GET/POST/PUT/DELETE | /admin/categories… | 商品分类管理（分类下有商品禁止删除） | ✅ 已实现 |
-| GET/POST/PUT/DELETE | /admin/elements… /boards… | 素材与底板管理（POST/GET/PUT/DELETE） | ✅ 已实现 |
+| GET | /admin/boards | 底板列表（含 `element_count` 启用元素数，供底板管理页展示） | ✅ 已实现 |
+| POST/PUT | /admin/boards… | 新增/编辑底板（name/url/width/height） | ✅ 已实现 |
+| DELETE | /admin/boards/:id | 下架底板（软删）；**该底板仍有启用元素时返回 409**，需先下架元素 | ✅ 已实现 |
+| GET | /admin/elements?board_id=&category= | 元素列表；**board_id 必填**（后台元素页按底板展示），category 可选 | ✅ 已实现 |
+| POST/PUT | /admin/elements… | 新增/编辑元素；**board_id 必填**（底板不存在返回 400），可改归属底板；anchor 为空时用默认 `{"x":0.5,"y":0.5,"scale":1}` | ✅ 已实现 |
+| DELETE | /admin/elements/:id | 下架元素（软删） | ✅ 已实现 |
 | GET/PUT | /admin/configs | 系统配置（白名单键，ai_daily_free_limit 0~1000） | ✅ 已实现 |
 | GET | /admin/users | 用户列表（含订单数/作品数统计；keyword 按昵称模糊、status=0/1 过滤） | ✅ 已实现 |
 | PUT | /admin/users/:id/status | 启用/禁用用户（{status:0\|1}）。禁用后无法登录；已签发 JWT 在过期前仍有效 | ✅ 已实现 |
