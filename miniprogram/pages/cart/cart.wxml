@@ -1,73 +1,94 @@
-<view class="wrap">
+<view class="page page-bar">
   <block wx:if="{{items.length}}">
     <!-- 收货地址 -->
-    <view class="card addr-card" bindtap="chooseAddress">
-      <block wx:if="{{selectedAddress}}">
-        <view class="addr-line">
+    <view class="addr rise" hover-class="press-soft" bindtap="chooseAddress">
+      <view class="addr-ic"><x-icon name="pin" size="32" color="#14b8a6" /></view>
+      <view class="col grow" wx:if="{{selectedAddress}}">
+        <view class="row g12">
           <text class="addr-name">{{selectedAddress.name}}</text>
-          <text class="muted">{{selectedAddress.phone}}</text>
+          <text class="cap">{{selectedAddress.phone}}</text>
         </view>
-        <view class="muted">{{selectedAddress.full}}</view>
-      </block>
-      <block wx:else>
-        <view class="addr-pick-tip">📍 请选择收货地址</view>
-      </block>
-      <view class="addr-arrow">›</view>
+        <text class="addr-full ell">{{selectedAddress.full}}</text>
+      </view>
+      <view class="col grow" wx:else>
+        <text class="addr-name">请选择收货地址</text>
+        <text class="cap mt8">还没设置地址，点击添加</text>
+      </view>
+      <x-icon name="right" size="24" color="#c4bdd1" />
     </view>
 
-    <!-- 商品列表 -->
-    <view class="card cart-item {{item.valid ? '' : 'invalid'}}" wx:for="{{items}}" wx:key="id">
+    <!-- 商品 -->
+    <view class="sec"><text class="sec-title">商品清单</text><text class="cap">共 {{items.length}} 项</text></view>
+
+    <view
+      class="c-item rise {{index < 4 ? 'd' + (index + 1) : ''}}"
+      wx:for="{{items}}"
+      wx:key="id"
+    >
       <view
-        class="checkbox {{item.checked ? 'on' : ''}}"
+        class="cb {{item.checked ? 'on' : ''}}"
         data-id="{{item.id}}"
         bindtap="toggleItem"
-      >{{item.checked ? '✓' : ''}}</view>
-      <image
-        wx:if="{{item.workThumb}}"
-        class="thumb work-thumb"
-        src="{{item.workThumb}}"
-        mode="aspectFill"
-      />
-      <image wx:elif="{{item.cover}}" class="thumb" src="{{item.cover}}" mode="aspectFill" />
-      <view wx:else class="thumb thumb-empty">无图</view>
-      <view class="info">
-        <view class="title">{{item.title}}</view>
-        <view class="muted" wx:if="{{item.invalidReason}}" style="color:#e6a23c">{{item.invalidReason}}</view>
-        <view class="muted" wx:elif="{{item.specsText}}">{{item.specsText}}</view>
-        <view class="muted work-label" wx:if="{{item.workThumb}}">🎨 定制图案</view>
-        <view class="bottom">
-          <text class="price">¥{{item.priceText}}</text>
+      >
+        <x-icon wx:if="{{item.checked}}" name="check" size="24" color="#ffffff" />
+      </view>
+      <view class="c-thumb" data-id="{{item.id}}" bindtap="goProduct">
+        <image wx:if="{{item.workThumb}}" class="c-img" src="{{item.workThumb}}" mode="aspectFill" />
+        <image wx:elif="{{item.cover}}" class="c-img" src="{{item.cover}}" mode="aspectFill" />
+        <view wx:else class="c-img c-empty">无图</view>
+        <view wx:if="{{item.workThumb}}" class="c-custom">定制</view>
+      </view>
+      <view class="col grow">
+        <view class="row">
+          <text class="c-title grow ell {{item.valid ? '' : 'invalid'}}">{{item.valid ? item.title : '商品已失效'}}</text>
+          <view class="c-del" data-id="{{item.id}}" catchtap="removeItem">
+            <x-icon name="trash" size="28" color="#c4bdd1" />
+          </view>
+        </view>
+        <text wx:if="{{item.invalidReason}}" class="c-warn">{{item.invalidReason}}</text>
+        <text wx:elif="{{item.specsText}}" class="cap mt8 ell">{{item.specsText}}</text>
+        <view class="row between mt16">
+          <view class="price"><text class="yuan">¥</text><text class="num">{{item.priceText}}</text></view>
           <view class="qty" wx:if="{{item.valid}}">
-            <view class="qty-btn" data-id="{{item.id}}" data-delta="-1" bindtap="changeQty">−</view>
-            <text class="qty-num">{{item.qty}}</text>
-            <view class="qty-btn" data-id="{{item.id}}" data-delta="1" bindtap="changeQty">＋</view>
+            <view class="q-btn" hover-class="press" data-id="{{item.id}}" data-delta="-1" bindtap="changeQty">
+              <text>−</text>
+            </view>
+            <text class="q-num num">{{item.qty}}</text>
+            <view class="q-btn" hover-class="press" data-id="{{item.id}}" data-delta="1" bindtap="changeQty">
+              <text>＋</text>
+            </view>
           </view>
         </view>
       </view>
-      <view class="del" data-id="{{item.id}}" catchtap="removeItem">删除</view>
     </view>
 
-    <view class="hint">共 {{items.length}} 种商品 · 结算按下单时现价为准 · 全店包邮</view>
+    <view class="hint">结算以下单时现价为准 · 全店包邮</view>
   </block>
 
-  <empty-state wx:if="{{!loading && !items.length}}" text="购物车还是空的，去挑一件定制吧" />
+  <x-empty
+    wx:if="{{!loading && !items.length}}"
+    icon="cart"
+    text="购物车还是空的"
+    desc="挑一件喜欢的商品，用你的作品做定制"
+    action-text="去逛逛"
+    bind:action="goShop"
+  />
 
-  <view wx:if="{{!loading && !items.length}}" class="empty-btn-wrap">
-    <button class="btn-pink empty-btn" bindtap="goShop">去逛逛</button>
-  </view>
-
-  <!-- 底部结算栏 -->
+  <!-- 结算条 -->
   <view class="footer" wx:if="{{items.length}}">
-    <view class="check-all" bindtap="toggleAll">
-      <view class="checkbox {{allChecked ? 'on' : ''}}">{{allChecked ? '✓' : ''}}</view>
+    <view class="all" bindtap="toggleAll">
+      <view class="cb {{allChecked ? 'on' : ''}}">
+        <x-icon wx:if="{{allChecked}}" name="check" size="24" color="#ffffff" />
+      </view>
       <text>全选</text>
     </view>
-    <view class="footer-total">
-      <text class="muted">合计</text>
-      <text class="price total-price">¥{{totalText}}</text>
+    <view class="grow"></view>
+    <view class="f-total">
+      <text class="cap">合计</text>
+      <view class="price f-price"><text class="yuan">¥</text><text class="num">{{totalText}}</text></view>
     </view>
-    <button class="btn-pink footer-btn" disabled="{{submitting || checkedCount <= 0}}" bindtap="checkout">
-      {{submitting ? '结算中...' : '结算(' + checkedCount + ')'}}
-    </button>
+    <view class="btn btn-primary f-btn" hover-class="press" bindtap="checkout">
+      {{submitting ? '结算中…' : '结算(' + checkedCount + ')'}}
+    </view>
   </view>
 </view>

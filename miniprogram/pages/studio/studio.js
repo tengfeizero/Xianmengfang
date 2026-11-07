@@ -1,6 +1,7 @@
 const api = require('../../utils/request')
 const { ELEMENT_CATS } = require('../../utils/util')
 const { img } = require('../../config')
+const { setTab } = require('../../utils/tabbar')
 
 // 拼装图层顺序（与服务端 categoryZ 一致）：服装 < 头发 < 表情 < 睫毛 < 帽子 < 配饰
 const CAT_Z = { outfit: 0, hair: 1, expression: 2, lash: 3, hat: 4, accessory: 5 }
@@ -25,6 +26,7 @@ Page({
   },
 
   onShow() {
+    setTab(this, 2)
     // 离开再回来（如从 AI 页返回）重绘一次
     if (this.ctx && this.data.placements.length) this.draw()
   },
@@ -161,6 +163,30 @@ Page({
     this.draw()
   },
 
+  // 撤销：移除最后放置的元素
+  undo() {
+    if (!this.data.placements.length) return
+    const placements = this.data.placements.slice()
+    placements.pop()
+    this.setData({ placements, selectedIdx: -1 })
+    this.draw()
+  },
+
+  // 清空画布（换一批创意时用）
+  clearAll() {
+    if (!this.data.placements.length) return
+    wx.showModal({
+      title: '清空画布',
+      content: '把已放置的元素全部移除？',
+      confirmColor: '#6c5ce7',
+      success: (r) => {
+        if (!r.confirm) return
+        this.setData({ placements: [], selectedIdx: -1 })
+        this.draw()
+      },
+    })
+  },
+
   removeSelected() {
     if (this.data.selectedIdx < 0) return
     const placements = this.data.placements.slice()
@@ -267,7 +293,7 @@ Page({
         const r = this.placementRect(p)
         ctx.drawImage(im, r.x, r.y, r.w, r.h)
         if (idx === this.data.selectedIdx) {
-          ctx.strokeStyle = '#ff7ea0'
+          ctx.strokeStyle = '#6c5ce7'
           ctx.setLineDash([6, 4])
           ctx.strokeRect(r.x, r.y, r.w, r.h)
           ctx.setLineDash([])

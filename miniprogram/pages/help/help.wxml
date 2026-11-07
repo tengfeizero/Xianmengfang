@@ -1,0 +1,31 @@
+<view class="page">
+  <view class="hero rise">
+    <x-icon name="help" size="56" color="#ffffff" />
+    <view class="h-t">帮助与反馈</view>
+    <view class="h-s">常见问题都在这里，没有答案就联系我们</view>
+  </view>
+
+  <view class="panel rise d1">
+    <view
+      class="faq {{openIdx === index ? 'open' : ''}}"
+      wx:for="{{faqs}}"
+      wx:key="q"
+      data-idx="{{index}}"
+      bindtap="toggle"
+      hover-class="press-soft"
+    >
+      <view class="row between">
+        <text class="q grow">{{item.q}}</text>
+        <view class="arrow {{openIdx === index ? 'up' : ''}}">
+          <x-icon name="down" size="26" color="#9a93a8" />
+        </view>
+      </view>
+      <view class="a" wx:if="{{openIdx === index}}">{{item.a}}</view>
+    </view>
+  </view>
+
+  <view class="btn btn-soft btn-block rise d2 contact" hover-class="press" bindtap="contact">
+    <x-icon name="message" size="32" color="#5646d6" />
+    <text>联系客服</text>
+  </view>
+</view>

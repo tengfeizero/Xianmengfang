@@ -1,11 +1,14 @@
 const api = require('../../utils/request')
 const { fen2yuan } = require('../../utils/util')
 const { img } = require('../../config')
-const { refreshBadge } = require('../../utils/cartBadge')
+const { refreshBadge, getCount } = require('../../utils/cartBadge')
 
 Page({
   data: {
     product: null,
+    loading: true,
+    galleryIdx: 0,
+    cartCount: 0,
     skus: [],
     selectedSku: null,
     qty: 1,
@@ -23,12 +26,13 @@ Page({
     this.productId = Number(query.id)
     this.load()
     this.loadWorks()
-    refreshBadge()
   },
 
-  // 从地址列表/编辑页返回时刷新地址
+  // 从地址列表/编辑页返回时刷新地址与购物车角标
   onShow() {
     if (this.productId) this.loadAddresses()
+    this.setData({ cartCount: getCount() })
+    refreshBadge().then((n) => this.setData({ cartCount: n }))
   },
 
   load() {
@@ -68,11 +72,15 @@ Page({
             },
             skus,
             selectedSku: firstSku,
+            loading: false,
           },
           () => this.computeTotal()
         )
       })
-      .catch((e) => wx.showToast({ title: e.message, icon: 'none' }))
+      .catch((e) => {
+        this.setData({ loading: false })
+        wx.showToast({ title: e.message, icon: 'none' })
+      })
   },
 
   parseList(imagesJson) {
@@ -89,6 +97,25 @@ Page({
     if (!url) return
     const urls = this.data.product.images.concat(this.data.product.detailImages)
     wx.previewImage({ current: url, urls: urls.length ? urls : [url] })
+  },
+
+  onSwiper(e) {
+    this.setData({ galleryIdx: e.detail.current })
+  },
+
+  // 数量步进
+  changeQty(e) {
+    const qty = Math.max(1, Math.min(99, this.data.qty + Number(e.currentTarget.dataset.delta)))
+    this.setData({ qty }, () => this.computeTotal())
+  },
+
+  // 清除已选图案：不绑作品直接买
+  clearWork() {
+    this.setData({ selectedWork: null })
+  },
+
+  goCart() {
+    wx.navigateTo({ url: '/pages/cart/cart' })
   },
 
   specsText(specsJson) {

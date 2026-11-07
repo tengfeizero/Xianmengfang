@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "现梦坊"
+  "navigationBarTitleText": "现梦坊",
+  "enablePullDownRefresh": true
 }

@@ -1,0 +1,48 @@
+<view class="page">
+  <!-- 积分头 -->
+  <view class="hero rise">
+    <view class="blob b1"></view>
+    <view class="blob b2"></view>
+    <view class="h-label">我的积分</view>
+    <view class="h-num num">{{points}}</view>
+    <view class="h-rules">
+      <view class="rule"><x-icon name="sparkles" size="26" color="#ffffff" /><text>作品被下单使用 1 次 +1 分</text></view>
+      <view class="rule"><x-icon name="wand" size="26" color="#ffffff" /><text>免费额度用完后，1 积分换 1 张 AI 生成</text></view>
+    </view>
+  </view>
+
+  <!-- 流水 -->
+  <view class="sec">
+    <text class="sec-title">积分明细</text>
+    <text class="cap">共 {{total}} 条</text>
+  </view>
+
+  <x-skeleton wx:if="{{loading}}" type="list" count="5" />
+
+  <x-empty
+    wx:elif="{{!logs.length}}"
+    icon="bolt"
+    text="还没有积分记录"
+    desc="把作品发布到广场，被别人使用就能赚积分"
+  />
+
+  <view wx:else class="panel">
+    <view class="log" wx:for="{{logs}}" wx:key="id">
+      <view class="log-ic"><x-icon name="{{item.icon}}" size="32" color="#5646d6" /></view>
+      <view class="col grow">
+        <view class="log-t">{{item.title}}</view>
+        <view class="cap mt8">{{item.time}}{{item.remark ? ' · ' + item.remark : ''}}</view>
+      </view>
+      <view class="col log-right">
+        <view class="log-delta num {{item.delta > 0 ? 'plus' : 'minus'}}">{{item.deltaText}}</view>
+        <view class="cap mt8 num">余额 {{item.balance}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{logs.length}}" class="more">
+    <text wx:if="{{loadingMore}}">正在加载…</text>
+    <text wx:elif="{{hasMore}}">上拉加载更多</text>
+    <text wx:else>— 没有更多了 —</text>
+  </view>
+</view>

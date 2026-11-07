@@ -1,1 +1,4 @@
-<text class="tag custom-class" style="color: {{color}}">{{text}}</text>
+<view class="tag custom-class" style="color: {{color}}; background: {{bg}}">
+  <view wx:if="{{dot}}" class="dot" style="background: {{color}}"></view>
+  <text>{{text}}</text>
+</view>

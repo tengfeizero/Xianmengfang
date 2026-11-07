@@ -1,0 +1,90 @@
+<view class="page">
+  <!-- 搜索框 -->
+  <view class="s-head">
+    <view class="s-box">
+      <x-icon name="search" size="32" color="#9a93a8" />
+      <input
+        class="s-input"
+        value="{{kw}}"
+        placeholder="搜索作品、商品或提示词"
+        placeholder-class="s-ph"
+        confirm-type="search"
+        focus="{{tab !== 'liked'}}"
+        bindinput="onInput"
+        bindconfirm="onConfirm"
+      />
+      <view wx:if="{{kw}}" class="s-clear" bindtap="tapClear">
+        <x-icon name="close" size="24" color="#c4bdd1" />
+      </view>
+    </view>
+    <text class="s-cancel" bindtap="goBack">取消</text>
+  </view>
+
+  <!-- 范围切换 -->
+  <view class="s-tabs">
+    <view class="s-tab {{tab === 'product' ? 'on' : ''}}" data-tab="product" bindtap="switchTab">商品</view>
+    <view class="s-tab {{tab === 'works' ? 'on' : ''}}" data-tab="works" bindtap="switchTab">广场作品</view>
+    <view class="s-tab {{tab === 'liked' ? 'on' : ''}}" data-tab="liked" bindtap="switchTab">我赞过的</view>
+  </view>
+
+  <!-- 商品 -->
+  <block wx:if="{{tab === 'product'}}">
+    <block wx:if="{{!searched}}">
+      <view class="sec"><text class="sec-title">搜索发现</text></view>
+      <view class="words">
+        <view class="chip chip-line" wx:for="{{hotWords}}" wx:key="*this" data-kw="{{item}}" bindtap="tapWord">{{item}}</view>
+      </view>
+      <block wx:if="{{history.length}}">
+        <view class="sec">
+          <text class="sec-title">最近搜索</text>
+          <text class="cap" bindtap="clearHistory">清空</text>
+        </view>
+        <view class="words">
+          <view class="chip chip-line" wx:for="{{history}}" wx:key="*this" data-kw="{{item}}" bindtap="tapWord">{{item}}</view>
+        </view>
+      </block>
+    </block>
+
+    <x-empty wx:if="{{searched && !products.length}}" icon="search" text="没有找到相关商品" desc="换个关键词试试，或去灵感广场找找" />
+
+    <view class="p-list" wx:if="{{products.length}}">
+      <view class="p-item" wx:for="{{products}}" wx:key="id" data-id="{{item.id}}" bindtap="goProduct" hover-class="press-soft">
+        <image class="p-img" src="{{item.cover}}" mode="aspectFill" />
+        <view class="col grow">
+          <view class="p-t ell2">{{item.title}}</view>
+          <view class="cap mt8 ell">{{item.subtitle}}</view>
+          <view class="price mt16"><text class="yuan">¥</text><text class="num">{{item.priceText}}</text><text class="unit">起</text></view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 作品 -->
+  <block wx:if="{{tab !== 'product'}}">
+    <x-skeleton wx:if="{{searching || (tab === 'liked' && likedLoading)}}" type="grid" count="4" />
+
+    <x-empty
+      wx:elif="{{!works.length}}"
+      icon="{{tab === 'liked' ? 'heart' : 'search'}}"
+      text="{{tab === 'liked' ? '还没有点赞作品' : '没有找到相关作品'}}"
+      desc="{{tab === 'liked' ? '去灵感广场点赞喜欢的作品，就能用它下单' : '换个关键词试试'}}"
+      action-text="{{tab === 'liked' ? '去广场逛逛' : ''}}"
+      bind:action="goPlaza"
+    />
+
+    <view wx:else class="grid">
+      <view class="wcard" wx:for="{{works}}" wx:key="id" data-id="{{item.id}}" bindtap="goWork" hover-class="press-soft">
+        <image class="wimg" src="{{item.cover}}" mode="aspectFill" lazy-load />
+        <view class="wbody">
+          <view class="wprompt ell2">{{item.prompt || '拼装作品'}}</view>
+          <view class="wmeta">
+            <text class="ell">{{item.author}}</text>
+            <view class="grow"></view>
+            <x-icon name="heart" size="24" color="#ff6fa5" />
+            <text class="num">{{item.likeCount}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

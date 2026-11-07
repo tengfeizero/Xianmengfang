@@ -25,3 +25,6 @@ miniprogram/project.private.config.json
 # AI 素材管线中间产物（生成后已筛选入库 aipack，原始图不入仓库）
 generated-images/
 web/tsconfig.tsbuildinfo
+
+# 小程序预览工具产物（HTML 由 render-all.js 生成）
+tools/mp-preview/out/

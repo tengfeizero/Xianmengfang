@@ -1,22 +1,141 @@
-<view class="banner card">
-  <view class="banner-title">把你的创意印在现实里</view>
-  <view class="muted">去「创作」拼一个小姑娘，或用 AI 画出作品 → 选商品下单</view>
-  <button class="btn-pink banner-btn" size="mini" bindtap="goStudio">去创作</button>
-</view>
-
-<view wx:if="{{loading}}" class="muted center-tip">加载中...</view>
-<view wx:elif="{{!products.length}}" class="muted center-tip">暂无上架商品</view>
-
-<view class="goods-list">
-  <view class="goods card" wx:for="{{products}}" wx:key="id" data-id="{{item.id}}" bindtap="goProduct">
-    <image class="goods-img" src="{{item.cover}}" mode="aspectFill" />
-    <view class="goods-info">
-      <view class="goods-title">{{item.title}}</view>
-      <view class="muted goods-desc">{{item.subtitle}}</view>
-      <view class="price-row">
-        <view class="price">¥{{item.priceText}} <text class="price-unit">起</text></view>
-        <view wx:if="{{item.originalText}}" class="price-origin">¥{{item.originalText}}</view>
+<view class="page page-tab">
+  <!-- 顶部：品牌 + 购物车 -->
+  <view class="topbar">
+    <view class="brand">
+      <view class="logo-mark">梦</view>
+      <view class="brand-texts">
+        <view class="brand-name">现梦坊</view>
+        <view class="brand-sub">把创意印成实物</view>
       </view>
     </view>
+    <view class="icon-btn" hover-class="press" bindtap="goCart">
+      <x-icon name="cart" size="40" color="#191624" />
+      <view wx:if="{{cartCount}}" class="badge">{{cartCount > 99 ? '99+' : cartCount}}</view>
+    </view>
+  </view>
+
+  <!-- 搜索 -->
+  <view class="search" hover-class="press-soft" bindtap="goSearch">
+    <x-icon name="search" size="34" color="#9a93a8" />
+    <text class="search-ph">搜索作品、商品或提示词</text>
+    <view class="search-go">搜索</view>
+  </view>
+
+  <!-- Hero -->
+  <view class="hero rise">
+    <view class="blob b1"></view>
+    <view class="blob b2"></view>
+    <view class="blob b3"></view>
+    <view class="hero-body">
+      <view class="hero-tag">AI × 拼贴 × 定制</view>
+      <view class="hero-title">把想象<text class="hero-title-2">印进现实</text></view>
+      <view class="hero-desc">拼一张图，选一件好物，工厂直做</view>
+      <view class="hero-actions">
+        <view class="hero-btn" hover-class="press" bindtap="goStudio">
+          <text>开始创作</text>
+          <x-icon name="right" size="26" color="#191624" />
+        </view>
+        <view class="hero-ghost" hover-class="press" bindtap="goPlaza">逛灵感</view>
+      </view>
+    </view>
+    <view class="hero-deco">
+      <view class="deco-card d-a"></view>
+      <view class="deco-card d-b"></view>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick">
+    <view
+      class="q-item"
+      wx:for="{{quick}}"
+      wx:key="label"
+      data-idx="{{index}}"
+      bindtap="tapQuick"
+      hover-class="press"
+    >
+      <view class="q-ic" style="background: {{item.bg}}">
+        <x-icon name="{{item.icon}}" size="44" color="{{item.color}}" />
+      </view>
+      <text class="q-label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <!-- 广场灵感 -->
+  <view class="sec">
+    <view class="sec-left">
+      <text class="sec-title">广场灵感</text>
+      <text class="sec-hint">别人正在做</text>
+    </view>
+    <view class="sec-more" bindtap="goPlaza">
+      <text>全部</text>
+      <x-icon name="right" size="22" color="#9a93a8" />
+    </view>
+  </view>
+  <scroll-view wx:if="{{plaza.length}}" scroll-x class="insp-scroll" show-scrollbar="{{false}}">
+    <view class="insp-row">
+      <view
+        class="insp"
+        wx:for="{{plaza}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="goWork"
+        hover-class="press-soft"
+      >
+        <image class="insp-img" src="{{item.cover}}" mode="aspectFill" lazy-load />
+        <view class="insp-foot">
+          <x-icon name="heart" size="22" color="#ff6fa5" />
+          <text class="insp-num">{{item.likeCount}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 商品 -->
+  <view class="sec">
+    <view class="sec-left">
+      <text class="sec-title">热卖单品</text>
+      <text class="sec-hint">全店包邮</text>
+    </view>
+  </view>
+
+  <x-skeleton wx:if="{{loading}}" type="grid" count="4" />
+
+  <view wx:elif="{{!products.length}}" class="empty-wrap">
+    <x-empty text="暂无上架商品" desc="工厂正在准备新品，稍后再来看看" icon="package" />
+  </view>
+
+  <view wx:else class="goods">
+    <view
+      class="g-card rise"
+      wx:for="{{products}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="goProduct"
+      hover-class="press-soft"
+    >
+      <view class="g-imgwrap">
+        <image class="g-img" src="{{item.cover}}" mode="aspectFill" lazy-load />
+        <view class="g-chip">可定制</view>
+      </view>
+      <view class="g-body">
+        <view class="g-title ell2">{{item.title}}</view>
+        <view class="g-sub ell">{{item.subtitle}}</view>
+        <view class="g-foot">
+          <view class="price g-price">
+            <text class="yuan">¥</text><text class="num">{{item.priceText}}</text><text class="unit">起</text>
+          </view>
+          <view class="g-add" catchtap="goProduct" data-id="{{item.id}}">
+            <x-icon name="plus" size="26" color="#5646d6" />
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="foot-note">
+    <text>现梦坊</text>
+    <text class="dot-sep">·</text>
+    <text>每一件都由你的作品决定</text>
   </view>
 </view>

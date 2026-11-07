@@ -1,5 +1,5 @@
 const api = require('../../utils/request')
-const { fen2yuan, statusText } = require('../../utils/util')
+const { fen2yuan, statusText, statusStep } = require('../../utils/util')
 const { img } = require('../../config')
 
 // 状态一句话说明（给用户看的，不用状态机术语）
@@ -12,6 +12,16 @@ const STATUS_DESC = {
   done: '交易已完成，感谢你的支持',
   canceled: '订单已取消，库存已恢复',
 }
+
+// 进度条节点（与后端状态机一致，canceled 单独展示）
+const STEPS = [
+  { key: 'pending_accept', label: '待接单' },
+  { key: 'producing', label: '生产中' },
+  { key: 'packing', label: '打包中' },
+  { key: 'pending_ship', label: '待发货' },
+  { key: 'shipped', label: '已发货' },
+  { key: 'done', label: '已完成' },
+]
 
 // 订单流水：to 状态 → 动作文案
 const EVENT_TEXT = {
@@ -31,6 +41,7 @@ function fmtTime(s) {
 
 Page({
   data: {
+    steps: STEPS,
     order: null,
     items: [],
     events: [],
@@ -99,6 +110,7 @@ Page({
         id: o.id,
         orderNo: o.order_no,
         status: o.status,
+        stepIdx: statusStep(o.status),
         statusText: statusText(o.status),
         statusDesc: STATUS_DESC[o.status] || '',
         payType: o.pay_type === 'wxpay' ? '微信支付' : '模拟支付（演示）',

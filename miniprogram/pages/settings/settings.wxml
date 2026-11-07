@@ -1,0 +1,33 @@
+<view class="page">
+  <view class="panel rise">
+    <view class="cell">
+      <view class="cell-ic" style="background:#f1eeff"><x-icon name="bell" size="34" color="#6c5ce7" /></view>
+      <view class="col grow">
+        <text class="cell-t">消息通知</text>
+        <text class="cap mt8">订单进度与积分变动提醒</text>
+      </view>
+      <switch checked="{{notify}}" color="#6c5ce7" bindchange="onNotify" />
+    </view>
+    <view class="cell" hover-class="press-soft" bindtap="clearCache">
+      <view class="cell-ic" style="background:#e8f8f4"><x-icon name="eraser" size="34" color="#14b8a6" /></view>
+      <view class="col grow">
+        <text class="cell-t">清除缓存</text>
+        <text class="cap mt8">当前 {{cacheText}}</text>
+      </view>
+      <x-icon name="right" size="24" color="#c4bdd1" />
+    </view>
+    <view class="cell" hover-class="press-soft" bindtap="goHelp">
+      <view class="cell-ic" style="background:#eaf1ff"><x-icon name="help" size="34" color="#3b82f6" /></view>
+      <text class="cell-t grow">帮助与反馈</text>
+      <x-icon name="right" size="24" color="#c4bdd1" />
+    </view>
+    <view class="cell" hover-class="press-soft" bindtap="goAbout">
+      <view class="cell-ic" style="background:#fff6e4"><x-icon name="info" size="34" color="#f5a623" /></view>
+      <text class="cell-t grow">关于现梦坊</text>
+      <x-icon name="right" size="24" color="#c4bdd1" />
+    </view>
+  </view>
+
+  <view class="btn btn-ghost btn-block logout rise d1" hover-class="press" bindtap="logout">退出登录</view>
+  <view class="cap ver">现梦坊 {{version}}</view>
+</view>

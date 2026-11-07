@@ -1,39 +1,78 @@
-<view class="plaza-page">
-  <view class="tabs">
+<view class="page page-tab">
+  <!-- 头部 -->
+  <view class="head rise">
+    <view class="col grow">
+      <view class="h1">灵感广场</view>
+      <view class="cap mt8">点赞喜欢的作品，就能用它下单定制</view>
+    </view>
+    <view class="head-search" hover-class="press" bindtap="goSearch">
+      <x-icon name="search" size="32" color="#5d576e" />
+    </view>
+  </view>
+
+  <!-- 榜单切换 -->
+  <view class="seg rise d1">
     <view
       wx:for="{{tabs}}"
       wx:key="key"
-      class="tab {{tabKey === item.key ? 'active' : ''}}"
+      class="seg-item {{tabKey === item.key ? 'on' : ''}}"
       data-key="{{item.key}}"
       bindtap="switchTab"
+      hover-class="press-soft"
     >{{item.label}}</view>
   </view>
 
-  <view wx:if="{{loading}}" class="muted center-tip">加载中...</view>
-  <empty-state wx:elif="{{!items.length}}" text="广场还没有作品，去发布你的第一件吧" action-text="我的作品" bind:action="goWorks" />
+  <x-skeleton wx:if="{{loading}}" type="grid" count="4" />
 
-  <view class="grid">
-    <view class="card-work" wx:for="{{items}}" wx:key="id">
-      <image class="cover" src="{{item.cover}}" mode="aspectFill" data-id="{{item.id}}" bindtap="preview" />
-      <view class="body">
-        <view class="author">
-          <image wx:if="{{item.avatar}}" class="avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view wx:else class="avatar avatar-empty">{{item.author[0]}}</view>
-          <text class="nickname">{{item.author}}</text>
+  <x-empty
+    wx:elif="{{!items.length}}"
+    icon="compass"
+    text="广场还没有作品"
+    desc="发布你的作品，让大家看到你的灵感"
+    action-text="去我的作品"
+    bind:action="goWorks"
+  />
+
+  <view wx:else class="grid">
+    <view
+      class="wcard rise"
+      wx:for="{{items}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="goWork"
+      hover-class="press-soft"
+    >
+      <view class="wcover">
+        <image class="wimg" src="{{item.cover}}" mode="aspectFill" lazy-load />
+        <view wx:if="{{item.isAI}}" class="wtype">AI</view>
+        <view wx:if="{{item.isMine}}" class="wmine">我的</view>
+      </view>
+      <view class="wbody">
+        <view class="wauthor">
+          <image wx:if="{{item.avatar}}" class="wava" src="{{item.avatar}}" mode="aspectFill" />
+          <view wx:else class="wava wava-fb">{{item.author[0]}}</view>
+          <text class="wname ell">{{item.author}}</text>
         </view>
-        <view class="prompt {{item.prompt ? '' : 'muted'}}">{{item.prompt || item.typeText}}</view>
-        <view class="footer">
-          <text class="stat">使用 {{item.useCount}}</text>
-          <view class="like {{item.liked ? 'on' : ''}}" data-id="{{item.id}}" catchtap="toggleLike">
-            <text>{{item.liked ? '♥' : '♡'}}</text>
-            <text>{{item.likeCount}}</text>
+        <view class="wprompt ell2">{{item.prompt || item.typeText}}</view>
+        <view class="wfoot">
+          <text class="wuse">被用 {{item.useCount}} 次</text>
+          <view
+            class="wlike {{item.liked ? 'on' : ''}} {{item.pop ? 'pop' : ''}}"
+            data-id="{{item.id}}"
+            catchtap="toggleLike"
+            hover-class="press"
+          >
+            <x-icon name="heart" size="26" color="{{item.liked ? '#ff6fa5' : '#9a93a8'}}" fill="{{item.liked}}" />
+            <text class="wlike-n">{{item.likeCount}}</text>
           </view>
         </view>
       </view>
     </view>
   </view>
 
-  <view wx:if="{{items.length}}" class="muted center-tip">
-    {{hasMore ? (loadingMore ? '加载中...' : '上拉加载更多') : '没有更多了'}}
+  <view wx:if="{{items.length}}" class="more">
+    <text wx:if="{{loadingMore}}">正在加载…</text>
+    <text wx:elif="{{hasMore}}">上拉加载更多</text>
+    <text wx:else>— 已经到底啦 —</text>
   </view>
 </view>

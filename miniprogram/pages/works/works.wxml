@@ -1,36 +1,91 @@
-<view class="top-bar">
-  <view class="plaza-entry" bindtap="goPlaza">
-    <text class="plaza-title">作品广场 · 排行榜</text>
-    <text class="plaza-sub">看看大家的创作，点个赞就能借用下单</text>
-    <text class="plaza-arrow">›</text>
-  </view>
-  <view class="points-chip">积分 {{points}}</view>
-</view>
-
-<empty-state
-  wx:if="{{!works.length}}"
-  loading="{{loading}}"
-  text="还没有作品，去创作第一个吧"
-  action-text="去创作"
-  bind:action="goStudio"
-/>
-
-<view class="grid">
-  <view class="work-item" wx:for="{{works}}" wx:key="id">
-    <image class="work-img" src="{{item.cover}}" mode="aspectFill" data-id="{{item.id}}" bindtap="preview" />
-    <view
-      class="badge {{item.isPublic ? 'on' : ''}}"
-      data-id="{{item.id}}"
-      catchtap="togglePublish"
-    >{{item.isPublic ? '已公开' : '私密'}}</view>
-
-    <view class="meta">
-      <text class="stat">♥ {{item.likeCount}}</text>
-      <text class="stat">用 {{item.useCount}}</text>
-      <text class="del" data-id="{{item.id}}" catchtap="del">删除</text>
+<view class="page page-tab">
+  <!-- 创作者条 -->
+  <view class="creator rise">
+    <image wx:if="{{profile.avatar}}" class="cava" src="{{profile.avatar}}" mode="aspectFill" />
+    <view wx:else class="cava cava-fb">{{profile.nickname ? profile.nickname[0] : '梦'}}</view>
+    <view class="col grow">
+      <view class="h3">{{profile.nickname || '创作者'}}</view>
+      <view class="cap mt8">每一件作品都能变成实物</view>
     </view>
+    <view class="points" hover-class="press" bindtap="goPoints">
+      <x-icon name="bolt" size="28" color="#a86b00" fill="{{true}}" />
+      <text class="num">{{points}}</text>
+      <x-icon name="right" size="22" color="#a86b00" />
+    </view>
+  </view>
 
-    <view class="prompt" wx:if="{{item.prompt && item.isPublic}}">{{item.prompt}}</view>
-    <view class="prompt muted" wx:elif="{{!item.prompt}}">{{item.typeText}}</view>
+  <!-- 数据带 -->
+  <view class="stats rise d1">
+    <view class="st">
+      <view class="st-n num">{{stats.total}}</view>
+      <view class="st-t">作品</view>
+    </view>
+    <view class="st-line"></view>
+    <view class="st">
+      <view class="st-n num">{{stats.published}}</view>
+      <view class="st-t">已发布</view>
+    </view>
+    <view class="st-line"></view>
+    <view class="st">
+      <view class="st-n num">{{stats.likes}}</view>
+      <view class="st-t">获赞</view>
+    </view>
+  </view>
+
+  <!-- 筛选 -->
+  <view class="filters">
+    <view
+      wx:for="{{filters}}"
+      wx:key="key"
+      class="chip chip-line {{filterKey === item.key ? 'on' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="pickFilter"
+    >{{item.label}}</view>
+    <view class="grow"></view>
+    <view class="go-plaza" hover-class="press" bindtap="goStudio">
+      <x-icon name="plus" size="26" color="#5646d6" />
+      <text>去创作</text>
+    </view>
+  </view>
+
+  <x-skeleton wx:if="{{loading}}" type="grid" count="4" />
+
+  <x-empty
+    wx:elif="{{!shown.length}}"
+    icon="grid"
+    text="{{filterKey === 'all' ? '还没有作品，去创作第一个吧' : '这个分类下还没有作品'}}"
+    desc="AI 生图或拼装工坊都能做出来"
+    action-text="去创作"
+    bind:action="goStudio"
+  />
+
+  <!-- 作品网格 -->
+  <view wx:else class="grid">
+    <view class="wcard rise" wx:for="{{shown}}" wx:key="id" hover-class="press-soft" data-id="{{item.id}}" bindtap="goWork">
+      <view class="wcover">
+        <image class="wimg" src="{{item.cover}}" mode="aspectFill" lazy-load data-id="{{item.id}}" catchtap="preview" />
+        <view class="badge {{item.isPublic ? 'on' : ''}}" data-id="{{item.id}}" catchtap="togglePublish">
+          <x-icon name="{{item.isPublic ? 'eye' : 'lock'}}" size="22" color="{{item.isPublic ? '#ffffff' : '#ffffff'}}" />
+          <text>{{item.isPublic ? '公开中' : '私密'}}</text>
+        </view>
+      </view>
+      <view class="wbody">
+        <view class="wprompt ell2">{{item.prompt || item.typeText}}</view>
+        <view class="wmeta">
+          <view class="m">
+            <x-icon name="heart" size="24" color="#9a93a8" />
+            <text class="num">{{item.likeCount}}</text>
+          </view>
+          <view class="m">
+            <x-icon name="package" size="24" color="#9a93a8" />
+            <text class="num">{{item.useCount}}</text>
+          </view>
+          <view class="grow"></view>
+          <view class="del" data-id="{{item.id}}" catchtap="del">
+            <x-icon name="trash" size="26" color="#c4bdd1" />
+          </view>
+        </view>
+      </view>
+    </view>
   </view>
 </view>

@@ -1,14 +1,37 @@
-<view class="login-page">
-  <view class="logo-wrap">
-    <view class="logo">现梦坊</view>
-    <view class="slogan">创意走进现实</view>
+<view class="page login">
+  <view class="hero rise">
+    <view class="blob b1"></view>
+    <view class="blob b2"></view>
+    <view class="blob b3"></view>
+    <view class="logo">梦</view>
+    <view class="h-name">现梦坊</view>
+    <view class="slogan">把想象印进现实</view>
   </view>
 
-  <button class="btn-pink login-btn" disabled="{{loading}}" bindtap="wxLogin">微信一键登录</button>
+  <view class="feats rise d1">
+    <view class="feat">
+      <view class="f-ic" style="background:#f1eeff"><x-icon name="wand" size="34" color="#6c5ce7" /></view>
+      <view class="col"><text class="f-t">AI 一句话生图</text><text class="cap">每天有免费额度</text></view>
+    </view>
+    <view class="feat">
+      <view class="f-ic" style="background:#ffeef4"><x-icon name="palette" size="34" color="#ff6fa5" /></view>
+      <view class="col"><text class="f-t">拼装你的角色</text><text class="cap">百套素材随意搭</text></view>
+    </view>
+    <view class="feat">
+      <view class="f-ic" style="background:#e8f8f4"><x-icon name="package" size="34" color="#14b8a6" /></view>
+      <view class="col"><text class="f-t">作品印成实物</text><text class="cap">工厂直做到家</text></view>
+    </view>
+  </view>
 
-  <view class="dev-box" wx:if="{{realLoginFailed}}">
-    <view class="muted">本地开发模式（后端未配置微信 appid）</view>
-    <input class="dev-input" value="{{openid}}" bindinput="onOpenIDInput" placeholder="输入模拟 openid" />
-    <button class="btn-pink" disabled="{{loading}}" bindtap="devLogin">开发者模拟登录</button>
+  <view class="btn btn-primary btn-lg login-btn rise d2" hover-class="press" bindtap="wxLogin">
+    {{loading ? '登录中…' : '微信一键登录'}}
+  </view>
+  <view class="agree cap rise d2">登录即代表同意《用户协议》与《隐私政策》</view>
+
+  <view class="dev-box card rise d3" wx:if="{{realLoginFailed}}">
+    <view class="h3">开发者模式</view>
+    <view class="cap mt8">后端未配置微信 appid，可使用模拟登录</view>
+    <input class="dev-input" value="{{openid}}" bindinput="onOpenIDInput" placeholder="输入模拟 openid" placeholder-class="dev-ph" />
+    <view class="btn btn-soft btn-block" hover-class="press" bindtap="devLogin">开发者模拟登录</view>
   </view>
 </view>

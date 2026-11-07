@@ -1,22 +1,48 @@
-<empty-state wx:if="{{!addresses.length}}" loading="{{loading}}" text="还没有收货地址" />
+<view class="page page-bar">
+  <x-empty
+    wx:if="{{!addresses.length}}"
+    loading="{{loading}}"
+    icon="pin"
+    text="还没有收货地址"
+    desc="添加地址后就可以下单定制了"
+  />
 
-<view class="card addr" wx:for="{{addresses}}" wx:key="id" data-id="{{item.id}}" bindtap="pick">
-  <view class="addr-head">
-    <text class="addr-name">{{item.name}}</text>
-    <text class="muted">{{item.phone}}</text>
-    <text wx:if="{{item.isDefault}}" class="default-tag">默认</text>
+  <view class="tip-bar" wx:if="{{selectMode && addresses.length}}">
+    <x-icon name="info" size="26" color="#5646d6" />
+    <text>点击地址卡片即可选用</text>
   </view>
-  <view class="addr-detail">{{item.full}}</view>
-  <view class="addr-actions">
-    <button size="mini" data-id="{{item.id}}" catchtap="setDefault" wx:if="{{!item.isDefault}}">设为默认</button>
-    <button size="mini" data-id="{{item.id}}" catchtap="edit">编辑</button>
-    <button size="mini" type="warn" plain data-id="{{item.id}}" catchtap="del">删除</button>
+
+  <view
+    class="a-card rise {{index < 4 ? 'd' + (index + 1) : ''}}"
+    wx:for="{{addresses}}"
+    wx:key="id"
+    data-id="{{item.id}}"
+    bindtap="pick"
+    hover-class="press-soft"
+  >
+    <view class="a-head">
+      <view class="a-ic"><x-icon name="pin" size="30" color="#14b8a6" /></view>
+      <text class="a-name">{{item.name}}</text>
+      <text class="cap">{{item.phone}}</text>
+      <view wx:if="{{item.isDefault}}" class="tag tag-soft">默认</view>
+      <view class="grow"></view>
+      <view class="a-op" data-id="{{item.id}}" catchtap="edit">
+        <x-icon name="edit" size="28" color="#5d576e" />
+      </view>
+      <view class="a-op" data-id="{{item.id}}" catchtap="del">
+        <x-icon name="trash" size="28" color="#f04452" />
+      </view>
+    </view>
+    <view class="a-detail">{{item.full}}</view>
+    <view class="a-foot" wx:if="{{!item.isDefault}}">
+      <text class="set-def" data-id="{{item.id}}" catchtap="setDefault">设为默认</text>
+    </view>
   </view>
-</view>
 
-<view class="tip muted" wx:if="{{selectMode && addresses.length}}">点击地址卡片即可选用</view>
-
-<view class="footer-space"></view>
-<view class="footer">
-  <button class="btn-pink footer-btn" bindtap="add">+ 新增收货地址</button>
+  <view class="footer">
+    <view class="btn btn-primary btn-lg btn-block" hover-class="press" bindtap="add">
+      <x-icon name="plus" size="30" color="#ffffff" />
+      <text>新增收货地址</text>
+    </view>
+  </view>
 </view>

@@ -1,0 +1,24 @@
+<view class="tabbar">
+  <view class="bar">
+    <view
+      wx:for="{{list}}"
+      wx:key="path"
+      class="item {{selected === index ? 'on' : ''}} {{item.center ? 'mid' : ''}}"
+      data-index="{{index}}"
+      bindtap="tap"
+      hover-class="{{item.center ? 'none' : 'press'}}"
+      hover-stay-time="60"
+    >
+      <block wx:if="{{item.center}}">
+        <view class="mid-btn {{selected === index ? 'mid-on' : ''}}">
+          <image class="mid-ic" src="{{midSrc}}" mode="aspectFit" />
+        </view>
+        <text class="label mid-label">{{item.text}}</text>
+      </block>
+      <block wx:else>
+        <image class="ic" src="{{selected === index ? item.srcOn : item.src}}" mode="aspectFit" />
+        <text class="label">{{item.text}}</text>
+      </block>
+    </view>
+  </view>
+</view>

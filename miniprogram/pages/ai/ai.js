@@ -1,9 +1,12 @@
 const api = require('../../utils/request')
 const { img } = require('../../config')
 
+const SUGGESTIONS = ['扎双马尾的小姑娘', '水彩风格小猫', '赛博朋克城市夜景', '复古邮票插画']
+
 Page({
   data: {
     mode: 'ai_text', // ai_text | ai_photo
+    suggestions: SUGGESTIONS,
     prompt: '',
     photoPath: '',
     generating: false,
@@ -103,7 +106,19 @@ Page({
     }
   },
 
+  pickWord(e) {
+    this.setData({ prompt: e.currentTarget.dataset.w })
+  },
+
+  previewResult() {
+    if (this.data.result) wx.previewImage({ urls: [this.data.result.cover] })
+  },
+
   goWorks() {
     wx.switchTab({ url: '/pages/works/works' })
+  },
+
+  goShop() {
+    wx.switchTab({ url: '/pages/index/index' })
   },
 })

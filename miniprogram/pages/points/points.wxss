@@ -1,0 +1,95 @@
+/* 积分明细 */
+.hero {
+  position: relative;
+  margin: 24rpx 32rpx 0;
+  padding: 44rpx 40rpx 38rpx;
+  background: linear-gradient(135deg, #7a5cff 0%, #ff6fa5 100%);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-brand);
+  overflow: hidden;
+}
+.h-label {
+  position: relative;
+  z-index: 2;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+.h-num {
+  position: relative;
+  z-index: 2;
+  margin-top: 8rpx;
+  font-size: 88rpx;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -2rpx;
+}
+.h-rules {
+  position: relative;
+  z-index: 2;
+  margin-top: 26rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.rule text {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.panel {
+  margin: 0 32rpx;
+  background: #fff;
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  padding: 8rpx 28rpx;
+}
+.log {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 0;
+}
+.log + .log {
+  border-top: 2rpx solid var(--line);
+}
+.log-ic {
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 20rpx;
+  background: var(--brand-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.log-t {
+  font-size: 27rpx;
+  font-weight: 500;
+}
+.log-right {
+  align-items: flex-end;
+}
+.log-delta {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+.log-delta.plus {
+  color: var(--green);
+}
+.log-delta.minus {
+  color: var(--ink-2);
+}
+.more {
+  text-align: center;
+  padding: 32rpx 0;
+  font-size: 22rpx;
+  color: var(--ink-4);
+}

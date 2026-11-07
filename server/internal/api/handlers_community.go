@@ -92,7 +92,8 @@ func (h *Handlers) workUnlike(c *gin.Context) {
 	ok(c, gin.H{"like_count": n, "liked": false})
 }
 
-// userPoints 我的积分与最近流水
+// userPoints 我的积分与流水。默认返回最近 50 条（作品页角标用），
+// 带 page 参数时按页返回（积分明细页），并附 total。
 func (h *Handlers) userPoints(c *gin.Context) {
 	claims := c.MustGet("claims").(*service.Claims)
 	balance, err := h.Community.Balance(claims.UserID)
@@ -100,12 +101,23 @@ func (h *Handlers) userPoints(c *gin.Context) {
 		fail(c, 500, "获取积分失败，请稍后再试")
 		return
 	}
-	logs, err := h.Community.Logs(claims.UserID, 50)
+	if c.Query("page") == "" {
+		logs, err := h.Community.Logs(claims.UserID, 50)
+		if err != nil {
+			fail(c, 500, "获取积分失败，请稍后再试")
+			return
+		}
+		ok(c, gin.H{"points": balance, "logs": logs})
+		return
+	}
+	page, _ := strconv.Atoi(c.Query("page"))
+	size, _ := strconv.Atoi(c.Query("size"))
+	total, logs, err := h.Community.LogsPage(claims.UserID, page, size)
 	if err != nil {
 		fail(c, 500, "获取积分失败，请稍后再试")
 		return
 	}
-	ok(c, gin.H{"points": balance, "logs": logs})
+	ok(c, gin.H{"points": balance, "total": total, "logs": logs})
 }
 
 // userAIQuota 今日免费次数与积分余额

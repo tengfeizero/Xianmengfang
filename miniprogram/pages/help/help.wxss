@@ -1,0 +1,54 @@
+.hero {
+  margin: 24rpx 32rpx 0;
+  padding: 44rpx 40rpx;
+  background: linear-gradient(135deg, #7a5cff 0%, #ff6fa5 100%);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-brand);
+}
+.h-t {
+  margin-top: 18rpx;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #fff;
+}
+.h-s {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.panel {
+  margin: 24rpx 32rpx 0;
+  background: #fff;
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  padding: 8rpx 28rpx;
+}
+.faq {
+  padding: 26rpx 0;
+  transition: transform 0.18s ease;
+}
+.faq + .faq {
+  border-top: 2rpx solid var(--line);
+}
+.q {
+  font-size: 28rpx;
+  font-weight: 600;
+  padding-right: 16rpx;
+}
+.arrow {
+  transition: transform 0.24s ease;
+}
+.arrow.up {
+  transform: rotate(180deg);
+}
+.a {
+  margin-top: 14rpx;
+  font-size: 25rpx;
+  line-height: 1.7;
+  color: var(--ink-2);
+  animation: riseIn 0.3s cubic-bezier(0.22, 0.68, 0, 1) both;
+}
+.contact {
+  margin: 32rpx 32rpx 0;
+}

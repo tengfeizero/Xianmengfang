@@ -68,7 +68,12 @@ func Router(h *Handlers) *gin.Engine {
 		// 作品库（M1）
 		ug.GET("/works", h.workList)
 		ug.GET("/works/:id", h.workDetail)
+		ug.GET("/works/:id/view", h.workDetailView)
 		ug.DELETE("/works/:id", h.workDelete)
+
+		// 个人中心（v2.0）：「我的」页资料/资产/订单角标一次取全
+		ug.GET("/me", h.userMe)
+		ug.PUT("/me", h.userMeUpdate)
 
 		// 作品社区与积分（v1.7）
 		ug.PUT("/works/:id/publish", h.workPublish)

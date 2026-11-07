@@ -1,49 +1,30 @@
-<view wx:if="{{order}}" class="page">
-  <!-- 状态头 -->
-  <view class="hero">
+<view wx:if="{{order}}" class="page od">
+  <!-- 状态头 + 进度 -->
+  <view class="hero rise">
+    <view class="blob b1"></view>
+    <view class="blob b2"></view>
     <view class="hero-status">{{order.statusText}}</view>
     <view class="hero-desc">{{order.statusDesc}}</view>
     <view class="hero-tip" wx:if="{{order.cancelReason}}">取消原因：{{order.cancelReason}}</view>
     <view class="hero-tip" wx:if="{{order.refundFlag}}">商家已标记退款（演示阶段无资金流）</view>
-  </view>
 
-  <!-- 订单信息 -->
-  <view class="card">
-    <view class="kv">
-      <text class="k">订单编号</text>
-      <view class="v">
-        <text class="mono">{{order.orderNo}}</text>
-        <text class="copy" data-text="{{order.orderNo}}" bindtap="copy">复制</text>
-      </view>
-    </view>
-    <view class="kv"><text class="k">下单时间</text><text class="v">{{order.createdAt}}</text></view>
-    <view class="kv"><text class="k">支付方式</text><text class="v">{{order.payType}}</text></view>
-    <view class="kv" wx:if="{{order.payTime}}"><text class="k">支付时间</text><text class="v">{{order.payTime}}</text></view>
-  </view>
-
-  <!-- 订单进度（order_events 流水，倒序） -->
-  <view class="card" wx:if="{{events.length}}">
-    <view class="sec-title">订单进度</view>
-    <view class="timeline">
-      <view class="tl-item {{index === 0 ? 'latest' : ''}}" wx:for="{{events}}" wx:key="id">
-        <view class="tl-rail">
-          <view class="tl-dot"></view>
-          <view class="tl-line" wx:if="{{index !== events.length - 1}}"></view>
-        </view>
-        <view class="tl-body">
-          <view class="tl-top">
-            <text class="tl-action">{{item.action}}</text>
-            <text class="muted">{{item.time}}</text>
+    <!-- 进度条 -->
+    <view class="track" wx:if="{{order.status !== 'canceled'}}">
+      <block wx:for="{{steps}}" wx:key="key">
+        <view class="track-item">
+          <view class="dot {{index <= order.stepIdx ? 'on' : ''}}">
+            <x-icon wx:if="{{index < order.stepIdx}}" name="check" size="20" color="#ffffff" />
           </view>
-          <view class="muted tl-note" wx:if="{{item.note}}">{{item.note}}</view>
+          <text class="track-label {{index <= order.stepIdx ? 'on' : ''}}">{{item.label}}</text>
         </view>
-      </view>
+        <view wx:if="{{index !== steps.length - 1}}" class="seg {{index < order.stepIdx ? 'on' : ''}}"></view>
+      </block>
     </view>
   </view>
 
   <!-- 商品明细 -->
   <view class="card">
-    <view class="sec-title">商品信息</view>
+    <view class="sec-t">商品信息</view>
     <view class="item" wx:for="{{items}}" wx:key="id">
       <image
         wx:if="{{item.imageUrl}}"
@@ -59,18 +40,21 @@
         <view class="muted" wx:if="{{item.specsText}}">{{item.specsText}}</view>
         <view class="work-line" wx:if="{{item.workImageUrl}}" data-src="{{item.workImageUrl}}" bindtap="preview">
           <image class="work-img" src="{{item.workImageUrl}}" mode="aspectFill" />
-          <text class="muted">定制作品 · 点击放大</text>
+          <view class="col">
+            <text class="work-t">定制作品</text>
+            <text class="cap">点击放大</text>
+          </view>
         </view>
         <view class="item-foot">
-          <text class="price">¥{{item.priceText}}</text>
+          <text class="price"><text class="yuan">¥</text><text class="num">{{item.priceText}}</text></text>
           <text class="muted">x{{item.qty}}</text>
-          <text class="subtotal">小计 ¥{{item.subtotalText}}</text>
+          <text class="subtotal num">小计 ¥{{item.subtotalText}}</text>
         </view>
       </view>
     </view>
 
     <view class="amounts">
-      <view class="kv"><text class="k">商品金额</text><text class="v">¥{{amounts.itemsText}}</text></view>
+      <view class="kv"><text class="k">商品金额</text><text class="v num">¥{{amounts.itemsText}}</text></view>
       <view class="kv">
         <text class="k">运费</text>
         <text class="v">{{amounts.shippingText === '0.00' ? '免运费' : '¥' + amounts.shippingText}}</text>
@@ -81,14 +65,14 @@
       </view>
       <view class="kv total">
         <text class="k">实付金额</text>
-        <text class="price total-price">¥{{amounts.totalText}}</text>
+        <view class="price t-price"><text class="yuan">¥</text><text class="num">{{amounts.totalText}}</text></view>
       </view>
     </view>
   </view>
 
   <!-- 收货信息 -->
   <view class="card" wx:if="{{order.receiverName}}">
-    <view class="sec-title">收货信息</view>
+    <view class="sec-t">收货信息</view>
     <view class="recv-top">
       <text class="recv-name">{{order.receiverName}}</text>
       <text class="muted">{{order.receiverPhone}}</text>
@@ -102,24 +86,64 @@
 
   <!-- 物流信息 -->
   <view class="card" wx:if="{{shipment}}">
-    <view class="sec-title">物流信息</view>
-    <view class="kv"><text class="k">快递公司</text><text class="v">{{shipment.company}}</text></view>
-    <view class="kv">
-      <text class="k">运单号</text>
-      <view class="v">
-        <text class="mono">{{shipment.trackingNo}}</text>
-        <text class="copy" data-text="{{shipment.trackingNo}}" bindtap="copy">复制</text>
+    <view class="sec-t">物流信息</view>
+    <view class="ship-row">
+      <view class="ship-ic"><x-icon name="truck" size="34" color="#3b82f6" /></view>
+      <view class="col grow">
+        <view class="row between">
+          <text class="strong">{{shipment.company}}</text>
+          <text class="copy" data-text="{{shipment.trackingNo}}" bindtap="copy">复制运单号</text>
+        </view>
+        <text class="mono mt8">{{shipment.trackingNo}}</text>
+        <text class="cap mt8" wx:if="{{shipment.time}}">发货时间 {{shipment.time}}</text>
       </view>
     </view>
-    <view class="kv" wx:if="{{shipment.time}}"><text class="k">发货时间</text><text class="v">{{shipment.time}}</text></view>
-    <view class="muted ship-tip">物流轨迹待接入快递查询，可凭运单号到快递官网查询</view>
+    <view class="ship-tip">物流轨迹待接入快递查询，可凭运单号到快递官网查询</view>
+  </view>
+
+  <!-- 订单信息 -->
+  <view class="card">
+    <view class="sec-t">订单信息</view>
+    <view class="kv">
+      <text class="k">订单编号</text>
+      <view class="v">
+        <text class="mono">{{order.orderNo}}</text>
+        <text class="copy" data-text="{{order.orderNo}}" bindtap="copy">复制</text>
+      </view>
+    </view>
+    <view class="kv"><text class="k">下单时间</text><text class="v">{{order.createdAt}}</text></view>
+    <view class="kv"><text class="k">支付方式</text><text class="v">{{order.payType}}</text></view>
+    <view class="kv" wx:if="{{order.payTime}}"><text class="k">支付时间</text><text class="v">{{order.payTime}}</text></view>
+  </view>
+
+  <!-- 订单进度流水 -->
+  <view class="card" wx:if="{{events.length}}">
+    <view class="sec-t">订单进度</view>
+    <view class="timeline">
+      <view class="tl-item {{index === 0 ? 'latest' : ''}}" wx:for="{{events}}" wx:key="id">
+        <view class="tl-rail">
+          <view class="tl-dot"></view>
+          <view class="tl-line" wx:if="{{index !== events.length - 1}}"></view>
+        </view>
+        <view class="tl-body">
+          <view class="tl-top">
+            <text class="tl-action">{{item.action}}</text>
+            <text class="cap">{{item.time}}</text>
+          </view>
+          <view class="cap tl-note" wx:if="{{item.note}}">{{item.note}}</view>
+        </view>
+      </view>
+    </view>
   </view>
 
   <!-- 底部操作 -->
   <view class="footer" wx:if="{{canCancel || canConfirm}}">
-    <button wx:if="{{canCancel}}" class="btn-ghost" bindtap="cancel">取消订单</button>
-    <button wx:if="{{canConfirm}}" class="btn-pink footer-main" bindtap="confirm">确认收货</button>
+    <view wx:if="{{canCancel}}" class="btn btn-ghost grow" hover-class="press" bindtap="cancel">取消订单</view>
+    <view wx:if="{{canConfirm}}" class="btn btn-primary grow" hover-class="press" bindtap="confirm">确认收货</view>
   </view>
 </view>
 
-<empty-state wx:if="{{!order}}" loading="{{loading}}" text="订单不存在或已失效" />
+<view wx:else class="page">
+  <x-skeleton wx:if="{{loading}}" type="card" count="1" />
+  <x-empty wx:elif="{{!loading}}" icon="ticket" text="订单不存在或已失效" />
+</view>

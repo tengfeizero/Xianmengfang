@@ -1,0 +1,30 @@
+<view class="sk">
+  <block wx:if="{{type === 'grid'}}">
+    <view class="grid">
+      <view class="gcard" wx:for="{{items}}" wx:key="index">
+        <view class="skeleton gcover"></view>
+        <view class="skeleton line w70"></view>
+        <view class="skeleton line w40"></view>
+      </view>
+    </view>
+  </block>
+
+  <block wx:elif="{{type === 'card'}}">
+    <view class="big">
+      <view class="skeleton big-img"></view>
+      <view class="skeleton line w60 mt24"></view>
+      <view class="skeleton line w90 mt16"></view>
+      <view class="skeleton line w45 mt16"></view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="row-item" wx:for="{{items}}" wx:key="index">
+      <view class="skeleton thumb"></view>
+      <view class="grow">
+        <view class="skeleton line w70"></view>
+        <view class="skeleton line w45 mt16"></view>
+      </view>
+    </view>
+  </block>
+</view>

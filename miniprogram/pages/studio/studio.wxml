@@ -1,70 +1,108 @@
-<view class="studio">
-  <canvas
-    type="2d"
-    id="stage"
-    class="stage"
-    bindtouchstart="onTouchStart"
-    bindtouchmove="onTouchMove"
-    bindtouchend="onTouchEnd"
-  ></canvas>
+<view class="page page-tab studio">
+  <!-- 画布 -->
+  <view class="stage-wrap rise">
+    <canvas
+      type="2d"
+      id="stage"
+      class="stage"
+      bindtouchstart="onTouchStart"
+      bindtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd"
+    ></canvas>
 
-  <view class="sel-bar" wx:if="{{selectedIdx >= 0}}">
-    <text class="muted">已选中「{{placements[selectedIdx].name}}」</text>
-    <slider
-      class="sel-slider"
-      min="0.5"
-      max="2"
-      step="0.1"
-      value="{{scaleVal}}"
-      activeColor="#ff7ea0"
-      bindchange="onScale"
-    />
-    <button size="mini" bindtap="removeSelected">移除</button>
-  </view>
+    <view class="stage-tools">
+      <view class="tool" hover-class="press" bindtap="undo">
+        <x-icon name="undo" size="32" color="#5d576e" />
+      </view>
+      <view class="tool" hover-class="press" bindtap="clearAll">
+        <x-icon name="eraser" size="32" color="#5d576e" />
+      </view>
+    </view>
 
-  <view class="board-row" wx:if="{{boards.length > 1}}">
-    <view
-      wx:for="{{boards}}"
-      wx:key="id"
-      class="board-item {{boardIdx === index ? 'active' : ''}}"
-      data-idx="{{index}}"
-      bindtap="pickBoard"
-    >
-      <image class="board-thumb" src="{{item.thumb}}" mode="aspectFill" />
-      <text class="board-name">{{item.name}}</text>
+    <view class="stage-hint" wx:if="{{!placements.length}}">
+      <x-icon name="sparkles" size="26" color="#9a93a8" />
+      <text>点下面的素材，把角色装扮起来</text>
+    </view>
+
+    <!-- 选中元素浮层：缩放 + 删除 -->
+    <view class="selbar" wx:if="{{selectedIdx >= 0}}">
+      <view class="sel-name ell">{{placements[selectedIdx].name}}</view>
+      <slider
+        class="sel-slider"
+        min="0.5"
+        max="2"
+        step="0.1"
+        value="{{scaleVal}}"
+        activeColor="#6c5ce7"
+        backgroundColor="#e6e1f2"
+        blockSize="20"
+        bindchange="onScale"
+      />
+      <view class="sel-del" hover-class="press" bindtap="removeSelected">
+        <x-icon name="trash" size="30" color="#f04452" />
+      </view>
     </view>
   </view>
 
-  <scroll-view scroll-x class="cat-scroll" wx:if="{{cats.length}}">
-    <view class="cat-row">
+  <!-- 底板 -->
+  <view class="sec">
+    <text class="sec-title">选择底板</text>
+    <text class="cap">已放 {{placements.length}}/12 个元素</text>
+  </view>
+  <scroll-view scroll-x class="board-scroll" show-scrollbar="{{false}}">
+    <view class="board-row">
       <view
-        wx:for="{{cats}}"
-        wx:key="key"
-        class="cat-tag {{catIdx === index ? 'active' : ''}}"
+        wx:for="{{boards}}"
+        wx:key="id"
+        class="board {{boardIdx === index ? 'on' : ''}}"
         data-idx="{{index}}"
-        bindtap="pickCat"
+        bindtap="pickBoard"
+        hover-class="press"
       >
-        {{item.label}}
+        <view class="board-imgwrap">
+          <image class="board-img" src="{{item.thumb}}" mode="aspectFill" />
+        </view>
+        <text class="board-name ell">{{item.name}}</text>
       </view>
     </view>
   </scroll-view>
 
-  <scroll-view scroll-x class="el-scroll">
-    <view class="el-row">
-      <view class="el-item" wx:for="{{elements}}" wx:key="id" data-id="{{item.id}}" bindtap="addElement">
-        <image class="el-img" src="{{item.full}}" mode="aspectFit" />
-        <text class="el-name">{{item.name}}</text>
+  <!-- 素材抽屉 -->
+  <view class="tray">
+    <scroll-view scroll-x class="cat-scroll" show-scrollbar="{{false}}" wx:if="{{cats.length}}">
+      <view class="cat-row">
+        <view
+          wx:for="{{cats}}"
+          wx:key="key"
+          class="chip chip-line {{catIdx === index ? 'on' : ''}}"
+          data-idx="{{index}}"
+          bindtap="pickCat"
+        >{{item.label}}</view>
       </view>
-      <view wx:if="{{!elements.length}}" class="muted el-empty">
-        {{cats.length ? '该分类暂无元素' : '该底板还没有配置元素'}}
+    </scroll-view>
+    <scroll-view scroll-x class="el-scroll" show-scrollbar="{{false}}">
+      <view class="el-row">
+        <view class="el" wx:for="{{elements}}" wx:key="id" data-id="{{item.id}}" bindtap="addElement" hover-class="press">
+          <view class="el-imgwrap">
+            <image class="el-img" src="{{item.full}}" mode="aspectFit" lazy-load />
+          </view>
+          <text class="el-name ell">{{item.name}}</text>
+        </view>
+        <view wx:if="{{!elements.length}}" class="el-empty">
+          <text class="muted">{{cats.length ? '该分类暂无元素' : '该底板还没有配置元素'}}</text>
+        </view>
       </view>
-    </view>
-  </scroll-view>
+    </scroll-view>
+  </view>
 
+  <!-- 底部操作 -->
   <view class="actions">
-    <button class="btn-pink act-btn" plain bindtap="goAI">AI 生成</button>
-    <button class="btn-pink act-btn" disabled="{{composing}}" bindtap="compose">
-      {{composing ? '生成中...' : '生成作品'}}
-    </button>
+    <view class="act-ghost" hover-class="press" bindtap="goAI">
+      <x-icon name="wand" size="34" color="#5646d6" />
+      <text>AI 生成</text>
+    </view>
+    <view class="btn btn-primary act-main" hover-class="press" bindtap="compose">
+      {{composing ? '生成中…' : '生成作品'}}
+    </view>
   </view>
 </view>

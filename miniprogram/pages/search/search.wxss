@@ -1,0 +1,131 @@
+/* 搜索 */
+.s-head {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 32rpx 0;
+}
+.s-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  height: 80rpx;
+  padding: 0 24rpx;
+  background: #fff;
+  border-radius: 999rpx;
+  box-shadow: var(--sh-1);
+}
+.s-input {
+  flex: 1;
+  font-size: 27rpx;
+}
+.s-ph {
+  color: var(--ink-3);
+}
+.s-clear {
+  padding: 8rpx;
+}
+.s-cancel {
+  font-size: 27rpx;
+  color: var(--ink-2);
+}
+.s-tabs {
+  display: flex;
+  gap: 28rpx;
+  padding: 26rpx 36rpx 6rpx;
+}
+.s-tab {
+  font-size: 28rpx;
+  color: var(--ink-3);
+  padding-bottom: 12rpx;
+  position: relative;
+}
+.s-tab.on {
+  color: var(--ink);
+  font-weight: 700;
+}
+.s-tab.on::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: var(--grad);
+}
+.words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding: 0 32rpx;
+}
+
+.p-list {
+  padding: 22rpx 32rpx 0;
+}
+.p-item {
+  display: flex;
+  gap: 22rpx;
+  background: #fff;
+  border-radius: var(--r-lg);
+  padding: 22rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--sh-1);
+  transition: transform 0.18s ease;
+}
+.p-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: var(--r-md);
+  background: #f1eef8;
+  flex-shrink: 0;
+}
+.p-t {
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22rpx;
+  padding: 22rpx 32rpx 0;
+}
+.wcard {
+  width: 332rpx;
+  background: #fff;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--sh-1);
+  transition: transform 0.18s ease;
+}
+.wimg {
+  display: block;
+  width: 332rpx;
+  height: 400rpx;
+  background: #f1eef8;
+}
+.wbody {
+  padding: 18rpx 20rpx 20rpx;
+}
+.wprompt {
+  font-size: 23rpx;
+  color: var(--ink);
+  line-height: 1.5;
+  height: 68rpx;
+}
+.wmeta {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-top: 10rpx;
+}
+.wmeta > text:first-child {
+  font-size: 21rpx;
+  color: var(--ink-3);
+  max-width: 170rpx;
+}

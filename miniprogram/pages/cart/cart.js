@@ -130,6 +130,10 @@ Page({
     wx.switchTab({ url: '/pages/index/index' })
   },
 
+  goProduct(e) {
+    wx.navigateTo({ url: '/pages/product/product?id=' + e.currentTarget.dataset.id })
+  },
+
   chooseAddress() {
     wx.navigateTo({
       url: '/pages/address/list?select=1',

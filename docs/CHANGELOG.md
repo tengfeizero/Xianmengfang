@@ -1,5 +1,59 @@
 # CHANGELOG — 现梦坊
 
+## v2.0 (2026-11-07) — 小程序视觉与信息架构重做
+
+v1.x 的小程序「能用但不像一个 App」：5 个 tab 里放了购物车和订单（低频、本有入口），高频的作品广场却藏在作品页二级；没有「我的」，资产与账号无处安放；视觉是粉红单色 + 圆角矩形堆叠，没有品牌层次。本版只改小程序（含少量后端补口），业务规则与订单状态机不变。设计依据见 PRD 3.5。
+
+**信息架构（5 tab / 19 页）**
+- tab 重组为 **首页 / 广场 / 创作（中间凸起）/ 作品 / 我的**；购物车、订单移出 tab，改由首页购物车角标与「我的」宫格进入
+- 作品广场从二级页升为一级 tab（`/pages/plaza`），支持最新 / 最常用 / 最多赞三榜
+- 新增 7 页：**我的**（`pages/mine`）、**作品详情**（`pages/work-detail`）、**搜索**（`pages/search`）、**积分明细**（`pages/points`）、**设置**（`pages/settings`）、**帮助与反馈**（`pages/help`，FAQ 手风琴）、**关于**（`pages/about`）
+- 自定义 tabBar（`tabBar.custom=true` + `custom-tab-bar/`）：白色毛玻璃条，中间 92rpx 渐变圆按钮带白描边，选中态换色加深
+
+**设计系统（`app.wxss` 重写）**
+- CSS 变量：`--brand:#6c5ce7`、`--pink:#ff6fa5`、`--grad`、`--sh-1/--sh-2/--sh-brand`、`--r-xl~--r-sm`；画布改浅灰紫 `#f7f5fb`，卡片纯白 24rpx 大圆角 + 双层柔和阴影
+- 原子类：`.page/.page-tab/.page-bar/.pad/.row/.col/.between/.grow/.g12...`、`.h1/.h2/.h3/.cap/.muted/.ell/.ell2/.num`、`.card/.card-tight/.hr`、`.btn/.btn-primary/.btn-ghost/.btn-soft/.btn-sm/.btn-block/.press`、`.chip/.chip.on`、`.tag-*`、`.price/.yuan/.unit`、`.grad-block/.blob/.avatar`
+- 动效：`riseIn`（入场，按列表序 `d1~d6` 递增延迟）/`fadeIn`/`pop`（点赞）/`shimmer`（骨架）/`breathe`（登录 logo）
+- 状态色改为流程语义色（待接单橙、生产中紫、打包中青、待发货蓝、已发货蓝、已完成绿、已取消灰），`status-tag` 统一为「圆点 + 浅色底胶囊」
+
+**图标体系（`utils/icons.js`，新增）**
+- 运行时 SVG：60+ 线性图标路径，`icon(name, color, {fill, sw})` 生成 `data:image/svg+xml;base64,...`，任意着色/改粗细，选中态只换色不换图，不再依赖两套 png
+- 新增通用组件 `x-icon`（name/color/size/fill/sw，observers 算 src）、`x-empty`（渐变插画底 + 图标 + 标题/描述/行动按钮，loading 三点跳动）、`x-skeleton`（list/grid/card）
+
+**页面重做（19 页）**
+- 首页：品牌栏（梦 logo + 购物车角标）+ 搜索框 + 渐变 Hero（「把想象印进现实」+ 开始创作/逛灵感 + 呼吸装饰卡）+ 四宫格快捷入口 + 广场灵感横滑 + 商品双列卡
+- 广场：大标题 + 搜索圆按钮 + 分段控件 + 双列作品卡（头像、提示词、被用次数、心形点赞带 pop 动画）
+- 创作：画布圆角大卡 + 右上撤销/清空浮钮 + 空态提示胶囊 + 底部选中元素浮层（缩放 slider + 删除）+ 底板横滑 + 分类 chip + 素材抽屉 + 悬浮双按钮（按安全区抬到 tabBar 之上）
+- 作品：创作者条（头像/积分胶囊）+ 数据带（作品/已发布/获赞）+ 筛选 chip + 作品卡（公开/私密角标、点赞/使用数、删除）
+- 我的：渐变 Hero（头像首字/昵称/编辑/积分卡）+ 资产带 + 订单宫格（带角标，「进行中」= 生产+打包+待发货）+ 服务列表 6 项 + 退出登录
+- 积分：渐变大数字 Hero + 两条积分规则 + 流水列表（+/- 与余额）+ 触底加载
+- 作品详情：大图卡 + 类型标签 + 作者条（赞/用数）+ 提示词卡（复制）+ 提示卡 + 底部（点赞/发布/去下单）
+- 搜索：搜索框 + 三 tab（商品 / 广场作品 / 我赞过的）+ 热词 + 历史 + 结果列表
+- 商品：全宽画廊（页码指示）+ 上浮信息卡 + 地址卡 + SKU 双行胶囊 + 数量步进 + 定制图案双区（带勾选遮罩）+ 详情 + 底部（购物车角标/加购/立即购买）
+- 购物车：地址卡 + 商品卡（圆形勾选框/定制角标/步进）+ 底部结算条
+- 订单列表：下划线 tab + 订单卡（两图缩略 + 「+N」+ 状态胶囊 + 操作按钮 + 物流行），支持 `?status=` 直落
+- 订单详情：渐变状态头 + 六节点进度条（已完成打勾）+ 商品明细 + 金额 + 收货 + 物流 + 订单信息 + 时间线流水 + 底部按钮
+- AI：分段控件 + 提示词 textarea（计数）+ 建议词 chip + 额度条 + 渐变生成按钮（loading 旋转）+ 结果卡
+- 登录：呼吸 logo + 三条卖点 + 渐变登录按钮 + 开发者模式卡
+- 地址列表/编辑：卡片化地址、图标行操作、底部新增按钮
+
+**后端（为「我的」页补口）**
+- 新增 `service.ProfileService`：`Get(userID)` 一次返回用户资料 + 作品数/发布数/点赞数/购物车数 + `GROUP BY status` 的各状态订单数；`Update(userID, nickname, avatar)`（昵称 1~16 字，空串表示不改）
+- 新增 `GET /user/me`、`PUT /user/me`、`GET /user/works/:id/view`（作品 + 作者 + `liked` + `is_mine`，不可见一律 404）
+- `GET /user/points` 支持 `?page=&size=`（缺省仍为最近 50 条，兼容老调用；分页时额外返回 `total`）
+- 订单列表 `withDetails()` 改返回 `orderItemView`（补 `image_url` / `work_image_url`），订单卡终于能显示缩略图
+- 未新增 `/works/search` 路由：`/works/:id` 通配段会与它冲突，搜索复用 `GET /plaza?keyword=`
+
+**配套**
+- 新增 `utils/tabbar.js`（`setTab(page, index)` 统一设选中态）、`utils/cartBadge.js` 改为落 `storage: xmf_cart_count`（购物车已非 tab，不再有 tab 角标）
+- `utils/util.js` 补 `statusBg/statusStep/fmtTime/POINT_REASON`
+- 新增设计走查工具 `tools/mp-preview/`（WXML→HTML 渲染器 + 真实 wxss + 19 页假数据 + playwright-core 截图）：无微信开发者工具的机器上也能逐页目视验收，`npm run shot` 出 375×812 @2x 截图与整页长图
+
+**验证**
+- `go build ./...` 通过；后端接口用 dev_login 手工打通 `/me`、`/me` 改昵称、`/works/:id/view`、`/points?page=`
+- 19 页全部渲染截图逐一目视核对：无重叠、无错位、无截断；配色统一（紫粉渐变 + 浅灰紫画布 + 白卡大圆角）；图标齐全（脚本校验 wxml/js 引用的图标名 100% 命中 `icons.js`）
+- 待真机自测：自定义 tabBar 中间凸起按钮的位置与点击区、canvas 拼装画布性能、下拉刷新、页面切换动画
+
 ## v1.7 (2026-11-07) — 作品社区 + 积分体系
 
 作品从「只有自己可见」升级为可发布、可被点赞、可被他人借用下单；作品被使用给作者积分，积分可换 AI 生成次数。业务口径见 PRD 3.4（积分按件数计、自用也计，产品确认 2026-11-07）。

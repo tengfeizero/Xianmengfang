@@ -1,46 +1,75 @@
-<view class="ai-page">
-  <view class="mode-row">
-    <view class="mode-tag {{mode === 'ai_text' ? 'active' : ''}}" data-mode="ai_text" bindtap="switchMode">
-      文字生成图
+<view class="page page-bar">
+  <!-- 模式切换 -->
+  <view class="seg rise">
+    <view class="seg-item {{mode === 'ai_text' ? 'on' : ''}}" data-mode="ai_text" bindtap="switchMode" hover-class="press-soft">
+      <x-icon name="wand" size="30" color="{{mode === 'ai_text' ? '#5646d6' : '#9a93a8'}}" />
+      <text>文字生图</text>
     </view>
-    <view class="mode-tag {{mode === 'ai_photo' ? 'active' : ''}}" data-mode="ai_photo" bindtap="switchMode">
-      照片转风格
-    </view>
-  </view>
-
-  <view class="card" wx:if="{{mode === 'ai_text'}}">
-    <view class="sec-title">描述你想要的作品</view>
-    <textarea
-      class="prompt-input"
-      value="{{prompt}}"
-      bindinput="onPrompt"
-      maxlength="200"
-      placeholder="例如：扎双马尾的可爱小姑娘，粉色背景，卡通风格"
-    />
-  </view>
-
-  <view class="card" wx:else>
-    <view class="sec-title">选一张照片</view>
-    <view class="photo-box" bindtap="choosePhoto">
-      <image wx:if="{{photoPath}}" class="photo-preview" src="{{photoPath}}" mode="aspectFill" />
-      <view wx:else class="muted photo-tip">点击拍照或从相册选择</view>
+    <view class="seg-item {{mode === 'ai_photo' ? 'on' : ''}}" data-mode="ai_photo" bindtap="switchMode" hover-class="press-soft">
+      <x-icon name="camera" size="30" color="{{mode === 'ai_photo' ? '#5646d6' : '#9a93a8'}}" />
+      <text>照片转风格</text>
     </view>
   </view>
 
-  <view class="quota-bar" wx:if="{{quota}}">
-    <text wx:if="{{quota.freeLeft > 0}}">今日还剩 {{quota.freeLeft}} 张免费额度</text>
-    <text wx:elif="{{quota.points > 0}}">免费额度已用完，继续生成将消耗 1 积分</text>
-    <text wx:else>今日免费额度已用完，作品被他人使用可获得积分</text>
-    <text class="quota-points">积分 {{quota.points}}</text>
+  <!-- 文字生图 -->
+  <view class="card rise d1" wx:if="{{mode === 'ai_text'}}">
+    <view class="h3">描述你想要的画面</view>
+    <view class="ta-wrap">
+      <textarea
+        class="ta"
+        value="{{prompt}}"
+        bindinput="onPrompt"
+        maxlength="200"
+        placeholder="例如：扎双马尾的可爱小姑娘，粉色背景，卡通风格"
+        placeholder-class="ta-ph"
+      />
+      <text class="ta-count num">{{prompt.length}}/200</text>
+    </view>
+    <view class="words">
+      <view class="chip chip-line" wx:for="{{suggestions}}" wx:key="*this" data-w="{{item}}" bindtap="pickWord" hover-class="press-soft">{{item}}</view>
+    </view>
   </view>
 
-  <button class="btn-pink gen-btn" disabled="{{generating}}" bindtap="generate">
-    {{generating ? 'AI 生成中...' : btnText}}
-  </button>
+  <!-- 照片转风格 -->
+  <view class="card rise d1" wx:else>
+    <view class="h3">选一张照片</view>
+    <view class="photo" hover-class="press-soft" bindtap="choosePhoto">
+      <image wx:if="{{photoPath}}" class="photo-img" src="{{photoPath}}" mode="aspectFill" />
+      <view wx:else class="col center photo-empty">
+        <x-icon name="camera" size="56" color="#c4bdd1" />
+        <text class="photo-tip">点击拍照或从相册选择</text>
+      </view>
+      <view wx:if="{{photoPath}}" class="photo-retry">重选</view>
+    </view>
+  </view>
 
-  <view class="card result-card" wx:if="{{result}}">
-    <view class="sec-title">生成结果</view>
-    <image class="result-img" src="{{result.cover}}" mode="aspectFit" />
-    <button class="btn-pink" size="mini" bindtap="goWorks">去作品库看看</button>
+  <!-- 额度 -->
+  <view class="quota rise d2" wx:if="{{quota}}">
+    <x-icon name="bolt" size="32" color="#a86b00" fill="{{true}}" />
+    <text class="quota-t grow">
+      {{quota.freeLeft > 0 ? '今日还剩 ' + quota.freeLeft + ' 张免费额度' : quota.points > 0 ? '免费额度已用完，继续生成将消耗 1 积分' : '今日额度已用完，作品被他人使用可获得积分'}}
+    </text>
+    <view class="quota-p num">{{quota.points}} 分</view>
+  </view>
+
+  <view class="btn btn-primary btn-lg gen rise d2" hover-class="press" bindtap="generate">
+    <block wx:if="{{generating}}">
+      <view class="spin"></view>
+      <text>AI 生成中…</text>
+    </block>
+    <text wx:else>{{btnText}}</text>
+  </view>
+
+  <!-- 结果 -->
+  <view class="card result rise" wx:if="{{result}}">
+    <view class="row between">
+      <text class="h3">生成结果</text>
+      <view class="tag tag-soft">已存入作品库</view>
+    </view>
+    <image class="result-img" src="{{result.cover}}" mode="aspectFit" bindtap="previewResult" />
+    <view class="r-actions">
+      <view class="btn btn-ghost grow" hover-class="press" bindtap="goWorks">看作品</view>
+      <view class="btn btn-primary grow" hover-class="press" bindtap="goShop">拿去定制</view>
+    </view>
   </view>
 </view>

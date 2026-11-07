@@ -1,0 +1,33 @@
+<view class="page">
+  <view class="hero rise">
+    <view class="logo">梦</view>
+    <view class="h-name">现梦坊</view>
+    <view class="h-slogan">把想象印进现实</view>
+  </view>
+
+  <view class="card rise d1">
+    <view class="h3">我们是做什么的</view>
+    <view class="p mt16">
+      现梦坊是一个「作品 → 实物」的定制平台：用 AI 生成或拼装工坊做出属于你的图案，
+      再把它印到亚克力立牌、帆布包、明信片等商品上，由合作工厂直接生产发货。
+    </view>
+    <view class="h3 mt24">三步完成</view>
+    <view class="steps mt16">
+      <view class="step"><view class="s-n">1</view><text>创作作品</text></view>
+      <view class="s-arrow"><x-icon name="right" size="24" color="#c4bdd1" /></view>
+      <view class="step"><view class="s-n">2</view><text>选商品下单</text></view>
+      <view class="s-arrow"><x-icon name="right" size="24" color="#c4bdd1" /></view>
+      <view class="step"><view class="s-n">3</view><text>工厂直发到家</text></view>
+    </view>
+  </view>
+
+  <view class="card rise d2">
+    <view class="row between"><text class="sub">版本</text><text class="body num">{{version}}</text></view>
+    <view class="hr"></view>
+    <view class="row between"><text class="sub">服务协议</text><text class="cap">下单即同意定制商品不退换</text></view>
+    <view class="hr"></view>
+    <view class="row between"><text class="sub">隐私保护</text><text class="cap">仅收集发货必需信息</text></view>
+  </view>
+
+  <view class="cap ver">让每个创意都被认真做出来</view>
+</view>

@@ -1,0 +1,103 @@
+<view class="page page-tab mine">
+  <!-- 头部：渐变底 + 用户卡 + 积分卡 -->
+  <view class="hero rise">
+    <view class="blob b1"></view>
+    <view class="blob b2"></view>
+    <view class="u-row">
+      <image wx:if="{{user.avatar}}" class="ava" src="{{user.avatar}}" mode="aspectFill" />
+      <view wx:else class="ava ava-fb">{{user.nickname ? user.nickname[0] : '梦'}}</view>
+      <view class="col grow">
+        <view class="u-name">{{user.nickname || '创作者'}}</view>
+        <view class="u-sub">ID {{user.id || '-'}}</view>
+      </view>
+      <view class="edit" hover-class="press" bindtap="editNickname">
+        <x-icon name="edit" size="26" color="#ffffff" />
+        <text>编辑</text>
+      </view>
+    </view>
+
+    <view class="p-card" hover-class="press-soft" bindtap="goPointsPage">
+      <view class="p-left">
+        <view class="p-ic"><x-icon name="bolt" size="34" color="#a86b00" fill="{{true}}" /></view>
+        <view class="col">
+          <view class="p-num num">{{user.points || 0}}</view>
+          <view class="p-t">我的积分</view>
+        </view>
+      </view>
+      <view class="p-rule">作品被使用 1 次 +1 分</view>
+      <view class="p-btn">
+        明细
+        <x-icon name="right" size="22" color="#a86b00" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 内容资产 -->
+  <view class="assets rise d1">
+    <view class="a-item" hover-class="press" bindtap="goWorks">
+      <view class="a-n num">{{stats.works || 0}}</view>
+      <view class="a-t">作品</view>
+    </view>
+    <view class="a-line"></view>
+    <view class="a-item" hover-class="press" bindtap="goLiked">
+      <view class="a-n num">{{stats.liked || 0}}</view>
+      <view class="a-t">点赞</view>
+    </view>
+    <view class="a-line"></view>
+    <view class="a-item" hover-class="press" bindtap="goPlaza">
+      <view class="a-n num">{{stats.public_works || 0}}</view>
+      <view class="a-t">已发布</view>
+    </view>
+  </view>
+
+  <!-- 订单 -->
+  <view class="panel rise d2">
+    <view class="panel-head">
+      <text class="h3">我的订单</text>
+      <view class="more" hover-class="press-soft" bindtap="goOrders">
+        <text>全部订单</text>
+        <x-icon name="right" size="22" color="#9a93a8" />
+      </view>
+    </view>
+    <view class="o-grid">
+      <view
+        class="o-item"
+        wx:for="{{orderEntries}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="goOrderEntry"
+        hover-class="press"
+      >
+        <view class="o-ic">
+          <x-icon name="{{item.icon}}" size="40" color="#5646d6" />
+          <view wx:if="{{item.count}}" class="o-badge num">{{item.count > 99 ? '99+' : item.count}}</view>
+        </view>
+        <text class="o-t">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 服务列表 -->
+  <view class="panel rise d3">
+    <view
+      class="cell"
+      wx:for="{{cells}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="tapCell"
+      hover-class="press-soft"
+    >
+      <view class="cell-ic" style="background: {{item.bg}}">
+        <x-icon name="{{item.icon}}" size="34" color="{{item.color}}" />
+      </view>
+      <text class="cell-t grow">{{item.label}}</text>
+      <view wx:if="{{item.key === 'cart' && stats.cart_count}}" class="cell-badge num">
+        {{stats.cart_count > 99 ? '99+' : stats.cart_count}}
+      </view>
+      <x-icon name="right" size="24" color="#c4bdd1" />
+    </view>
+  </view>
+
+  <view class="btn btn-ghost btn-block logout rise d4" hover-class="press" bindtap="logout">退出登录</view>
+  <view class="cap ver">现梦坊 {{version}} · 让每个创意都被做出来</view>
+</view>

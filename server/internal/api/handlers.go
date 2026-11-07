@@ -22,6 +22,7 @@ type Handlers struct {
 	RBAC       *service.RBACService
 	Audit      *service.AuditService
 	Community  *service.CommunityService
+	Profile    *service.ProfileService
 	UploadsDir string
 	Dev        bool // 是否允许开发者模拟登录
 }
@@ -363,17 +364,40 @@ func (h *Handlers) adminOrderRefundMark(c *gin.Context) {
 // ---- 辅助 ----
 
 // withDetails 列表用：明细 + 物流（不查图片与流水，列表不需要）
+// withDetails 给订单列表补明细与物流。明细走 orderItemView（带商品图/作品图），
+// 小程序订单列表可以直接展示缩略图；多一次 SKU/作品查询，MVP 数据量下可接受。
 func withDetails(db *gorm.DB, orders []model.Order) []gin.H {
 	list := make([]gin.H, 0, len(orders))
 	for _, o := range orders {
 		var items []model.OrderItem
 		db.Where("order_id = ?", o.ID).Find(&items)
+		views := make([]orderItemView, 0, len(items))
+		for _, it := range items {
+			v := orderItemView{OrderItem: it}
+			var sku model.SKU
+			if err := db.First(&sku, it.SKUID).Error; err == nil {
+				var p model.Product
+				if err := db.First(&p, sku.ProductID).Error; err == nil {
+					v.ImageURL = firstImage(p.Images)
+				}
+			}
+			if it.WorkID != nil {
+				var w model.Work
+				if err := db.First(&w, *it.WorkID).Error; err == nil {
+					v.WorkImageURL = w.ThumbnailURL
+					if v.WorkImageURL == "" {
+						v.WorkImageURL = w.ImageURL
+					}
+				}
+			}
+			views = append(views, v)
+		}
 		var shipment *model.Shipment
 		var sh model.Shipment
 		if err := db.Where("order_id = ?", o.ID).Order("id desc").First(&sh).Error; err == nil {
 			shipment = &sh
 		}
-		list = append(list, gin.H{"order": o, "items": items, "shipment": shipment})
+		list = append(list, gin.H{"order": o, "items": views, "shipment": shipment})
 	}
 	return list
 }

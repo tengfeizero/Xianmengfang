@@ -1,0 +1,89 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 64rpx 80rpx;
+}
+.art {
+  position: relative;
+  width: 168rpx;
+  height: 168rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f4f0ff 0%, #fff1f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.art-blob {
+  position: absolute;
+  right: -10rpx;
+  top: 8rpx;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(108, 92, 231, 0.1);
+}
+.t {
+  margin-top: 32rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #5d576e;
+  text-align: center;
+}
+.d {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #9a93a8;
+  text-align: center;
+  line-height: 1.6;
+}
+.act {
+  margin-top: 36rpx;
+  height: 72rpx;
+  padding: 0 44rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #7a5cff 0%, #ff6fa5 100%);
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 24rpx rgba(108, 92, 231, 0.24);
+  transition: transform 0.18s ease;
+}
+.dot-row {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+  height: 60rpx;
+}
+.dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #c9c1e4;
+  animation: bounce 0.9s ease-in-out infinite;
+}
+.dot.d2 {
+  animation-delay: 0.15s;
+}
+.dot.d3 {
+  animation-delay: 0.3s;
+}
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-10rpx);
+    opacity: 1;
+  }
+}
+.loading-text {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: #9a93a8;
+}

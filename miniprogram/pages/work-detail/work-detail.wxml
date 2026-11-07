@@ -1,0 +1,70 @@
+<view class="page page-bar">
+  <!-- 大图 -->
+  <view class="img-card rise">
+    <image wx:if="{{cover}}" class="img" src="{{cover}}" mode="aspectFit" bindtap="preview" />
+    <view wx:if="{{typeText}}" class="type-tag">{{typeText}}</view>
+  </view>
+
+  <!-- 作者条 -->
+  <view class="card author rise d1">
+    <image wx:if="{{author.avatar}}" class="ava" src="{{author.avatar}}" mode="aspectFill" />
+    <view wx:else class="ava ava-fb">{{author.nickname ? author.nickname[0] : '梦'}}</view>
+    <view class="col grow">
+      <view class="h3">{{author.nickname || '匿名用户'}}</view>
+      <view class="cap mt8">创作者</view>
+    </view>
+    <view class="st">
+      <x-icon name="heart" size="26" color="#ff6fa5" fill="{{liked}}" />
+      <text class="num">{{likeCount}}</text>
+    </view>
+    <view class="st">
+      <x-icon name="package" size="26" color="#9a93a8" />
+      <text class="num">{{useCount}}</text>
+    </view>
+  </view>
+
+  <!-- 提示词 -->
+  <view class="card rise d2" wx:if="{{prompt}}">
+    <view class="row between">
+      <text class="h3">提示词</text>
+      <view class="copy" hover-class="press" bindtap="copyPrompt">
+        <x-icon name="copy" size="26" color="#5646d6" />
+        <text>复制</text>
+      </view>
+    </view>
+    <view class="p-text">{{prompt}}</view>
+  </view>
+
+  <!-- 说明 -->
+  <view class="card tip-card rise d3">
+    <view class="tip-row">
+      <x-icon name="info" size="28" color="#9a93a8" />
+      <text>点赞他人作品后，下单时可以选用这张图做定制</text>
+    </view>
+    <view class="tip-row" wx:if="{{isMine}}">
+      <x-icon name="bolt" size="28" color="#f5a623" />
+      <text>你的作品被使用 1 次，将获得 1 积分</text>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="footer">
+    <block wx:if="{{isMine}}">
+      <view class="f-act" hover-class="press" bindtap="del">
+        <x-icon name="trash" size="34" color="#5d576e" />
+      </view>
+      <view class="btn btn-ghost grow" hover-class="press" bindtap="togglePublish">
+        {{work.is_public === 1 ? '取消发布' : '发布到广场'}}
+      </view>
+      <view class="btn btn-primary grow" hover-class="press" bindtap="useIt">去下单定制</view>
+    </block>
+    <block wx:else>
+      <view class="f-act {{liked ? 'liked' : ''}} {{pop ? 'pop' : ''}}" hover-class="press" bindtap="toggleLike">
+        <x-icon name="heart" size="34" color="{{liked ? '#ff6fa5' : '#5d576e'}}" fill="{{liked}}" />
+      </view>
+      <view class="btn btn-primary grow" hover-class="press" bindtap="useIt">用这张图定制</view>
+    </block>
+  </view>
+
+  <x-empty wx:if="{{!loading && !work}}" icon="image" text="作品不存在或已下架" />
+</view>

@@ -50,7 +50,10 @@
 | GET | /user/plaza | **作品广场 / 排行榜**：`?sort=latest\|uses\|likes&page=1&size=20&keyword=`；只返回 `is_public=1 且 status=1`，含作者昵称头像、提示词、点赞/使用数、`liked`（我是否点过赞）。路径不用 `/works/public` 是因为与 `/works/:id` 通配段冲突 | ✅ 已实现 |
 | POST | /user/works/:id/like | 点赞（幂等；自己的作品 400；返回最新 `like_count`） | ✅ 已实现 |
 | DELETE | /user/works/:id/like | 取消点赞（幂等；返回最新 `like_count`） | ✅ 已实现 |
-| GET | /user/points | 我的积分：`{points, logs:[{delta,balance,reason,remark,created_at}]}`（最近 50 条） | ✅ 已实现 |
+| GET | /user/points | 我的积分（最近 50 条）：`{points, logs:[{delta,balance,reason,remark,created_at}]}`；积分明细页传 `?page=1&size=20` 走分页，此时额外返回 `total`（size 上限 50） | ✅ 已实现（v2.0 加分页） |
+| GET | /user/me | **「我的」页聚合**（v2.0）：用户资料 + 资产统计（作品/已发布/点赞/购物车）+ 各状态订单数，首屏一次取全（结构见下文） | ✅ 已实现 |
+| PUT | /user/me | 改昵称/头像 `{nickname?, avatar?}`；空串表示不改（避免误清空），昵称 1~16 字否则 400；头像先走 `/upload` 拿地址再回填 | ✅ 已实现 |
+| GET | /user/works/:id/view | **作品详情页**（v2.0）：`{work, author, liked, is_mine}`；自己的作品或已发布的他人作品，其余 404。与 `/works/:id` 并存，后者保留老的扁平结构 | ✅ 已实现 |
 
 **下单/加购的作品规则（v1.7）**：`work_id` 可选，允许两种作品——**自己的**（status=1），或**我点赞过的公开作品**（is_public=1 且 status=1）。他人未公开/已下架/已删除的作品一律 400；加购时放行的作品，若之后被作者取消发布，结算时按「作品已失效」拦截（不影响已生成的订单）。
 
@@ -130,6 +133,48 @@
 ```json
 { "points": 12, "logs": [{ "delta": 2, "balance": 12, "reason": "work_used", "remark": "作品《小熊猫》被使用 2 件", "created_at": "..." }] }
 ```
+
+- 不带 `page/size` 时取最近 50 条、不返回 `total`（兼容 v1.7 老调用）
+- 带 `page/size` 时分页，响应额外带 `total`；`size` 缺省 20、上限 50
+
+### 「我的」页响应（GET /user/me）
+
+```json
+{
+  "user": {
+    "id": 3, "nickname": "阿岚", "avatar": "/static/avatar_3.png", "status": 1, "points": 12,
+    "created_at": "...", "updated_at": "..."
+  },
+  "stats": {
+    "works": 8, "public_works": 5, "liked": 36, "cart_count": 2,
+    "orders": { "pending_accept": 0, "producing": 1, "packing": 0, "pending_ship": 1, "shipped": 2, "done": 7 }
+  }
+}
+```
+
+- `stats.works` 只算 `status=1`（软删不计）；`public_works` 在其基础上要求 `is_public=1`
+- `stats.orders` 由一次 `GROUP BY status` 得出，`cancelled` 不进统计（「我的」入口只展示在途与已完成）
+- 小程序把 `producing + packing + pending_ship` 拍平展示为「进行中」角标——对用户而言这三步都在商家手里
+- 该接口替代了 v1.x 里「我的」页分头请求 user / works / cart / orders 的做法，首屏只发一个请求
+
+### 作品详情响应（GET /user/works/:id/view）
+
+```json
+{
+  "work": {
+    "id": 12, "user_id": 3, "type": "ai_text", "image_url": "/static/ai_xxx.png",
+    "thumbnail_url": "/static/ai_xxx.png", "prompt": "扎双马尾的小姑娘，粉色背景，卡通风格",
+    "is_public": 1, "status": 1, "like_count": 8, "use_count": 21, "created_at": "..."
+  },
+  "author": { "id": 3, "nickname": "阿岚", "avatar": "/static/avatar_3.png" },
+  "liked": false,
+  "is_mine": true
+}
+```
+
+- 未发布/已下架/已删除/他人私有 → 404（不区分原因，避免枚举他人作品）
+- `liked` 对自己的作品恒为 `false`（自己不能给自己点赞）
+- 与 `GET /user/works/:id` 的差异：多带 `author` / `liked` / `is_mine`，少了归属校验的 403（不可见一律 404）
 
 ## 管理后台 — 前缀 `/api/v1/admin`
 

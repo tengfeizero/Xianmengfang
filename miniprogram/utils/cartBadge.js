@@ -1,19 +1,22 @@
+// 购物车角标：v2.0 起购物车不再是 tab，首页右上角展示数量，
+// 数量落 storage，各页读取即可，不需要跨页通信。
 const api = require('./request')
 
-// 刷新 tabBar 购物车角标（index:1）。未登录/网络失败静默。
+const KEY = 'xmf_cart_count'
+
 function refreshBadge() {
   return api
     .request('GET', '/cart')
     .then((d) => {
-      const n = (d.summary && d.summary.checked_count) || 0
-      if (n > 0) {
-        wx.setTabBarBadge({ index: 1, text: n > 99 ? '99+' : String(n), fail: () => {} })
-      } else {
-        wx.removeTabBarBadge({ index: 1, fail: () => {} })
-      }
+      const n = (d.items || []).length
+      wx.setStorageSync(KEY, n)
       return n
     })
-    .catch(() => {})
+    .catch(() => getCount())
 }
 
-module.exports = { refreshBadge }
+function getCount() {
+  return wx.getStorageSync(KEY) || 0
+}
+
+module.exports = { refreshBadge, getCount }

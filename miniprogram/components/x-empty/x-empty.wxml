@@ -1,0 +1,19 @@
+<view class="empty fade">
+  <block wx:if="{{loading}}">
+    <view class="dot-row">
+      <view class="dot"></view>
+      <view class="dot d2"></view>
+      <view class="dot d3"></view>
+    </view>
+    <view class="loading-text">正在加载</view>
+  </block>
+  <block wx:else>
+    <view class="art">
+      <view class="art-blob"></view>
+      <x-icon name="{{icon}}" size="72" color="#b3a9d9" />
+    </view>
+    <view class="t">{{text}}</view>
+    <view class="d" wx:if="{{desc}}">{{desc}}</view>
+    <view wx:if="{{actionText}}" class="act" hover-class="press" bindtap="onAction">{{actionText}}</view>
+  </block>
+</view>
