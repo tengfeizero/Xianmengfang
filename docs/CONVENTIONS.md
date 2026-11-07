@@ -80,7 +80,7 @@ miniprogram/
   custom-tab-bar/        # 自定义 tabBar（毛玻璃条 + 中间渐变凸起按钮），5 项与 app.json 的 list 对应
   components/            # 公共组件：x-icon（运行时 SVG 图标）、x-empty、x-skeleton、status-tag、empty-state
   utils/
-    icons.js             # 图标单一来源：PATHS（60+ 线性图标路径）→ icon(name,color) 生成 data URI
+    icons.js             # 图标单一来源：PATHS（50+ 线性图标路径）→ icon(name,color) 生成 data URI
     request.js           # JWT 注入、401 清态、统一报错
     util.js              # 金额换算、订单状态文案与配色、时间格式化
     tabbar.js            # setTab(page,index)：统一设置自定义 tabBar 选中态

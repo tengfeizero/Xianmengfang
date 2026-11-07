@@ -67,7 +67,7 @@ v1.x 的小程序「能用但不像一个 App」：5 个 tab 里放了购物车�
 - 状态色改为流程语义色（待接单橙、生产中紫、打包中青、待发货蓝、已发货蓝、已完成绿、已取消灰），`status-tag` 统一为「圆点 + 浅色底胶囊」
 
 **图标体系（`utils/icons.js`，新增）**
-- 运行时 SVG：60+ 线性图标路径，`icon(name, color, {fill, sw})` 生成 `data:image/svg+xml;base64,...`，任意着色/改粗细，选中态只换色不换图，不再依赖两套 png
+- 运行时 SVG：50+ 线性图标路径，`icon(name, color, {fill, sw})` 生成 `data:image/svg+xml;base64,...`，任意着色/改粗细，选中态只换色不换图，不再依赖两套 png
 - 新增通用组件 `x-icon`（name/color/size/fill/sw，observers 算 src）、`x-empty`（渐变插画底 + 图标 + 标题/描述/行动按钮，loading 三点跳动）、`x-skeleton`（list/grid/card）
 
 **页面重做（19 页）**

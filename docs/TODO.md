@@ -17,7 +17,7 @@
 - [x] 新增 7 页：我的、作品详情、搜索、积分明细、设置、帮助与反馈（FAQ 手风琴）、关于
 - [x] 自定义 tabBar：白色毛玻璃条 + 中间 92rpx 渐变凸起按钮 + 白描边，选中态换色加深
 - [x] 设计系统：`app.wxss` 重写（品牌紫/玫粉/主渐变/浅灰紫画布/大圆角双层阴影/间距字号规范；**配色已于 v2.4 整体换成后台主题红 `#f2455f`**），原子类 + 入场 `.rise` 延迟序列 + `pop`/`shimmer`/`breathe`
-- [x] 图标体系：`utils/icons.js` 运行时 SVG（60+ 线性图标，任意着色改粗细）替代两套 png；新增 `x-icon`/`x-empty`/`x-skeleton` 三组件
+- [x] 图标体系：`utils/icons.js` 运行时 SVG（50+ 线性图标，任意着色改粗细）替代两套 png；新增 `x-icon`/`x-empty`/`x-skeleton` 三组件
 - [x] 19 页视觉全部重做（首页 Hero、广场双列卡、创作画布与抽屉、作品数据带、商品画廊、订单时间轴、AI 额度条、登录呼吸 logo 等）
 - [x] 后端补口：`GET/PUT /user/me`（资料 + 资产 + 订单角标一次取全）、`GET /user/works/:id/view`（含作者与 liked）、`GET /user/points` 分页；订单列表明细补缩略图字段
 - [x] 设计走查工具 `tools/mp-preview/`：WXML→HTML + 真实 wxss + 19 页假数据 + playwright-core 截图（375×812 @2x 与整页长图）

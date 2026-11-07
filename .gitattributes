@@ -1,0 +1,16 @@
+# 统一换行符：仓库内容一律 LF。
+# 本机 core.autocrlf=true 只影响工作区，别的机器若为 false/input 也不至于产生整文件差异。
+* text=auto eol=lf
+
+# 二进制：不参与换行转换（否则 macOS/Linux 上 checkout 会尝试改写字节流）
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.db binary
+*.zip binary

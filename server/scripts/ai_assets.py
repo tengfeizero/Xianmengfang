@@ -177,8 +177,10 @@ def _open_erased(src, erase_regions):
 
 
 if __name__ == "__main__":
-    G = r"d:\Users\ASK\Desktop\ztf3\zxdz\generated-images"
-    UP = r"d:\Users\ASK\Desktop\ztf3\zxdz\server\data\uploads"
+    # 相对仓库根解析：generated-images/ 是不入库的本地素材目录（AI 原图放这里）
+    ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    G = os.path.join(ROOT, "generated-images")
+    UP = os.path.join(ROOT, "server", "data", "uploads")
     ERASE = [(810, 950, 1024, 1024)]  # 右下角 AI 生成水印
     jobs = [
         ("Q版可爱小女孩全身立绘_手机游戏换装系统角色底板风格_扁平风_2026-11-06T07-13-30.png", "board_girl.png"),

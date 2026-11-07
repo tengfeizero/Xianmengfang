@@ -8,8 +8,9 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from ai_assets import extract_diff
 
-G = r"d:\Users\ASK\Desktop\ztf3\zxdz\generated-images"
-UP = r"d:\Users\ASK\Desktop\ztf3\zxdz\server\data\uploads"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+G = os.path.join(ROOT, "generated-images")          # AI 原图（不入库）
+UP = os.path.join(ROOT, "server", "data", "uploads")
 ERASE = [(810, 950, 1024, 1024)]  # 右下角水印
 
 BASE = os.path.join(G, "Q版可爱小女孩全身立绘_手机游戏换装系统角色底板风格_扁平风_2026-11-06T07-13-30.png")

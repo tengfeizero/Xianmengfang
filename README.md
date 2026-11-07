@@ -178,6 +178,29 @@ curl -X POST http://127.0.0.1:8080/api/v1/user/auth/dev_login \
 
 `XMF_DEV_LOGIN=0` 可关闭该后门（生产必关）。
 
+### 4. 换台电脑 / 新成员接手
+
+代码全在仓库里，`git clone` 后按第 1～3 步即可跑起来（SQLite 用的是纯 Go 驱动，**不需要 gcc / CGO**）。注意以下**不进仓库、需要单独带过去**的东西：
+
+| 需要带过去 | 位置 | 说明 |
+|---|---|---|
+| 数据库 | `server/data/xmf.db` | 不带则首次启动自动建库 + 写演示数据（原有商品/订单/用户会丢） |
+| 上传文件 | `server/data/uploads/` | 后台传的图、拼装素材成品 |
+| JWT 密钥 | `server/data/.jwt_secret` | 不带则重新生成，已登录的小程序用户会被踢下线 |
+| AI 密钥 | 后台「AI 配置」页 | 存在 `configs.ai_api_key`，**不在代码里**；新机器不进后台重填就回落 Mock |
+| 微信凭据 | `XMF_WX_APPID` / `XMF_WX_SECRET` | 小程序真机登录用；本地调试可用 dev_login |
+| AI 原图 | `generated-images/` | 仅重跑素材处理脚本时需要（`server/scripts/`） |
+
+**不用带**（可重建，已被 .gitignore 挡掉）：`web/node_modules`、`web/dist`、`shots/`、`tools/mp-preview/out/`、`tools/node_modules`。
+
+只迁数据、不想带走整个仓库时，最省事的是搬 `server/data/` 整个目录；反之只想转移代码历史又没有远程仓库，可以打成单文件：
+
+```bash
+git bundle create xmf.bundle --all     # 目标机器：git clone xmf.bundle xmf
+```
+
+换行符已由 `.gitattributes` 统一为 LF，Windows / macOS / Linux 之间来回改不会产生整文件差异。
+
 ## 配置项
 
 服务端全部以 `XMF_` 前缀走环境变量，**密钥只走环境变量或 `server/data/` 本地文件，绝不进仓库**。
@@ -249,7 +272,7 @@ node --check miniprogram/utils/*.js
 | 地址写进订单快照 | 之后改地址不影响历史订单，发货以快照为准 |
 | 注销用 `open_id` tombstone | 释放唯一键，同一微信再登录是全新账号，不用人工解绑 |
 | 素材 `go:embed` 进二进制 | 部署只拷贝一个文件，素材不会丢；后台上传真图可覆盖同名文件 |
-| 小程序图标是运行时 SVG | `utils/icons.js` 内置 60+ 线性图标，按 name+color 生成 data URI，选中态只换色，不必维护两套 png |
+| 小程序图标是运行时 SVG | `utils/icons.js` 内置 50+ 线性图标，按 name+color 生成 data URI，选中态只换色，不必维护两套 png |
 | 后台复用 Go 的静态托管 | 单机部署少一个 Nginx/容器；要 CDN 时加一层反代即可 |
 
 ## 小程序预览工具（无需开发者工具）
