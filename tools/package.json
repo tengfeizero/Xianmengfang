@@ -1,0 +1,12 @@
+{
+  "name": "xmf-tools",
+  "private": true,
+  "description": "开发辅助脚本（小程序离线预览截图、管理后台截图）。不参与构建与部署；只依赖 playwright-core。",
+  "scripts": {
+    "shot:mp": "node mp-preview/shot-all.js",
+    "shot:web": "node web-shot.js"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.50.0"
+  }
+}

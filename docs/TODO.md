@@ -1,11 +1,22 @@
 # TODO — 现梦坊
 
+## 开源准备 ✅ 已完成（2026-11-07，v2.4）
+起因：仓库要开源到 GitHub，之后换台电脑 clone 下来就能接着开发，缺的是「给人看的入口」而不是功能。
+- [x] `README.md`：定位、能力清单、三端架构图、快速开始（后端 / 后台 dev 与生产 / 小程序导入）、默认账号与开发登录、`XMF_*` 配置表、目录结构、门禁命令、设计取舍、已知限制、路线图、合规提醒
+- [x] `LICENSE`（MIT）、`server/.env.example`（变量清单，程序不读 .env）
+- [x] `.gitignore` 补 `.env / .env.local / 根 node_modules / *.log`；确认 `server/.env.example` 不被误伤
+- [x] 可移植性：`tools/pw.js` 解析 playwright-core（env → 本地依赖 → 系统 → WorkBuddy 内置），移除两处写死的 `C:/Users/ASK/...` 路径
+- [x] 敏感面检查：跟踪文件中仅 `miniprogram/project.config.json` 的 AppID（非密钥）；`server/data/`、`*.db`、`.jwt_secret`、`web/dist`、`shots/` 均未入库
+- [x] 文档同步：`AGENTS.md`（上手命令 + 文档索引 + 不写死本机路径）、`CONVENTIONS.md`（tools/、19 页小程序、icons.js）、`PRD 3.5`（红色体系 + 当前「我的」页）、`CHANGELOG v2.4`
+- [ ] **推送前手动确认**：① 是否把 `project.config.json` 的 `appid` 换成占位值（现在是你自己的开发号，别人导入会提示无权限）；② `LICENSE` 版权人是否要改成真实姓名/组织（现为「现梦坊 contributors」）；③ 早期提交历史里出现过 `miniprogram/project.private.config.json`（无密钥，仅本地设置），介意可用 `git filter-repo` 清史
+- 后续可选：GitHub Actions（Go test + web build + 小程序语法/JSON 校验）、Dockerfile、贡献指南拆出 `CONTRIBUTING.md`、README 配图（当前无截图，`shots/` 不入库）
+
 ## 小程序视觉与信息架构重做 ✅ 已完成（2026-11-07，v2.0）
 起因：小程序「能用但不像一个 App」——tab 里放了购物车和订单（低频、有入口可进），高频的广场却藏在二级；没有「我的」，资产与账号无处安放；视觉粉红单色、元素堆叠无层次。
 - [x] 信息架构：5 tab 改为 **首页/广场/创作（中间凸起）/作品/我的**；购物车与订单移出 tab（首页角标 + 「我的」宫格进入）；广场升为一级（业务口径见 PRD 3.5）
 - [x] 新增 7 页：我的、作品详情、搜索、积分明细、设置、帮助与反馈（FAQ 手风琴）、关于
 - [x] 自定义 tabBar：白色毛玻璃条 + 中间 92rpx 渐变凸起按钮 + 白描边，选中态换色加深
-- [x] 设计系统：`app.wxss` 重写（品牌紫/玫粉/主渐变/浅灰紫画布/大圆角双层阴影/间距字号规范），原子类 + 入场 `.rise` 延迟序列 + `pop`/`shimmer`/`breathe`
+- [x] 设计系统：`app.wxss` 重写（品牌紫/玫粉/主渐变/浅灰紫画布/大圆角双层阴影/间距字号规范；**配色已于 v2.4 整体换成后台主题红 `#f2455f`**），原子类 + 入场 `.rise` 延迟序列 + `pop`/`shimmer`/`breathe`
 - [x] 图标体系：`utils/icons.js` 运行时 SVG（60+ 线性图标，任意着色改粗细）替代两套 png；新增 `x-icon`/`x-empty`/`x-skeleton` 三组件
 - [x] 19 页视觉全部重做（首页 Hero、广场双列卡、创作画布与抽屉、作品数据带、商品画廊、订单时间轴、AI 额度条、登录呼吸 logo 等）
 - [x] 后端补口：`GET/PUT /user/me`（资料 + 资产 + 订单角标一次取全）、`GET /user/works/:id/view`（含作者与 liked）、`GET /user/points` 分页；订单列表明细补缩略图字段

@@ -28,3 +28,14 @@ web/tsconfig.tsbuildinfo
 
 # 小程序预览工具产物（HTML 由 render-all.js 生成）
 tools/mp-preview/out/
+
+# 本地环境变量（模板见 *.env.example；web/.env 只含非敏感默认值，已入库）
+.env
+.env.local
+.env.*.local
+
+# 工具依赖（截图脚本用 playwright-core，见 tools/package.json）
+node_modules/
+
+# 日志与临时文件
+*.log

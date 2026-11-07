@@ -2,7 +2,7 @@
 // 用 playwright-core(Edge 通道) 对所有预览页截图，比裸 Edge --screenshot 稳定
 const path = require('path')
 const fs = require('fs')
-const { chromium } = require('C:/Users/ASK/.workbuddy/binaries/node/versions/22.22.2-6/node_modules/@playwright/cli/node_modules/playwright-core')
+const { chromium } = require('../pw')
 
 const OUT = path.join(__dirname, 'out')
 const SHOTS = path.resolve(__dirname, '../../shots/mp')

@@ -2,7 +2,7 @@
 // 后台页面截图走查：登录 → 逐页截图（Edge 通道，和 mp-preview 同一套）
 const path = require('path')
 const fs = require('fs')
-const { chromium } = require('C:/Users/ASK/.workbuddy/binaries/node/versions/22.22.2-6/node_modules/@playwright/cli/node_modules/playwright-core')
+const { chromium } = require('./pw')
 
 const BASE = 'http://127.0.0.1:8080/ui'
 const OUT = path.resolve(__dirname, '../shots/web')

@@ -9,12 +9,15 @@
 ### 0. 仓库总览
 
 ```
-zxdz/   （现梦坊，单仓库三端）
+zxdz/   （现梦坊，单仓库三端 + 开发工具）
+├─ README.md        # 人看的上手说明（快速开始、配置项、设计取舍）
+├─ LICENSE          # MIT
 ├─ AGENTS.md        # AI 会话入口：只放红线，不写教程
 ├─ docs/            # 唯一事实来源（见 AI协作开发流程.md 文档体系表）
 ├─ server/          # Go 后端（Gin + GORM + SQLite）
 ├─ web/             # Vue 3 + TS 管理后台
-└─ miniprogram/     # 微信小程序原生
+├─ miniprogram/     # 微信小程序原生
+└─ tools/           # 开发辅助脚本（预览截图、后台截图），不进构建产物
 ```
 
 `.workbuddy/`（本地 AI 日记）、`shots/`（实测截图）、`.playwright-cli/`、`*.genie`、`*.db`、`server/data/` 均**不进 git**（见 .gitignore）。
@@ -28,19 +31,20 @@ server/
     api/                 # 薄层：路由 + 参数绑定 + 鉴权 + 统一响应
       router.go          # 路由注册表（新接口必须在此登记）
       handlers.go        # 通用接口
-      handlers_<域>.go   # 新增一律按域命名（如 handlers_address.go）
+      handlers_<域>.go   # 新增一律按域命名（如 handlers_address.go、handlers_profile.go、handlers_admin_insights.go）
       handlers_m1.go     # 历史按里程碑分组，不再沿用此切法
       handlers_m2.go
       middleware.go      # JWT / 日志 / recover
       respond.go         # {code,msg,data} 统一出口
-    service/             # 业务规则唯一归属：订单状态机、库存、AI 配额、地址、鉴权
+    service/             # 业务规则唯一归属：订单状态机、库存、AI 配额、地址、鉴权、个人中心、RBAC
     repo/                # 只做 CRUD 与事务内数据库操作，不含 if/else 业务判断
-      db.go              # 连接 + AutoMigrate
-      assets.go          # 素材/作品读写
+      db.go              # 连接 + AutoMigrate + Seed（演示数据，空库才写）
+      assets.go          # 素材/作品读写；aipack/ 为 go:embed 的拼装素材
     model/               # GORM 模型与迁移（models.go 按域分段）
     config/              # 环境变量与默认值，统一 XMF_ 前缀
     imageutil/           # 纯函数图像处理（拼装合成、tabBar 图标生成），不依赖业务
-  scripts/               # 联调/回归脚本：m0_e2e.py、m1_e2e.py、mp_e2e.py；不进编译产物
+  scripts/               # 联调/回归脚本：m0_e2e.py、m1_e2e.py、mp_e2e.py 等；不进编译产物
+  .env.example           # 变量清单模板（程序不读 .env，仅作说明）
   data/                  # 运行时：.db、上传文件、密钥（0600），不进 git
 ```
 
@@ -56,8 +60,8 @@ web/
     App.vue
     api/
       http.ts            # fetch 封装：baseURL、token 注入、401 清态、ApiError
-      modules/           # 按域一文件：auth / orders / products / assets / configs
-    components/          # 跨页复用组件（StatusTag、AmountText），不发请求
+      modules/           # 按域一文件：auth / orders / products / assets / configs / works / users / insights
+    components/          # 跨页复用组件（PageHeader、StatusTag、AmountText、TablePager、StatStrip），不发请求
     layouts/             # 布局壳（Layout.vue：侧边菜单 + header）
     router/index.ts      # 路由表 + 登录守卫 + document.title
     stores/              # Pinia（auth）：token 的唯一内存持有者
@@ -71,18 +75,43 @@ web/
 
 ```
 miniprogram/
-  app.js / app.json / app.wxss
+  app.js / app.json / app.wxss   # app.json 19 页 + 自定义 tabBar；app.wxss 是设计系统（变量 + 原子类）
   config.js              # 基址等集中配置，页面内禁止硬编码 URL
-  components/            # 公共组件：empty-state、status-tag（externalClasses 定制外观）
-  images/tabbar/         # tabBar 图标 10 张（5 项 × 普通选中，81×81，程序生成）
+  custom-tab-bar/        # 自定义 tabBar（毛玻璃条 + 中间渐变凸起按钮），5 项与 app.json 的 list 对应
+  components/            # 公共组件：x-icon（运行时 SVG 图标）、x-empty、x-skeleton、status-tag、empty-state
+  utils/
+    icons.js             # 图标单一来源：PATHS（60+ 线性图标路径）→ icon(name,color) 生成 data URI
+    request.js           # JWT 注入、401 清态、统一报错
+    util.js              # 金额换算、订单状态文案与配色、时间格式化
+    tabbar.js            # setTab(page,index)：统一设置自定义 tabBar 选中态
+    cartBadge.js         # 购物车数量（storage: xmf_cart_count）刷新与读取
+  images/tabbar/         # 10 张 png 仅为满足 app.json 的 list 声明，自定义 tabBar 下不渲染（可后续清理）
   pages/                 # 每页四件套 js/json/wxml/wxss，目录名 = 路由名
-    index/ product/ studio/ ai/ works/ order-list/ order-detail/ address/ login/
-  utils/                 # request.js（JWT/401/统一报错）、util.js（金额与状态文案）
+    index/ plaza/ studio/ works/ mine/                       # 5 个 tab 页
+    product/ cart/ search/ ai/ order-list/ order-detail/
+    points/ work-detail/ address/{list,edit}/ settings/ help/ about/ login/
   project.config.json / sitemap.json
   project.private.config.json   # 个人本地配置，不进 git
 ```
 
-### 4. 新增文件落位决策表
+> 图标只在 `utils/icons.js` 增条目，不在页面里塞图片或用 emoji；新增页要在 `app.json` 注册并全量搜索旧路径。
+
+### 4. tools/（开发辅助，不参与构建与部署）
+
+```
+tools/
+  pw.js                  # playwright-core 解析器（env → 本地依赖 → 系统 → WorkBuddy 内置），禁止各处写死绝对路径
+  web-shot.js            # 后台逐页截图：自动登录 → 按路由截图到 shots/web/
+  mp-preview/
+    render.js            # WXML → HTML（{{}}、wx:if/for、block、swiper、自定义组件展开；rpx÷2→px）
+    mock.js              # 占位图（渐变 SVG），无网络也能出图
+    make-data.js         # 19 页假数据（部分从页面源码解析，避免与真实代码脱节）
+    render-all.js / serve.js / shot-all.js   # 批量渲染 → 静态服务(:8123) → playwright 截图
+```
+
+产物（`tools/mp-preview/out/`、`shots/`）一律不进 git。
+
+### 5. 新增文件落位决策表
 
 | 要加的东西 | 落在哪 | 同步 |
 |---|---|---|
@@ -94,6 +123,7 @@ miniprogram/
 | 跨页组件 | `web/src/components/` 或 `miniprogram/components/`（**两个以上页面用到才抽**） | — |
 | 新小程序页 | `pages/<name>/` 四件套 + `app.json` 注册 | 全量搜索旧路径 |
 | 联调/一次性脚本 | `server/scripts/`（不进 main 包、不进前端） | — |
+| 走查/截图脚本 | `tools/`（依赖统一走 `tools/pw.js`，禁止写死本机绝对路径） | — |
 | 文档 | `docs/` 对应文件，与代码同一次提交 | — |
 
 ## 硬性纪律
@@ -118,7 +148,7 @@ miniprogram/
 
 ## 目录纪律
 
-15. **不许在仓库根新建散文件**：临时脚本、测试 yaml、截图、日志一律进 `server/scripts/` 或 `.gitignore` 覆盖的目录（`shots/`、`.workbuddy/`）。根目录只允许 AGENTS.md + docs/ server/ web/ miniprogram/。
+15. **不许在仓库根新建散文件**：临时脚本、测试 yaml、截图、日志一律进 `server/scripts/`、`tools/` 或 `.gitignore` 覆盖的目录（`shots/`、`.workbuddy/`）。根目录只允许 README.md / LICENSE / AGENTS.md + docs/ server/ web/ miniprogram/ tools/。
 16. **不许在 `web/src/` 平铺**：新页面必进 `views/`，新请求必进 `api/modules/`，新类型必进 `types/`；`views/` 里出现裸 fetch、内联金额换算都算违规。
 17. **生成物与依赖不手改不提交**：`web/dist/`、`web/node_modules/`、`src/types/auto-imports.d.ts`、`src/types/components.d.ts`（unplugin 生成；要跑 vue-tsc 须先 build）。
 18. **`internal/` 不新增无业务包**：纯工具先做对应域包的私有函数；确需独立包（如图像处理）必须无业务依赖且有单测。
