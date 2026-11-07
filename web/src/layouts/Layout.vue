@@ -86,9 +86,12 @@ import {
   Odometer,
   Picture,
   Setting,
+  ShoppingBag,
+  Star,
   SwitchButton,
   Tickets,
   User,
+  Wallet,
 } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -109,6 +112,9 @@ const ICONS: Record<string, Component> = {
   Key,
   Document,
   Setting,
+  Star,
+  ShoppingBag,
+  Wallet,
 }
 
 const displayName = computed(() => auth.me?.nickname || auth.me?.username || '未登录')

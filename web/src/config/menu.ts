@@ -35,8 +35,11 @@ export const MENU: MenuItem[] = [
   { path: '/boards', title: '拼装底板', perm: 'asset:view', icon: 'Picture', group: 'content' },
   { path: '/elements', title: '拼装元素', perm: 'asset:view', icon: 'Brush', group: 'content' },
   { path: '/works', title: '用户作品', perm: 'work:view', icon: 'MagicStick', group: 'content' },
+  { path: '/work-likes', title: '点赞明细', perm: 'work:view', icon: 'Star', group: 'content' },
+  { path: '/work-usages', title: '使用明细', perm: 'work:view', icon: 'ShoppingBag', group: 'content' },
 
   { path: '/users', title: '用户管理', perm: 'user:view', icon: 'User', group: 'customer' },
+  { path: '/point-logs', title: '积分明细', perm: 'user:view', icon: 'Wallet', group: 'customer' },
 
   { path: '/admins', title: '管理员账号', perm: 'admin:view', icon: 'Avatar', group: 'system' },
   { path: '/roles', title: '角色权限', perm: 'role:view', icon: 'Key', group: 'system' },

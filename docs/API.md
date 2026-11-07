@@ -204,6 +204,9 @@
 | PUT | /admin/users/:id/status | 启用/禁用用户（{status:0\|1}）。禁用后无法登录；已签发 JWT 在过期前仍有效 | ✅ 已实现 |
 | GET | /admin/works | 全站作品列表（含作者昵称、公开状态、提示词、点赞数、使用次数；type=collage/ai_text/ai_photo、status=0/1/2、public=0/1 过滤） | ✅ 已实现 |
 | PUT | /admin/works/:id/status | 上架(1)/下架(2)。用户已删除(status=0)的作品不可变更，返回 409 | ✅ 已实现 |
+| GET | /admin/point-logs | **积分明细（v2.3）**：`{items,total,summary:{in,out}}`；每条含昵称、delta、变动后余额、原因、关联单据；`user_id`/`reason`/`keyword`(昵称) 筛选；全量返回上限 2000 条 | ✅ 已实现 |
+| GET | /admin/work-likes | **点赞明细（v2.3）**：`{items,total}`；每条含点赞人 + 被赞作品（图/提示词/作者）；`work_id`/`user_id`/`keyword`(昵称或提示词) 筛选 | ✅ 已实现 |
+| GET | /admin/work-usages | **使用明细（v2.3）**：作品被用于订单的记录（order_items join orders）；`{items,total,summary:{qty}}`；`work_id`/`user_id`(买家)/`status`(订单状态)/`keyword`(订单号或昵称) 筛选。注意 `use_count` 在订单完成时才结算，本页是「下单即留痕」的完整证据 | ✅ 已实现 |
 | POST | /admin/upload | 后台上传图片（与用户端 /upload 同逻辑） | ✅ 已实现 |
 | GET | /admin/me | 登录态自检：账号、角色、权限码列表（超管为 `["*"]`） | ✅ 已实现 |
 | GET | /admin/permissions | 权限清单（按模块分组的权限码 + 中文名，前端渲染勾选） | ✅ 已实现 |

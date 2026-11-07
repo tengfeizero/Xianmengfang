@@ -73,8 +73,10 @@
       <el-table-column label="创建时间" width="160">
         <template #default="{ row }"><span class="muted">{{ fmtTime(row.created_at) }}</span></template>
       </el-table-column>
-      <el-table-column label="操作" width="110" fixed="right" align="right">
+      <el-table-column label="操作" width="230" fixed="right" align="right">
         <template #default="{ row }">
+          <el-button link type="primary" @click="goLikes(row as AdminWorkRow)">点赞</el-button>
+          <el-button link type="primary" @click="goUsages(row as AdminWorkRow)">使用</el-button>
           <span v-if="!auth.hasPerm('work:edit')" class="readonly-hint">只读</span>
           <template v-else-if="row.status === 1">
             <el-popconfirm title="下架后用户端将不可见，确认？" @confirm="setStatus(row as AdminWorkRow, 2)">
@@ -98,6 +100,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import PageHeader from '@/components/PageHeader.vue'
 import TablePager from '@/components/TablePager.vue'
@@ -106,6 +109,7 @@ import { listWorks, setWorkStatus, type AdminWorkRow } from '@/api/modules/works
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
+const router = useRouter()
 
 const rows = ref<AdminWorkRow[]>([])
 const typeFilter = ref('')
@@ -135,6 +139,15 @@ async function load() {
   } finally {
     loading.value = false
   }
+}
+
+/** 下钻：只看这件作品的点赞 / 使用明细 */
+function goLikes(row: AdminWorkRow) {
+  router.push({ path: '/work-likes', query: { work_id: row.id } })
+}
+
+function goUsages(row: AdminWorkRow) {
+  router.push({ path: '/work-usages', query: { work_id: row.id } })
 }
 
 function promptOf(row: AdminWorkRow): string {

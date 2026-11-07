@@ -44,6 +44,7 @@ declare module 'vue' {
     PageHeader: typeof import('./../components/PageHeader.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StatStrip: typeof import('./../components/StatStrip.vue')['default']
     StatusTag: typeof import('./../components/StatusTag.vue')['default']
     TablePager: typeof import('./../components/TablePager.vue')['default']
   }

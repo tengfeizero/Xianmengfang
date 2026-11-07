@@ -44,8 +44,9 @@
       <el-table-column label="注册时间" width="170">
         <template #default="{ row }"><span class="muted">{{ fmtTime(row.created_at) }}</span></template>
       </el-table-column>
-      <el-table-column label="操作" width="100" align="right" fixed="right">
+      <el-table-column label="操作" width="170" align="right" fixed="right">
         <template #default="{ row }">
+          <el-button link type="primary" @click="goLogs(row as AdminUserRow)">积分</el-button>
           <span v-if="!auth.hasPerm('user:edit')" class="readonly-hint">只读</span>
           <el-popconfirm
             v-else
@@ -69,6 +70,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import PageHeader from '@/components/PageHeader.vue'
@@ -78,6 +80,7 @@ import { listUsers, setUserStatus, type AdminUserRow } from '@/api/modules/users
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
+const router = useRouter()
 
 const rows = ref<AdminUserRow[]>([])
 const keyword = ref('')
@@ -98,6 +101,11 @@ async function load() {
   } finally {
     loading.value = false
   }
+}
+
+/** 下钻：只看该用户的积分流水 */
+function goLogs(row: AdminUserRow) {
+  router.push({ path: '/point-logs', query: { user_id: row.id } })
 }
 
 async function toggle(row: AdminUserRow) {

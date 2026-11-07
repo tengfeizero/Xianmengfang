@@ -154,6 +154,11 @@ func Router(h *Handlers) *gin.Engine {
 		ag.GET("/works", PermRequired(h, "work:view"), h.adminWorkList)
 		ag.PUT("/works/:id/status", PermRequired(h, "work:edit"), h.adminWorkSetStatus)
 
+		// 明细（v2.3）：积分流水 / 点赞 / 使用，权限复用用户与作品的查看权限
+		ag.GET("/point-logs", PermRequired(h, "user:view"), h.adminPointLogs)
+		ag.GET("/work-likes", PermRequired(h, "work:view"), h.adminWorkLikes)
+		ag.GET("/work-usages", PermRequired(h, "work:view"), h.adminWorkUsages)
+
 		// RBAC：角色 / 管理员 / 审计日志
 		ag.GET("/roles", PermRequired(h, "role:view"), h.adminRoleList)
 		ag.POST("/roles", PermRequired(h, "role:edit"), h.adminRoleCreate)
