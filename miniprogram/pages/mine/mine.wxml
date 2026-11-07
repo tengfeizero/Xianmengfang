@@ -98,6 +98,5 @@
     </view>
   </view>
 
-  <view class="btn btn-ghost btn-block logout rise d4" hover-class="press" bindtap="logout">退出登录</view>
   <view class="cap ver">现梦坊 {{version}} · 让每个创意都被做出来</view>
 </view>

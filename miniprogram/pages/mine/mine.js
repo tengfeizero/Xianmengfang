@@ -117,17 +117,4 @@ Page({
       },
     })
   },
-
-  logout() {
-    wx.showModal({
-      title: '退出登录',
-      content: '退出后需要重新登录才能继续使用',
-      confirmColor: '#f04452',
-      success: (r) => {
-        if (!r.confirm) return
-        api.clearToken()
-        wx.reLaunch({ url: '/pages/login/login' })
-      },
-    })
-  },
 })
