@@ -114,6 +114,19 @@ func TestFullLifecycle_MockPay(t *testing.T) {
 	if err := svc.Accept(oid2, 9); err != nil {
 		t.Fatalf("接单失败: %v", err)
 	}
+	assertStatus(t, db, oid2, StatusProducing)
+	// 生产中不能直接发货，必须走完生产/打包
+	if err := svc.Ship(oid2, 9, "顺丰", "SF-X"); err != ErrIllegalTransition {
+		t.Fatalf("生产中直接发货应被拒绝: %v", err)
+	}
+	if err := svc.Pack(oid2, 9); err != nil {
+		t.Fatalf("生产完成失败: %v", err)
+	}
+	assertStatus(t, db, oid2, StatusPacking)
+	if err := svc.ReadyShip(oid2, 9); err != nil {
+		t.Fatalf("打包完成失败: %v", err)
+	}
+	assertStatus(t, db, oid2, StatusPendingShip)
 	// 非法流转：待发货不能确认收货
 	if err := svc.Confirm(oid2, 1); err != ErrIllegalTransition {
 		t.Fatalf("待发货状态确认收货应被拒绝: %v", err)
@@ -121,6 +134,7 @@ func TestFullLifecycle_MockPay(t *testing.T) {
 	if err := svc.Ship(oid2, 9, "顺丰", "SF123"); err != nil {
 		t.Fatalf("发货失败: %v", err)
 	}
+	assertStatus(t, db, oid2, StatusShipped)
 	if err := svc.Confirm(oid2, 2); err != ErrForbidden {
 		t.Fatalf("非本人确认收货应被拒绝: %v", err)
 	}
@@ -152,6 +166,8 @@ func TestCancel_RestoresStock(t *testing.T) {
 	// 已发货不可取消
 	res2, _ := svc.Create(1, []ItemInput{{SKUID: 2, Qty: 1}}, nil)
 	svc.Accept(res2.Order.ID, 9)
+	svc.Pack(res2.Order.ID, 9)
+	svc.ReadyShip(res2.Order.ID, 9)
 	svc.Ship(res2.Order.ID, 9, "顺丰", "SF001")
 	if err := svc.Cancel(res2.Order.ID, 1, false, "test"); err != ErrIllegalTransition {
 		t.Fatalf("已发货用户取消应被拒绝: %v", err)
@@ -159,6 +175,8 @@ func TestCancel_RestoresStock(t *testing.T) {
 	// 管理员可取消待发货
 	res3, _ := svc.Create(1, []ItemInput{{SKUID: 1, Qty: 1}}, nil)
 	svc.Accept(res3.Order.ID, 9)
+	svc.Pack(res3.Order.ID, 9)
+	svc.ReadyShip(res3.Order.ID, 9)
 	if err := svc.Cancel(res3.Order.ID, 9, true, "缺货"); err != nil {
 		t.Fatalf("管理员取消待发货失败: %v", err)
 	}
@@ -178,6 +196,8 @@ func TestMarkRefund(t *testing.T) {
 		t.Fatalf("待接单不应可标记退款: %v", err)
 	}
 	svc.Accept(res.Order.ID, 9)
+	svc.Pack(res.Order.ID, 9)
+	svc.ReadyShip(res.Order.ID, 9)
 	svc.Ship(res.Order.ID, 9, "顺丰", "SF002")
 	if err := svc.MarkRefund(res.Order.ID, 9); err != nil {
 		t.Fatalf("已发货标记退款失败: %v", err)
@@ -186,5 +206,17 @@ func TestMarkRefund(t *testing.T) {
 	db.First(&o, res.Order.ID)
 	if o.RefundFlag != 1 {
 		t.Fatalf("退款标记未写入")
+	}
+}
+
+// assertStatus 断言订单当前状态
+func assertStatus(t *testing.T, db *gorm.DB, orderID int64, want string) {
+	t.Helper()
+	var o model.Order
+	if err := db.First(&o, orderID).Error; err != nil {
+		t.Fatalf("读订单失败: %v", err)
+	}
+	if o.Status != want {
+		t.Fatalf("订单状态期望 %s，实际 %s", want, o.Status)
 	}
 }

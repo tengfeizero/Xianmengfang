@@ -135,11 +135,17 @@ func MaskDetail(raw []byte) string {
 func maskValue(v any) {
 	switch t := v.(type) {
 	case map[string]any:
+		// KV 形态（配置项 {key, value}）：key 名敏感时把 value 一并脱敏
+		if kv, ok := t["key"].(string); ok {
+			_, hasVal := t["value"]
+			if hasVal && isSensitiveName(kv) {
+				t["value"] = "***"
+			}
+		}
 		for k, val := range t {
 			lk := strings.ToLower(k)
-			if strings.Contains(lk, "password") || strings.Contains(lk, "secret") ||
-				strings.Contains(lk, "token") || strings.Contains(lk, "api_key") ||
-				strings.Contains(lk, "apikey") || lk == "key" || strings.Contains(lk, "pwd") {
+			// 只按敏感语义匹配：配置项的 key 字段是键名（如 ai_api_key），本身要保留可读
+			if isSensitiveName(lk) {
 				t[k] = "***"
 				continue
 			}
@@ -150,6 +156,14 @@ func maskValue(v any) {
 			maskValue(item)
 		}
 	}
+}
+
+// isSensitiveName 字段名/配置键名是否属于敏感信息
+func isSensitiveName(name string) bool {
+	n := strings.ToLower(name)
+	return strings.Contains(n, "password") || strings.Contains(n, "secret") ||
+		strings.Contains(n, "token") || strings.Contains(n, "api_key") ||
+		strings.Contains(n, "apikey") || strings.Contains(n, "pwd")
 }
 
 func truncate(s string, n int) string {
