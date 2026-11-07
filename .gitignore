@@ -1,5 +1,7 @@
-# 本地 AI 协作日记不入库（进仓库的现状以 docs/ 为准）
-.workbuddy/
+# AI 协作上下文：memory/ 随仓库走（换机器/换人接手时 AI 能接着干），
+# 其余（截图、应用卡标记）是本地临时产物，不入库
+.workbuddy/*
+!.workbuddy/memory/
 
 # 前端依赖与构建产物（部署时重新 npm install && npm run build）
 web/node_modules/

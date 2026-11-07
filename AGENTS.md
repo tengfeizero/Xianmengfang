@@ -12,6 +12,12 @@ cd web && npm i && npm run dev         # :5173/ui/ ，/api 代理到 8080
 
 改了 Go 代码必须重编译再重启（Windows 下运行中的 exe 被锁）。开发登录：`POST /api/v1/user/auth/dev_login {"openid":"dev_x", "nickname":"随便"}`。
 
+## 会话记忆（已入库，换机器/换人都要接着用）
+
+- `.workbuddy/memory/MEMORY.md`：长期约定与本地运行要点（启动命令、踩坑结论），**开工先读**
+- `.workbuddy/memory/YYYY-MM-DD.md`：每日流水，**完成实质工作后追加**（只记有长期价值的东西：改了什么、为什么、验证结论、坑）
+- 记忆是补充，不是事实来源：与 `docs/` 冲突时以 `docs/` 为准，并顺手修正记忆
+
 ## 文档索引（写之前先查，改完同步）
 
 | 想知道 | 看 |

@@ -191,7 +191,9 @@ curl -X POST http://127.0.0.1:8080/api/v1/user/auth/dev_login \
 | 微信凭据 | `XMF_WX_APPID` / `XMF_WX_SECRET` | 小程序真机登录用；本地调试可用 dev_login |
 | AI 原图 | `generated-images/` | 仅重跑素材处理脚本时需要（`server/scripts/`） |
 
-**不用带**（可重建，已被 .gitignore 挡掉）：`web/node_modules`、`web/dist`、`shots/`、`tools/mp-preview/out/`、`tools/node_modules`。
+**不用带**（可重建，已被 .gitignore 挡掉）：`web/node_modules`、`web/dist`、`shots/`、`tools/mp-preview/out/`、`tools/node_modules`、`.workbuddy/shots`。
+
+**AI 协作上下文会跟着走**：`.workbuddy/memory/`（长期约定 `MEMORY.md` + 每日流水）已入库，clone 到新机器后 AI 会话开局就能读到「启动命令、踩过的坑、设计决策」，不需要额外迁移。
 
 只迁数据、不想带走整个仓库时，最省事的是搬 `server/data/` 整个目录；反之只想转移代码历史又没有远程仓库，可以打成单文件：
 
@@ -225,6 +227,8 @@ git bundle create xmf.bundle --all     # 目标机器：git clone xmf.bundle xmf
 ```
 .
 ├─ AGENTS.md            # AI 协作红线（给 Claude/Codex 等读的入口）
+├─ README.md / LICENSE
+├─ .workbuddy/memory/   # AI 会话记忆：长期约定 MEMORY.md + 每日流水（随仓库走，换机器能接着干）
 ├─ docs/                # 唯一事实来源：PRD / API / DATA-MODEL / CONVENTIONS / CHANGELOG / TODO（+ images/ README 配图）
 ├─ server/              # Go 后端
 │  ├─ cmd/xmf/          # 唯一入口：config → db → repo → service → api 装配
@@ -240,7 +244,6 @@ git bundle create xmf.bundle --all     # 目标机器：git clone xmf.bundle xmf
 ├─ web/                 # Vue 3 管理后台（src/api · components · layouts · stores · views）
 ├─ miniprogram/         # 微信小程序（19 页 · components · utils/icons.js · custom-tab-bar）
 ├─ tools/               # 开发辅助：mp-preview（小程序离线预览截图）、web-shot（后台截图）、make-preview（README 配图拼合）
-└─ docs/ + README.md
 ```
 
 ## 常用命令
