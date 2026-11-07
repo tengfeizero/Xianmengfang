@@ -404,6 +404,9 @@ func (h *Handlers) adminWorkList(c *gin.Context) {
 	if s := c.Query("status"); s == "0" || s == "1" || s == "2" {
 		q = q.Where("status = ?", s)
 	}
+	if p := c.Query("public"); p == "0" || p == "1" {
+		q = q.Where("is_public = ?", p)
+	}
 	var works []model.Work
 	if err := q.Find(&works).Error; err != nil {
 		fail(c, 500, "获取作品失败，请稍后再试")

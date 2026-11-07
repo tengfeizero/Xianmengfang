@@ -70,6 +70,14 @@ func Router(h *Handlers) *gin.Engine {
 		ug.GET("/works/:id", h.workDetail)
 		ug.DELETE("/works/:id", h.workDelete)
 
+		// 作品社区与积分（v1.7）
+		ug.PUT("/works/:id/publish", h.workPublish)
+		ug.POST("/works/:id/like", h.workLike)
+		ug.DELETE("/works/:id/like", h.workUnlike)
+		ug.GET("/plaza", h.workPublicList)
+		ug.GET("/points", h.userPoints)
+		ug.GET("/ai/quota", h.userAIQuota)
+
 		// 收货地址（M1.5）
 		ug.GET("/addresses", h.addressList)
 		ug.POST("/addresses", h.addressCreate)

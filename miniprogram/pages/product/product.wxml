@@ -63,12 +63,12 @@
     </view>
   </view>
 
-  <view class="card" wx:if="{{works.length}}">
+  <view class="card" wx:if="{{myWorks.length}}">
     <view class="sec-title">使用我的作品（可不选）</view>
     <scroll-view scroll-x class="works-scroll">
       <view class="works-row">
         <image
-          wx:for="{{works}}"
+          wx:for="{{myWorks}}"
           wx:key="id"
           class="work-thumb {{selectedWork && selectedWork.id === item.id ? 'active' : ''}}"
           src="{{item.cover}}"
@@ -78,6 +78,24 @@
         />
       </view>
     </scroll-view>
+  </view>
+
+  <view class="card" wx:if="{{likedWorks.length}}">
+    <view class="sec-title">使用我点赞的作品</view>
+    <scroll-view scroll-x class="works-scroll">
+      <view class="works-row">
+        <image
+          wx:for="{{likedWorks}}"
+          wx:key="id"
+          class="work-thumb {{selectedWork && selectedWork.id === item.id ? 'active' : ''}}"
+          src="{{item.cover}}"
+          data-id="{{item.id}}"
+          mode="aspectFill"
+          bindtap="pickWork"
+        />
+      </view>
+    </scroll-view>
+    <view class="muted works-tip">去「作品广场」给喜欢的作品点赞，就能用它下单</view>
   </view>
 
   <view class="card" wx:if="{{product.detailParagraphs.length || product.detailImages.length}}">

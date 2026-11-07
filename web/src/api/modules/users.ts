@@ -8,6 +8,7 @@ export interface AdminUserRow {
   created_at: string
   order_count: number
   work_count: number
+  points: number // 积分余额（v1.7）
 }
 
 export function listUsers(params?: { keyword?: string; status?: string }) {

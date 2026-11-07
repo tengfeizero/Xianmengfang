@@ -41,10 +41,18 @@
 | GET | /user/collage/boards | 底板列表（仅上架） | ✅ 已实现 |
 | GET | /user/collage/elements?board_id=1&category=hair | 元素列表；**board_id 必填**，只返回该底板下的上架元素（缺 board_id 返回 400） | ✅ 已实现 |
 | POST | /user/collage/compose | 拼装合成（board_id + placements[x,y,scale]），服务端合成 PNG 并存为作品；**元素必须属于该底板**，否则 400 | ✅ 已实现 |
-| POST | /user/ai/tasks | 发起 AI 生成（ai_text/ai_photo，每日配额超限返回 429；当前 mock 供应商） | ✅ 已实现 |
-| GET | /user/works | 我的作品库 | ✅ 已实现 |
-| GET | /user/works/:id | 作品详情 | ✅ 已实现 |
-| DELETE | /user/works/:id | 删除作品（软删） | ✅ 已实现 |
+| POST | /user/ai/tasks | 发起 AI 生成（ai_text/ai_photo）；**每日免费额度用完后自动扣 1 积分（1 积分 = 1 张），积分不足返回 429** | ✅ 已实现 |
+| GET | /user/ai/quota | 今日免费额度与积分余额（`{free_limit, free_used, free_left, points, can_generate}`） | ✅ 已实现 |
+| GET | /user/works | 我的作品库（含 `is_public/like_count/use_count/prompt`）；`?scope=liked` 返回我点赞过的公开作品（下单选图用） | ✅ 已实现 |
+| GET | /user/works/:id | 作品详情（自己的，或已发布的他人作品） | ✅ 已实现 |
+| DELETE | /user/works/:id | 删除作品（软删；同时从广场下架） | ✅ 已实现 |
+| PUT | /user/works/:id/publish | 发布/取消发布 `{is_public: 1\|0}`；发布后进入广场且公开 AI 提示词 | ✅ 已实现 |
+| GET | /user/plaza | **作品广场 / 排行榜**：`?sort=latest\|uses\|likes&page=1&size=20&keyword=`；只返回 `is_public=1 且 status=1`，含作者昵称头像、提示词、点赞/使用数、`liked`（我是否点过赞）。路径不用 `/works/public` 是因为与 `/works/:id` 通配段冲突 | ✅ 已实现 |
+| POST | /user/works/:id/like | 点赞（幂等；自己的作品 400；返回最新 `like_count`） | ✅ 已实现 |
+| DELETE | /user/works/:id/like | 取消点赞（幂等；返回最新 `like_count`） | ✅ 已实现 |
+| GET | /user/points | 我的积分：`{points, logs:[{delta,balance,reason,remark,created_at}]}`（最近 50 条） | ✅ 已实现 |
+
+**下单/加购的作品规则（v1.7）**：`work_id` 可选，允许两种作品——**自己的**（status=1），或**我点赞过的公开作品**（is_public=1 且 status=1）。他人未公开/已下架/已删除的作品一律 400；加购时放行的作品，若之后被作者取消发布，结算时按「作品已失效」拦截（不影响已生成的订单）。
 
 ### 订单详情响应（GET /user/orders/:id）
 
@@ -97,6 +105,32 @@
 - `summary` 只统计勾选且有效项；价格是参考，结算以 SKU 现价为准
 - checkout 错误：`404 无可结算商品`、`400 请选择收货地址`、`409 商品库存不足`（下单原子扣减失败）、`400 含失效商品，请先移除`
 
+### 作品广场响应（GET /user/plaza）
+
+```json
+{
+  "total": 37,
+  "items": [{
+    "id": 12, "type": "ai_text", "image_url": "/static/ai_xxx.png", "thumbnail_url": "/static/ai_xxx.png",
+    "prompt": "扎双马尾的小姑娘，粉色背景，卡通风格",
+    "like_count": 8, "use_count": 21, "liked": true, "published_at": "2026-11-07T10:20:00+08:00",
+    "author": { "id": 3, "nickname": "小梦", "avatar": "/static/avatar_3.png" },
+    "is_mine": false
+  }]
+}
+```
+
+- `sort`：`latest` 最新榜（published_at desc）/ `uses` 使用量榜（use_count desc，同分比 published_at）/ `likes` 点赞榜（like_count desc，同分比 published_at）
+- 只返回 `is_public=1 AND status=1`；`prompt` 仅 AI 作品有值（照片转风格为空），拼装作品为空
+- `liked` / `is_mine` 依赖登录态；未登录（401）时前端走登录页
+- `keyword` 对提示词做模糊匹配（AI 作品可被搜到）
+
+### 积分响应（GET /user/points）
+
+```json
+{ "points": 12, "logs": [{ "delta": 2, "balance": 12, "reason": "work_used", "remark": "作品《小熊猫》被使用 2 件", "created_at": "..." }] }
+```
+
 ## 管理后台 — 前缀 `/api/v1/admin`
 
 | 方法 | 路径 | 说明 | 状态 |
@@ -120,9 +154,9 @@
 | POST/PUT | /admin/elements… | 新增/编辑元素；**board_id 必填**（底板不存在返回 400），可改归属底板；anchor 为空时用默认 `{"x":0.5,"y":0.5,"scale":1}` | ✅ 已实现 |
 | DELETE | /admin/elements/:id | 下架元素（软删） | ✅ 已实现 |
 | GET/PUT | /admin/configs | 系统配置（白名单键，ai_daily_free_limit 0~1000） | ✅ 已实现 |
-| GET | /admin/users | 用户列表（含订单数/作品数统计；keyword 按昵称模糊、status=0/1 过滤） | ✅ 已实现 |
+| GET | /admin/users | 用户列表（含订单数/作品数统计、积分余额；keyword 按昵称模糊、status=0/1 过滤） | ✅ 已实现 |
 | PUT | /admin/users/:id/status | 启用/禁用用户（{status:0\|1}）。禁用后无法登录；已签发 JWT 在过期前仍有效 | ✅ 已实现 |
-| GET | /admin/works | 全站作品列表（含作者昵称；type=collage/ai_text/ai_photo、status=0/1/2 过滤） | ✅ 已实现 |
+| GET | /admin/works | 全站作品列表（含作者昵称、公开状态、提示词、点赞数、使用次数；type=collage/ai_text/ai_photo、status=0/1/2、public=0/1 过滤） | ✅ 已实现 |
 | PUT | /admin/works/:id/status | 上架(1)/下架(2)。用户已删除(status=0)的作品不可变更，返回 409 | ✅ 已实现 |
 | POST | /admin/upload | 后台上传图片（与用户端 /upload 同逻辑） | ✅ 已实现 |
 | GET | /admin/me | 登录态自检：账号、角色、权限码列表（超管为 `["*"]`） | ✅ 已实现 |

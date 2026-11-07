@@ -9,7 +9,9 @@ Page({
     skus: [],
     selectedSku: null,
     qty: 1,
-    works: [], // 可绑定的作品
+    works: [], // 可绑定的作品（兼容旧字段，等于我的作品）
+    myWorks: [], // 我的作品
+    likedWorks: [], // 我点赞过的他人公开作品（v1.7）
     selectedWork: null,
     addresses: [],
     selectedAddress: null,
@@ -100,18 +102,26 @@ Page({
     }
   },
 
+  // 选图分两栏：我的作品 + 我点赞过的公开作品（点赞是借用他人作品下单的前置条件）
   loadWorks() {
     api
       .request('GET', '/works')
       .then((list) => {
-        this.setData({
-          works: (list || []).map((w) => ({
-            id: w.id,
-            cover: img(w.thumbnail_url || w.image_url),
-          })),
-        })
+        const myWorks = this.mapWorks(list)
+        this.setData({ works: myWorks, myWorks })
       })
       .catch(() => {})
+    api
+      .request('GET', '/works?scope=liked')
+      .then((list) => this.setData({ likedWorks: this.mapWorks(list) }))
+      .catch(() => {})
+  },
+
+  mapWorks(list) {
+    return (list || []).map((w) => ({
+      id: w.id,
+      cover: img(w.thumbnail_url || w.image_url),
+    }))
   },
 
   computeTotal() {
@@ -176,7 +186,12 @@ Page({
   pickWork(e) {
     const id = e.currentTarget.dataset.id
     const cur = this.data.selectedWork
-    this.setData({ selectedWork: cur && cur.id === id ? null : this.data.works.find((w) => w.id === id) })
+    if (cur && cur.id === id) {
+      this.setData({ selectedWork: null })
+      return
+    }
+    const all = this.data.myWorks.concat(this.data.likedWorks)
+    this.setData({ selectedWork: all.find((w) => w.id === id) || null })
   },
 
   onQty(e) {

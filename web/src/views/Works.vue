@@ -1,6 +1,9 @@
 <template>
   <div class="page">
-    <PageHeader title="用户作品" desc="小程序用户的创作结果；下架后用户端与加购均不可见，用户自行删除的作品不可恢复。" />
+    <PageHeader
+      title="用户作品"
+      desc="小程序用户的创作结果；发布到广场的作品会公开 AI 提示词，可被其他用户点赞与借用下单。下架后用户端与广场均不可见，用户自删的作品不可恢复。"
+    />
 
     <div class="panel">
       <div class="toolbar">
@@ -15,6 +18,11 @@
           <el-option label="正常" value="1" />
           <el-option label="已下架" value="2" />
           <el-option label="已删除" value="0" />
+        </el-select>
+        <el-select v-model="publicFilter" class="w140" @change="load">
+          <el-option label="全部可见性" value="" />
+          <el-option label="已发布广场" value="1" />
+          <el-option label="私密" value="0" />
         </el-select>
         <el-button @click="load">查询</el-button>
       </div>
@@ -40,8 +48,20 @@
       <el-table-column label="作者" width="140">
         <template #default="{ row }">{{ row.nickname || `用户#${row.user_id}` }}</template>
       </el-table-column>
-      <el-table-column label="生成参数" min-width="200" show-overflow-tooltip>
+      <el-table-column label="提示词" min-width="200" show-overflow-tooltip>
         <template #default="{ row }">{{ promptOf(row as AdminWorkRow) }}</template>
+      </el-table-column>
+      <el-table-column label="广场" width="100">
+        <template #default="{ row }">
+          <el-tag v-if="row.is_public === 1" type="primary" effect="light" size="small">已发布</el-tag>
+          <span v-else class="muted">私密</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="点赞" width="80">
+        <template #default="{ row }">{{ row.like_count || 0 }}</template>
+      </el-table-column>
+      <el-table-column label="使用" width="80">
+        <template #default="{ row }">{{ row.use_count || 0 }}</template>
       </el-table-column>
       <el-table-column label="状态" width="90">
         <template #default="{ row }">
@@ -90,17 +110,26 @@ const auth = useAuthStore()
 const rows = ref<AdminWorkRow[]>([])
 const typeFilter = ref('')
 const statusFilter = ref('')
+const publicFilter = ref('')
 const loading = ref(false)
 
-/** 前端分页：改类型/状态筛选回到第 1 页 */
-const { page, size, total, rows: pageRows } = usePager(rows, () => [typeFilter.value, statusFilter.value])
+/** 前端分页：改类型/状态/可见性筛选回到第 1 页 */
+const { page, size, total, rows: pageRows } = usePager(rows, () => [
+  typeFilter.value,
+  statusFilter.value,
+  publicFilter.value,
+])
 
 onMounted(load)
 
 async function load() {
   loading.value = true
   try {
-    rows.value = await listWorks({ type: typeFilter.value, status: statusFilter.value })
+    rows.value = await listWorks({
+      type: typeFilter.value,
+      status: statusFilter.value,
+      public: publicFilter.value,
+    })
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '加载失败')
   } finally {
@@ -109,6 +138,7 @@ async function load() {
 }
 
 function promptOf(row: AdminWorkRow): string {
+  if (row.prompt) return row.prompt
   try {
     const m = JSON.parse(row.meta) as { prompt?: string }
     return m.prompt || ''

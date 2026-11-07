@@ -25,7 +25,7 @@ var (
 	ErrCartQtyMax      = fmt.Errorf("单件商品最多 %d 件", CartQtyMax)
 	ErrCartEmpty       = errors.New("无可结算的商品")
 	ErrCartInvalidItem = errors.New("购物车含失效商品，请先移除后再结算")
-	ErrCartBadWork     = errors.New("作品不存在或已删除")
+	ErrCartBadWork     = errors.New("作品已失效，请重新选择图案")
 )
 
 type CartService struct {
@@ -84,6 +84,8 @@ func (s *CartService) List(userID int64) ([]CartView, CartSummary, error) {
 				var w model.Work
 				if err := s.DB.First(&w, it.WorkID).Error; err != nil || w.Status != 1 {
 					v.Valid, v.InvalidReason = false, "作品已删除，请重新选择图案"
+				} else if _, err := (&CommunityService{DB: s.DB}).UsableWork(userID, it.WorkID); err != nil {
+					v.Valid, v.InvalidReason = false, "作品已取消发布，请重新选择图案"
 				} else {
 					v.WorkThumb = w.ThumbnailURL
 					if v.WorkThumb == "" {
@@ -127,8 +129,8 @@ func (s *CartService) Add(userID, skuID, workID int64, qty int) (*model.CartItem
 		return nil, ErrStockInsufficient
 	}
 	if workID > 0 {
-		var w model.Work
-		if err := s.DB.Where("id = ? AND user_id = ? AND status = 1", workID, userID).First(&w).Error; err != nil {
+		// v1.7：自己的作品，或已点赞的他人公开作品都可下单
+		if _, err := (&CommunityService{DB: s.DB}).UsableWork(userID, workID); err != nil {
 			return nil, ErrCartBadWork
 		}
 	}
@@ -266,8 +268,8 @@ func (s *CartService) Checkout(userID int64, itemIDs []int64, addr *model.Addres
 			return nil, ErrStockInsufficient
 		}
 		if it.WorkID > 0 {
-			var w model.Work
-			if err := s.DB.Where("id = ? AND user_id = ? AND status = 1", it.WorkID, userID).First(&w).Error; err != nil {
+			// 作者取消发布/下架后，已加购的项在结算时拦截（不静默换成别的图）
+			if _, err := (&CommunityService{DB: s.DB}).UsableWork(userID, it.WorkID); err != nil {
 				return nil, ErrCartInvalidItem
 			}
 		}

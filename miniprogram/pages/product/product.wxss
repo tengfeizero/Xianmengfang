@@ -94,6 +94,9 @@
 .work-thumb.active {
   border-color: #ff7ea0;
 }
+.works-tip {
+  margin-top: 10rpx;
+}
 .footer {
   position: fixed;
   left: 0;

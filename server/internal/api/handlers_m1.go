@@ -205,8 +205,18 @@ func (h *Handlers) aiCreateTask(c *gin.Context) {
 
 // ---- 作品库 ----
 
+// workList 我的作品库；scope=liked 时返回我点赞过的公开作品（商品页选图用）
 func (h *Handlers) workList(c *gin.Context) {
 	claims := c.MustGet("claims").(*service.Claims)
+	if c.Query("scope") == "liked" {
+		works, err := h.Community.LikedWorks(claims.UserID)
+		if err != nil {
+			fail(c, 500, "获取点赞作品失败，请稍后再试")
+			return
+		}
+		ok(c, works)
+		return
+	}
 	var works []model.Work
 	if err := h.DB.Where("user_id = ? AND status = 1", claims.UserID).Order("id desc").Find(&works).Error; err != nil {
 		fail(c, 500, "获取作品失败，请稍后再试")
@@ -218,7 +228,9 @@ func (h *Handlers) workList(c *gin.Context) {
 func (h *Handlers) workDetail(c *gin.Context) {
 	claims := c.MustGet("claims").(*service.Claims)
 	var w model.Work
-	if err := h.DB.First(&w, c.Param("id")).Error; err != nil || w.Status != 1 || w.UserID != claims.UserID {
+	// 自己的作品，或已发布到广场的他人作品（v1.7）
+	if err := h.DB.First(&w, c.Param("id")).Error; err != nil || w.Status != 1 ||
+		(w.UserID != claims.UserID && w.IsPublic != 1) {
 		fail(c, 404, "作品不存在")
 		return
 	}

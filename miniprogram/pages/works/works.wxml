@@ -1,3 +1,12 @@
+<view class="top-bar">
+  <view class="plaza-entry" bindtap="goPlaza">
+    <text class="plaza-title">作品广场 · 排行榜</text>
+    <text class="plaza-sub">看看大家的创作，点个赞就能借用下单</text>
+    <text class="plaza-arrow">›</text>
+  </view>
+  <view class="points-chip">积分 {{points}}</view>
+</view>
+
 <empty-state
   wx:if="{{!works.length}}"
   loading="{{loading}}"
@@ -9,6 +18,19 @@
 <view class="grid">
   <view class="work-item" wx:for="{{works}}" wx:key="id">
     <image class="work-img" src="{{item.cover}}" mode="aspectFill" data-id="{{item.id}}" bindtap="preview" />
-    <view class="work-del" data-id="{{item.id}}" catchtap="del">删</view>
+    <view
+      class="badge {{item.isPublic ? 'on' : ''}}"
+      data-id="{{item.id}}"
+      catchtap="togglePublish"
+    >{{item.isPublic ? '已公开' : '私密'}}</view>
+
+    <view class="meta">
+      <text class="stat">♥ {{item.likeCount}}</text>
+      <text class="stat">用 {{item.useCount}}</text>
+      <text class="del" data-id="{{item.id}}" catchtap="del">删除</text>
+    </view>
+
+    <view class="prompt" wx:if="{{item.prompt && item.isPublic}}">{{item.prompt}}</view>
+    <view class="prompt muted" wx:elif="{{!item.prompt}}">{{item.typeText}}</view>
   </view>
 </view>

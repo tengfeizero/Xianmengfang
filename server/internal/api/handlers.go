@@ -21,6 +21,7 @@ type Handlers struct {
 	AI         *service.AIService
 	RBAC       *service.RBACService
 	Audit      *service.AuditService
+	Community  *service.CommunityService
 	UploadsDir string
 	Dev        bool // 是否允许开发者模拟登录
 }

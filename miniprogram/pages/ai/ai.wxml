@@ -27,8 +27,15 @@
     </view>
   </view>
 
+  <view class="quota-bar" wx:if="{{quota}}">
+    <text wx:if="{{quota.freeLeft > 0}}">今日还剩 {{quota.freeLeft}} 张免费额度</text>
+    <text wx:elif="{{quota.points > 0}}">免费额度已用完，继续生成将消耗 1 积分</text>
+    <text wx:else>今日免费额度已用完，作品被他人使用可获得积分</text>
+    <text class="quota-points">积分 {{quota.points}}</text>
+  </view>
+
   <button class="btn-pink gen-btn" disabled="{{generating}}" bindtap="generate">
-    {{generating ? 'AI 生成中...' : '开始生成（每日有免费次数）'}}
+    {{generating ? 'AI 生成中...' : btnText}}
   </button>
 
   <view class="card result-card" wx:if="{{result}}">

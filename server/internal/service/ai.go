@@ -16,8 +16,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// ErrQuotaExceeded 每日配额用尽
-var ErrQuotaExceeded = errors.New("今日 AI 生成次数已用完，明天再来吧")
+// ErrQuotaExceeded 每日免费配额用尽且积分不足（v1.7 起可用 1 积分换 1 张）
+var ErrQuotaExceeded = errors.New("今日免费次数已用完，积分不足；作品被他人使用可获得积分")
 
 // Provider AI 生图供应商接口——换厂商不动业务代码
 type Provider interface {
@@ -133,14 +133,23 @@ func (s *AIService) CreateTask(userID int64, taskType, prompt, photoURL string) 
 	if _, err := fmt.Sscanf(cfg.Value, "%d", &limit); err != nil || limit < 0 {
 		return nil, nil, errors.New("系统配置不合法")
 	}
+	community := &CommunityService{DB: s.DB}
 	today := time.Now().Format("2006-01-02")
-	var used int64
-	if err := s.DB.Model(&model.AITask{}).
-		Where("user_id = ? AND quota_date = ?", userID, today).Count(&used).Error; err != nil {
+	used, err := community.TodayQuota(userID)
+	if err != nil {
 		return nil, nil, err
 	}
-	if int(used) >= limit {
-		return nil, nil, ErrQuotaExceeded
+	// 免费额度用完后改扣积分：1 积分 = 1 张；余额不足直接拒绝，避免白跑一次生成
+	payType := "free"
+	if used >= limit {
+		payType = "point"
+		balance, err := community.Balance(userID)
+		if err != nil {
+			return nil, nil, err
+		}
+		if balance < 1 {
+			return nil, nil, ErrQuotaExceeded
+		}
 	}
 
 	outName := fmt.Sprintf("ai_%s_%04d.png", time.Now().Format("20060102150405"), rand.Intn(10000))
@@ -149,7 +158,7 @@ func (s *AIService) CreateTask(userID int64, taskType, prompt, photoURL string) 
 	provider := s.resolveProvider()
 	task := &model.AITask{
 		UserID: userID, Type: taskType, Status: "pending",
-		Provider: provider.Name(), QuotaDate: today,
+		Provider: provider.Name(), QuotaDate: today, PayType: payType,
 		Params: prompt,
 	}
 	if taskType == "ai_photo" {
@@ -168,19 +177,49 @@ func (s *AIService) CreateTask(userID int64, taskType, prompt, photoURL string) 
 	}
 	task.Status = "done"
 	task.ResultURL = "/static/" + outName
-	if err := s.DB.Create(task).Error; err != nil {
+	// 落库与扣积分同一事务：积分扣不动（并发用光）就整笔失败，不白送一张图
+	if err := s.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(task).Error; err != nil {
+			return err
+		}
+		if payType == "point" {
+			return AddPoints(tx, userID, -1, PointReasonAISpend, PointRefAITask, task.ID,
+				"AI 生成消耗 1 积分")
+		}
+		return nil
+	}); err != nil {
 		return nil, nil, err
 	}
 	work := &model.Work{
 		UserID: userID, Type: taskType,
 		ImageURL: task.ResultURL, ThumbnailURL: task.ResultURL,
 		Meta:   fmt.Sprintf(`{"task_id":%d,"prompt":%q}`, task.ID, prompt),
+		Prompt: strings.TrimSpace(prompt), // 发布到广场时作为公开提示词
 		Status: 1,
 	}
 	if err := s.DB.Create(work).Error; err != nil {
 		return nil, nil, err
 	}
 	return task, work, nil
+}
+
+// Quota 今日免费额度、已用次数与积分余额，供小程序 AI 页展示「还能生成几张」
+func (s *AIService) Quota(userID int64) (limit, used, points int, err error) {
+	var cfg model.Config
+	if err = s.DB.Where("key = ?", "ai_daily_free_limit").First(&cfg).Error; err != nil {
+		return 0, 0, 0, errors.New("系统配置缺失")
+	}
+	if _, err = fmt.Sscanf(cfg.Value, "%d", &limit); err != nil || limit < 0 {
+		return 0, 0, 0, errors.New("系统配置不合法")
+	}
+	community := &CommunityService{DB: s.DB}
+	if used, err = community.TodayQuota(userID); err != nil {
+		return 0, 0, 0, err
+	}
+	if points, err = community.Balance(userID); err != nil {
+		return 0, 0, 0, err
+	}
+	return limit, used, points, nil
 }
 
 // safeUploadPath 把 /static/xxx 映射回本地 uploads 路径，拒绝越界

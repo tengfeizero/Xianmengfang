@@ -4,6 +4,7 @@
     "pages/cart/cart",
     "pages/studio/studio",
     "pages/works/works",
+    "pages/plaza/plaza",
     "pages/order-list/order-list",
     "pages/login/login",
     "pages/product/product",

@@ -44,6 +44,7 @@ func main() {
 		AI:         &service.AIService{DB: db, Provider: aiProvider, UploadsDir: uploadsDir},
 		RBAC:       &service.RBACService{DB: db},
 		Audit:      &service.AuditService{DB: db},
+		Community:  &service.CommunityService{DB: db},
 		UploadsDir: uploadsDir,
 		Dev:        cfg.DevLogin,
 	}

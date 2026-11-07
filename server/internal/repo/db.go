@@ -1,8 +1,10 @@
 package repo
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"xmf/internal/model"
 
@@ -104,7 +106,50 @@ func Seed(db *gorm.DB, uploadsDir string) error {
 	}
 
 	// 拼装底板与元素
-	return SeedCatalogAssets(db)
+	if err := SeedCatalogAssets(db); err != nil {
+		return err
+	}
+	// v1.7：老库补齐社区字段（新增列在老行里是 NULL，直接参与 +1 运算会一直为 NULL）
+	return MigrateWorkCommunity(db)
+}
+
+// MigrateWorkCommunity v1.7 数据迁移：
+//  1. works / users 新增列的 NULL 归一（is_public/like_count/use_count/prompt/points）
+//  2. 老库 AI 作品的提示词从 meta 回填到 works.prompt（发布到广场时要展示）
+//
+// 幂等，可重复执行；拼装作品没有提示词，跳过。
+func MigrateWorkCommunity(db *gorm.DB) error {
+	if err := db.Exec(`UPDATE works SET
+		is_public = COALESCE(is_public, 0),
+		like_count = COALESCE(like_count, 0),
+		use_count = COALESCE(use_count, 0),
+		prompt = COALESCE(prompt, '')`).Error; err != nil {
+		return err
+	}
+	if err := db.Exec("UPDATE users SET points = COALESCE(points, 0)").Error; err != nil {
+		return err
+	}
+
+	var works []model.Work
+	if err := db.Where("prompt = '' AND type IN ?", []string{"ai_text", "ai_photo"}).Find(&works).Error; err != nil {
+		return err
+	}
+	for _, w := range works {
+		var meta struct {
+			Prompt string `json:"prompt"`
+		}
+		if err := json.Unmarshal([]byte(w.Meta), &meta); err != nil {
+			continue
+		}
+		p := strings.TrimSpace(meta.Prompt)
+		if p == "" {
+			continue
+		}
+		if err := db.Model(&model.Work{}).Where("id = ?", w.ID).Update("prompt", p).Error; err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ensureRole 按 code 幂等写入内置角色，返回角色 ID

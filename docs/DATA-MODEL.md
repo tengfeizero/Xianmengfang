@@ -30,11 +30,53 @@
 ### works（作品）
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| user_id | int | 归属 |
+| user_id | int | 归属（作者） |
 | type | text | `collage` 拼装 / `ai_text` 文生图 / `ai_photo` 照片转风格 |
 | image_url / thumbnail_url | text | 成品图与缩略图 |
 | meta | json | 拼装记录（元素 id、坐标缩放）或生成参数，便于复刻 |
 | status | int | 1 正常（可用于商品）/ 0 已删除 / 2 被下架 |
+| **is_public** | int | **1 已发布 / 0 私密（默认）**。发布后进入作品广场，AI 提示词一并公开 |
+| **published_at** | datetime | 最近一次发布时间（取消发布不清空，重发刷新；「最新榜」按此排序） |
+| **prompt** | text | **公开提示词**（ai_text 取生成描述、ai_photo 为空；拼装为空）。仅 `is_public=1` 时对外返回 |
+| **like_count** | int | 点赞数（冗余计数，与 `work_likes` 同事务维护） |
+| **use_count** | int | 使用次数（订单**完成**时按件数累加，见下） |
+
+- **发布/取消发布**：作者可随时切换。取消发布只影响广场可见性，**已产生的点赞/使用计数保留**，购物车里已绑定的作品也不失效（仍可下单）。
+- **下架（后台 status=2）**：立即从广场消失，且不可被选择下单；已发布状态保留，恢复上架后仍在广场。
+- **使用次数与积分口径**：订单进入 `done` 时，对每条明细（`work_id` 非空）把对应作品的 `use_count += qty`，并给作者加 **qty 点积分**（自用同样计，见 PRD 3.4）。
+
+### work_likes（作品点赞，v1.7）
+| 字段 | 说明 |
+|---|---|
+| work_id | 被点赞作品（索引） |
+| user_id | 点赞人（索引） |
+| 唯一键 | `(work_id, user_id)`，重复点赞幂等；同一用户对同一作品最多 1 条 |
+
+- 不能点赞自己的作品（400）；点赞/取消点赞在同一事务内维护 `works.like_count`。
+- 点赞记录在作品取消发布/下架后保留，重新发布时点赞数仍在；作品被作者删除（status=0）时点赞记录不清理（只读展示不用），避免误删他人数据。
+
+### point_logs（积分流水，v1.7）
+| 字段 | 说明 |
+|---|---|
+| user_id | 归属（索引） |
+| delta | 变动值：+N 获得 / -N 消耗 |
+| balance | 变动后余额（对账用，同时冗余在 `users.points`） |
+| reason | `work_used` 作品被使用 / `ai_spend` 生成扣减 / `admin_adjust` 后台调整（预留） |
+| ref_type / ref_id | 关联对象：`order` + 订单 id、`work` + 作品 id、`ai_task` + 任务 id |
+| remark | 可读说明，如「作品《小熊猫》被使用 2 件」 |
+
+- 只在同一事务内与余额变更一起写入，**流水只追加**，不提供删除接口。
+
+### users.points（积分余额，v1.7）
+
+- 单一钱包，整数，不允许负数：扣减用 `UPDATE users SET points = points - ? WHERE id = ? AND points >= ?` 的条件更新，避免并发超扣。
+- 获得：订单完成时按件数给作品作者 +N（自用也计）。
+- 消费：AI 生成每日免费额度用完后，1 积分 = 1 张图（`configs.ai_daily_free_limit` 管免费张数）。
+
+### ai_tasks.pay_type（v1.7）
+
+`free`（每日免费额度内）/ `point`（积分抵扣）。免费额度按「当天 pay_type=free 的任务数」判定，
+积分抵扣不计入免费额度，避免「用积分反而占掉免费次数」。
 
 ### boards（底板）· elements（拼装元素）
 

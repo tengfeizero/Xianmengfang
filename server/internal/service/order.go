@@ -77,6 +77,12 @@ func (s *OrderService) Create(userID int64, items []ItemInput, addr *model.Addre
 			if it.Qty <= 0 {
 				return errors.New("购买数量必须大于 0")
 			}
+			// 作品口径：自己的作品，或已点赞的他人公开作品（v1.7）；其余一律拦截
+			if it.WorkID != nil && *it.WorkID > 0 {
+				if _, err := (&CommunityService{DB: tx}).UsableWork(userID, *it.WorkID); err != nil {
+					return err
+				}
+			}
 			// 库存原子扣减：不允许"读出来算好再写回"
 			res := tx.Exec(
 				"UPDATE skus SET stock = stock - ? WHERE id = ? AND stock >= ?",
@@ -242,6 +248,10 @@ func (s *OrderService) Confirm(orderID, userID int64) error {
 		}
 		now := time.Now()
 		if err := tx.Model(o).Updates(map[string]any{"status": StatusDone, "done_at": now}).Error; err != nil {
+			return err
+		}
+		// 订单完成才算「作品被使用」：累计使用次数并给作者加积分（v1.7，见 PRD 3.4）
+		if err := SettleOrderUsage(tx, &o); err != nil {
 			return err
 		}
 		return appendEvent(tx, o.ID, StatusShipped, StatusDone, fmt.Sprintf("user:%d", userID), "确认收货")

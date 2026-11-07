@@ -31,6 +31,9 @@
       <el-table-column prop="nickname" label="昵称" min-width="140" show-overflow-tooltip />
       <el-table-column prop="order_count" label="订单数" width="90" />
       <el-table-column prop="work_count" label="作品数" width="90" />
+      <el-table-column label="积分" width="90">
+        <template #default="{ row }">{{ row.points || 0 }}</template>
+      </el-table-column>
       <el-table-column label="状态" width="100">
         <template #default="{ row }">
           <el-tag :type="row.status === 1 ? 'success' : 'danger'" effect="light" size="small">

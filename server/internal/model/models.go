@@ -16,6 +16,7 @@ type User struct {
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
 	Status   int    `json:"status"` // 1 正常 0 禁用
+	Points   int    `gorm:"default:0" json:"points"` // 积分余额（v1.7）；只允许事务内条件更新，不可为负
 }
 
 // Admin 后台管理员（v1.4 起归属角色，权限由角色决定）
@@ -124,14 +125,40 @@ type Element struct {
 }
 
 // Work 用户作品（M1 启用，先建表）
+// v1.7 起支持「发布到广场」：默认私密，作者可随时切公开；公开后 AI 提示词一并可见，
+// 其他用户点赞即可借用下单，作品被订单使用（订单完成）时累计使用次数并给作者积分。
 type Work struct {
 	Model
-	UserID       int64  `gorm:"index" json:"user_id"`
-	Type         string `gorm:"size:16" json:"type"` // collage / ai_text / ai_photo
-	ImageURL     string `json:"image_url"`
-	ThumbnailURL string `json:"thumbnail_url"`
-	Meta         string `gorm:"type:text" json:"meta"`
-	Status       int    `json:"status"` // 1 正常 0 已删除 2 被下架
+	UserID       int64      `gorm:"index" json:"user_id"`
+	Type         string     `gorm:"size:16" json:"type"` // collage / ai_text / ai_photo
+	ImageURL     string     `json:"image_url"`
+	ThumbnailURL string     `json:"thumbnail_url"`
+	Meta         string     `gorm:"type:text" json:"meta"`
+	Status       int        `json:"status"`      // 1 正常 0 已删除 2 被下架
+	IsPublic     int        `gorm:"index;default:0" json:"is_public"` // 1 已发布到广场 0 私密
+	PublishedAt  *time.Time `json:"published_at"`           // 最近一次发布时间，榜单排序用
+	Prompt       string     `gorm:"size:255;default:''" json:"prompt"` // 公开提示词（AI 类）
+	LikeCount    int        `gorm:"default:0" json:"like_count"`
+	UseCount     int        `gorm:"default:0" json:"use_count"`
+}
+
+// WorkLike 作品点赞（v1.7）：同一用户对同一作品最多一条，重复点赞幂等
+type WorkLike struct {
+	Model
+	WorkID int64 `gorm:"uniqueIndex:idx_like_work_user,priority:1;index" json:"work_id"`
+	UserID int64 `gorm:"uniqueIndex:idx_like_work_user,priority:2;index" json:"user_id"`
+}
+
+// PointLog 积分流水（v1.7）：只追加，与余额变更同事务
+type PointLog struct {
+	Model
+	UserID  int64  `gorm:"index" json:"user_id"`
+	Delta   int    `json:"delta"`   // +获得 / -消耗
+	Balance int    `json:"balance"` // 变动后余额
+	Reason  string `gorm:"size:16;index" json:"reason"` // work_used / ai_spend / admin_adjust
+	RefType string `gorm:"size:16" json:"ref_type"`     // order / work / ai_task
+	RefID   int64  `json:"ref_id"`
+	Remark  string `gorm:"size:128" json:"remark"`
 }
 
 // Address 用户收货地址
@@ -209,6 +236,7 @@ type AITask struct {
 	ResultURL string `json:"result_url"`
 	Err       string `gorm:"size:255" json:"err"`
 	QuotaDate string `gorm:"size:10;index" json:"quota_date"`
+	PayType   string `gorm:"size:8;default:''" json:"pay_type"` // free 免费额度 / point 积分抵扣（v1.7）
 }
 
 // CartItem 购物车项（v1.0）。WorkID 用 0 表示未绑作品（而非 NULL），
@@ -231,5 +259,6 @@ func AllMigrations() []any {
 		&Order{}, &OrderItem{}, &OrderEvent{}, &Shipment{}, &AITask{},
 		&CartItem{},
 		&Role{}, &AuditLog{},
+		&WorkLike{}, &PointLog{},
 	}
 }

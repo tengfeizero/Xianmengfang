@@ -1,0 +1,39 @@
+<view class="plaza-page">
+  <view class="tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab {{tabKey === item.key ? 'active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchTab"
+    >{{item.label}}</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="muted center-tip">加载中...</view>
+  <empty-state wx:elif="{{!items.length}}" text="广场还没有作品，去发布你的第一件吧" action-text="我的作品" bind:action="goWorks" />
+
+  <view class="grid">
+    <view class="card-work" wx:for="{{items}}" wx:key="id">
+      <image class="cover" src="{{item.cover}}" mode="aspectFill" data-id="{{item.id}}" bindtap="preview" />
+      <view class="body">
+        <view class="author">
+          <image wx:if="{{item.avatar}}" class="avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view wx:else class="avatar avatar-empty">{{item.author[0]}}</view>
+          <text class="nickname">{{item.author}}</text>
+        </view>
+        <view class="prompt {{item.prompt ? '' : 'muted'}}">{{item.prompt || item.typeText}}</view>
+        <view class="footer">
+          <text class="stat">使用 {{item.useCount}}</text>
+          <view class="like {{item.liked ? 'on' : ''}}" data-id="{{item.id}}" catchtap="toggleLike">
+            <text>{{item.liked ? '♥' : '♡'}}</text>
+            <text>{{item.likeCount}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{items.length}}" class="muted center-tip">
+    {{hasMore ? (loadingMore ? '加载中...' : '上拉加载更多') : '没有更多了'}}
+  </view>
+</view>

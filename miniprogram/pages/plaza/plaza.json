@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "作品广场",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}
