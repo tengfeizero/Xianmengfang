@@ -12,7 +12,6 @@ const ORDER_ENTRIES = [
 const CELLS = [
   { key: 'cart', label: '购物车', icon: 'cart', color: '#ff6fa5', bg: '#ffeef4' },
   { key: 'address', label: '收货地址', icon: 'pin', color: '#14b8a6', bg: '#e8f8f4' },
-  { key: 'points', label: '积分明细', icon: 'bolt', color: '#f5a623', bg: '#fff6e4' },
   { key: 'help', label: '帮助与反馈', icon: 'help', color: '#3b82f6', bg: '#eaf1ff' },
   { key: 'settings', label: '设置', icon: 'settings', color: '#6c5ce7', bg: '#f1eeff' },
   { key: 'about', label: '关于现梦坊', icon: 'info', color: '#5d576e', bg: '#f3f1f7' },
@@ -81,7 +80,6 @@ Page({
     const map = {
       cart: '/pages/cart/cart',
       address: '/pages/address/list',
-      points: '/pages/points/points',
       help: '/pages/help/help',
       settings: '/pages/settings/settings',
       about: '/pages/about/about',

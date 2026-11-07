@@ -62,13 +62,6 @@ module.exports = {
       "bg": "#e8f8f4"
     },
     {
-      "key": "points",
-      "label": "积分明细",
-      "icon": "bolt",
-      "color": "#f5a623",
-      "bg": "#fff6e4"
-    },
-    {
       "key": "help",
       "label": "帮助与反馈",
       "icon": "help",

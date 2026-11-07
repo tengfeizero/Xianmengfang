@@ -16,6 +16,15 @@ const w = (name, obj) =>
   )
 const A = (a, b, c) => `__ART_${a}_${b}_${c}__`
 
+// 从真实页面源码里取顶层 `const XXX = [...]` 数组，避免预览数据与页面写两份而脱节
+// （例如「我的」页的入口列表，改了页面却忘了改假数据，截图就看不出问题）
+const fromPage = (relPath, name) => {
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram', relPath), 'utf8')
+  const m = src.match(new RegExp('const ' + name + ' = (\\[[\\s\\S]*?\\n\\])'))
+  if (!m) throw new Error(`未在 ${relPath} 中找到 const ${name} = [...]`)
+  return new Function('return ' + m[1])()
+}
+
 const works = (n, off) =>
   Array.from({ length: n }, (_, i) => ({
     id: off + i,
@@ -82,7 +91,10 @@ w('pages_studio_studio', {
   composing: false,
 })
 
-// 我的
+// 我的：入口与订单宫格直接取自页面源码，页面改了这里自动跟随
+const mineOrderEntries = fromPage('pages/mine/mine.js', 'ORDER_ENTRIES')
+const mineCells = fromPage('pages/mine/mine.js', 'CELLS')
+const mineOrders = { pending_accept: 1, producing: 2, packing: 0, pending_ship: 0, shipped: 1, done: 4 }
 w('pages_mine_mine', {
   user: { id: 3, nickname: '桃桃', avatar: '', points: 12 },
   stats: {
@@ -90,22 +102,17 @@ w('pages_mine_mine', {
     public_works: 3,
     liked: 5,
     cart_count: 2,
-    orders: { pending_accept: 1, producing: 2, packing: 0, pending_ship: 0, shipped: 1, done: 4 },
+    orders: mineOrders,
   },
-  orderEntries: [
-    { key: 'pending_accept', label: '待接单', icon: 'clock', count: 1 },
-    { key: 'producing', label: '进行中', icon: 'sparkles', count: 2 },
-    { key: 'shipped', label: '已发货', icon: 'truck', count: 1 },
-    { key: 'done', label: '已完成', icon: 'check', count: 4 },
-  ],
-  cells: [
-    { key: 'cart', label: '购物车', icon: 'cart', color: '#ff6fa5', bg: '#ffeef4' },
-    { key: 'address', label: '收货地址', icon: 'pin', color: '#14b8a6', bg: '#e8f8f4' },
-    { key: 'points', label: '积分明细', icon: 'bolt', color: '#f5a623', bg: '#fff6e4' },
-    { key: 'help', label: '帮助与反馈', icon: 'help', color: '#3b82f6', bg: '#eaf1ff' },
-    { key: 'settings', label: '设置', icon: 'settings', color: '#6c5ce7', bg: '#f1eeff' },
-    { key: 'about', label: '关于现梦坊', icon: 'info', color: '#5d576e', bg: '#f3f1f7' },
-  ],
+  orderEntries: mineOrderEntries.map((it) =>
+    Object.assign({}, it, {
+      count:
+        it.key === 'producing'
+          ? mineOrders.producing + mineOrders.packing + mineOrders.pending_ship
+          : mineOrders[it.key] || 0,
+    })
+  ),
+  cells: mineCells,
   version: 'v2.0.0',
 })
 
