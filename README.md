@@ -1,18 +1,10 @@
-<div align="center">
-
 # 现梦坊 · Xianmengfang
 
-**让创意（梦）走进现实（现）** — 用户在小程序里创作图案，印到衣服 / 周边 / 玩偶上下单；工厂在后台接单、生产、发货。
+**让创意（梦）走进现实（现）** —— 用户在小程序里创作图案，印到衣服 / 周边 / 玩偶上下单；工厂在后台接单、生产、发货。
 
-一套系统 = 微信小程序 + Vue 管理后台 + Go 单二进制服务
+一套系统 = 微信小程序 + Vue 管理后台 + Go 单二进制服务。
 
-![Go](https://img.shields.io/badge/Go-1.27-00ADD8?logo=go&logoColor=white)
-![Vue](https://img.shields.io/badge/Vue-3.5-42B883?logo=vue.js&logoColor=white)
-![Element Plus](https://img.shields.io/badge/Element%20Plus-2.13-409EFF)
-![小程序](https://img.shields.io/badge/微信小程序-原生-07C160?logo=wechat&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-black)
-
-</div>
+![Go](https://img.shields.io/badge/Go-1.27-00ADD8?logo=go&logoColor=white) ![Vue](https://img.shields.io/badge/Vue-3.5-42B883?logo=vue.js&logoColor=white) ![Element Plus](https://img.shields.io/badge/Element%20Plus-2.13-409EFF) ![小程序](https://img.shields.io/badge/微信小程序-原生-07C160?logo=wechat&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-black)
 
 ---
 
