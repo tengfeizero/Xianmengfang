@@ -1,22 +1,27 @@
 <template>
-  <el-card shadow="never">
-    <div class="toolbar">
-      <el-select v-model="typeFilter" style="width: 160px" @change="load">
-        <el-option label="全部类型" value="" />
-        <el-option label="拼装" value="collage" />
-        <el-option label="文生图" value="ai_text" />
-        <el-option label="照片转风格" value="ai_photo" />
-      </el-select>
-      <el-select v-model="statusFilter" style="width: 140px" @change="load">
-        <el-option label="全部状态" value="" />
-        <el-option label="正常" value="1" />
-        <el-option label="已下架" value="2" />
-        <el-option label="已删除" value="0" />
-      </el-select>
-      <el-button type="primary" @click="load">查询</el-button>
-    </div>
+  <div class="page">
+    <PageHeader title="用户作品" desc="小程序用户的创作结果；下架后用户端与加购均不可见，用户自行删除的作品不可恢复。" />
 
-    <el-table :data="rows" v-loading="loading" stripe>
+    <div class="panel">
+      <div class="toolbar">
+        <el-select v-model="typeFilter" class="w160" @change="load">
+          <el-option label="全部类型" value="" />
+          <el-option label="拼装" value="collage" />
+          <el-option label="文生图" value="ai_text" />
+          <el-option label="照片转风格" value="ai_photo" />
+        </el-select>
+        <el-select v-model="statusFilter" class="w140" @change="load">
+          <el-option label="全部状态" value="" />
+          <el-option label="正常" value="1" />
+          <el-option label="已下架" value="2" />
+          <el-option label="已删除" value="0" />
+        </el-select>
+        <el-button @click="load">查询</el-button>
+        <span class="spacer" />
+        <span class="count-hint">共 {{ rows.length }} 件</span>
+      </div>
+
+      <el-table v-loading="loading" :data="rows">
       <el-table-column prop="id" label="ID" width="70" />
       <el-table-column label="预览" width="90">
         <template #default="{ row }">
@@ -47,12 +52,12 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" width="170">
-        <template #default="{ row }">{{ new Date(row.created_at).toLocaleString() }}</template>
+      <el-table-column label="创建时间" width="160">
+        <template #default="{ row }"><span class="muted">{{ fmtTime(row.created_at) }}</span></template>
       </el-table-column>
-      <el-table-column label="操作" width="110" fixed="right">
+      <el-table-column label="操作" width="110" fixed="right" align="right">
         <template #default="{ row }">
-          <span v-if="!auth.hasPerm('work:edit')" class="deleted-hint">只读</span>
+          <span v-if="!auth.hasPerm('work:edit')" class="readonly-hint">只读</span>
           <template v-else-if="row.status === 1">
             <el-popconfirm title="下架后用户端将不可见，确认？" @confirm="setStatus(row as AdminWorkRow, 2)">
               <template #reference>
@@ -63,16 +68,18 @@
           <el-button v-else-if="row.status === 2" link type="success" @click="setStatus(row as AdminWorkRow, 1)">
             恢复上架
           </el-button>
-          <span v-else class="deleted-hint">用户已删除</span>
+          <span v-else class="readonly-hint">用户已删除</span>
         </template>
       </el-table-column>
     </el-table>
-  </el-card>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import PageHeader from '@/components/PageHeader.vue'
 import { listWorks, setWorkStatus, type AdminWorkRow } from '@/api/modules/works'
 import { useAuthStore } from '@/stores/auth'
 
@@ -115,6 +122,14 @@ function statusText(s: number) {
   return s === 1 ? '正常' : s === 2 ? '已下架' : '已删除'
 }
 
+function fmtTime(v: string | null | undefined): string {
+  if (!v) return '—'
+  const d = new Date(v)
+  if (isNaN(d.getTime())) return '—'
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
 async function setStatus(row: AdminWorkRow, status: 1 | 2) {
   try {
     await setWorkStatus(row.id, status)
@@ -127,18 +142,21 @@ async function setStatus(row: AdminWorkRow, status: 1 | 2) {
 </script>
 
 <style scoped>
-.toolbar {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 14px;
+.w160 {
+  width: 160px;
+}
+.w140 {
+  width: 140px;
 }
 .preview {
-  width: 60px;
-  height: 60px;
-  border-radius: 4px;
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  background: var(--fill-1);
+  display: block;
 }
-.deleted-hint {
-  color: #909399;
+.count-hint {
   font-size: 12px;
+  color: var(--text-3);
 }
 </style>

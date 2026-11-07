@@ -1,11 +1,15 @@
 <template>
-  <div>
-    <div class="page-toolbar">
-      <span class="tip">给不同岗位分配不同角色，权限随角色变化；禁用账号会立即踢出（下次请求即失效）。</span>
-      <el-button v-if="auth.hasPerm('admin:edit')" type="primary" @click="openCreate">新增管理员</el-button>
-    </div>
+  <div class="page">
+    <PageHeader title="管理员账号" desc="按岗位分配角色；禁用账号或调整角色权限会立即生效，无需等待登录过期。">
+      <template #actions>
+        <el-button v-if="auth.hasPerm('admin:edit')" type="primary" :icon="Plus" @click="openCreate">
+          新增管理员
+        </el-button>
+      </template>
+    </PageHeader>
 
-    <el-table v-loading="loading" :data="admins" border>
+    <div class="panel">
+      <el-table v-loading="loading" :data="admins">
       <el-table-column prop="username" label="用户名" width="140">
         <template #default="{ row }">
           <span class="mono">{{ row.username }}</span>
@@ -29,7 +33,7 @@
       <el-table-column label="创建时间" width="170">
         <template #default="{ row }">{{ fmtTime(row.created_at) }}</template>
       </el-table-column>
-      <el-table-column label="操作" min-width="190">
+      <el-table-column label="操作" min-width="180" align="right" fixed="right">
         <template #default="{ row }">
           <template v-if="auth.hasPerm('admin:edit')">
             <el-button link type="primary" @click="openEdit(row as AdminRow)">编辑</el-button>
@@ -47,10 +51,11 @@
               删除
             </el-button>
           </template>
-          <span v-else class="muted">只读</span>
+          <span v-else class="readonly-hint">只读</span>
         </template>
       </el-table-column>
     </el-table>
+    </div>
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑管理员' : '新增管理员'" width="480px">
       <el-form label-width="90px">
@@ -90,6 +95,8 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { Plus } from '@element-plus/icons-vue'
+import PageHeader from '@/components/PageHeader.vue'
 import { createAdmin, deleteAdmin, listAdmins, listRoles, updateAdmin } from '@/api/modules/rbac'
 import { useAuthStore } from '@/stores/auth'
 import type { AdminRow, RoleRow } from '@/types'
@@ -214,24 +221,11 @@ onMounted(load)
 </script>
 
 <style scoped>
-.page-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.tip {
-  color: var(--el-text-color-secondary);
-  font-size: 13px;
-}
 .mono {
   font-family: ui-monospace, Menlo, Consolas, monospace;
 }
 .me {
   margin-left: 6px;
-}
-.muted {
-  color: var(--el-text-color-secondary);
 }
 .w-full {
   width: 100%;

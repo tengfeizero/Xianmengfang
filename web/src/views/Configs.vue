@@ -1,64 +1,87 @@
 <template>
-  <el-card shadow="never" class="config-card">
-    <template #header><b>系统配置</b></template>
-    <el-form label-width="180px">
-      <el-form-item label="每人每日 AI 免费生成">
-        <el-input-number v-model="aiLimit" :min="0" :max="1000" :step="1" />
-        <span class="hint">次（0 = 关闭 AI 生成）</span>
-      </el-form-item>
-      <el-form-item>
-        <el-button v-if="canEdit" type="primary" :loading="saving" @click="save">保存</el-button>
-      </el-form-item>
-    </el-form>
+  <div class="page">
+    <PageHeader title="系统配置" desc="影响用户端与 AI 生成行为的全局参数，保存后立即生效，改动会记入操作日志。" />
 
-    <el-divider content-position="left">AI 生图（腾讯混元 Hy Image）</el-divider>
-    <el-form label-width="180px">
-      <el-form-item label="Secret Key (sk)">
-        <el-input
-          v-model="aiApiKey"
-          type="password"
-          show-password
-          :placeholder="keyMasked ? `已配置：${keyMasked}（留空不修改）` : '未配置，当前使用 mock 占位实现'"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="Secret ID (ak)">
-        <el-input
-          v-model="aiSecretId"
-          type="password"
-          show-password
-          :placeholder="sidMasked ? `已配置：${sidMasked}（留空不修改）` : '可选，TokenHub 控制台的 Key ID'"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item label="接口地址">
-        <el-input v-model="aiBaseUrl" placeholder="https://tokenhub.tencentmaas.com" />
-      </el-form-item>
-      <el-form-item label="模型 ID">
-        <el-input v-model="aiModel" placeholder="hy-image-v3.5-preview" />
-      </el-form-item>
-      <el-form-item label="请求格式">
-        <el-select v-model="aiStyle" style="width: 220px">
-          <el-option label="messages（腾讯云 TokenHub）" value="messages" />
-          <el-option label="images（OpenAI 风格端点）" value="images" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button v-if="canEdit" type="primary" :loading="savingAI" @click="saveAI">保存 AI 配置</el-button>
-        <el-button v-if="canEdit" :disabled="!keyMasked" @click="clearKey">清空密钥（停用真实生图）</el-button>
-      </el-form-item>
-    </el-form>
-    <el-alert
-      type="info"
-      :closable="false"
-      title="密钥只存服务器数据库并脱敏展示，不进代码仓库；留空密钥时 AI 生成走 mock 占位实现。"
-    />
-  </el-card>
+    <div class="config-wrap">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">AI 生成配额</div>
+        </div>
+        <div class="panel-body">
+          <el-form label-width="150px" class="cfg-form">
+            <el-form-item label="每人每日免费次数">
+              <el-input-number v-model="aiLimit" :min="0" :max="1000" :step="1" controls-position="right" />
+              <span class="form-tip">次；0 表示关闭 AI 生成</span>
+            </el-form-item>
+            <el-form-item>
+              <el-button v-if="canEdit" type="primary" :loading="saving" @click="save">保存</el-button>
+              <span v-else class="form-tip">当前角色只能查看配置</span>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            AI 生图 · 腾讯混元 Hy Image
+            <el-tag v-if="keyMasked" type="success" effect="light" size="small">已配置</el-tag>
+            <el-tag v-else type="info" effect="light" size="small">未配置，使用 mock</el-tag>
+          </div>
+        </div>
+        <div class="panel-body">
+          <el-form label-width="150px" class="cfg-form">
+            <el-form-item label="Secret Key (sk)">
+              <el-input
+                v-model="aiApiKey"
+                type="password"
+                show-password
+                :placeholder="keyMasked ? `已配置：${keyMasked}（留空不修改）` : '未配置，当前使用 mock 占位实现'"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item label="Secret ID (ak)">
+              <el-input
+                v-model="aiSecretId"
+                type="password"
+                show-password
+                :placeholder="sidMasked ? `已配置：${sidMasked}（留空不修改）` : '可选，TokenHub 控制台的 Key ID'"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item label="接口地址">
+              <el-input v-model="aiBaseUrl" placeholder="https://tokenhub.tencentmaas.com" />
+            </el-form-item>
+            <el-form-item label="模型 ID">
+              <el-input v-model="aiModel" placeholder="hy-image-v3.5-preview" />
+            </el-form-item>
+            <el-form-item label="请求格式">
+              <el-select v-model="aiStyle" class="w260">
+                <el-option label="messages（腾讯云 TokenHub）" value="messages" />
+                <el-option label="images（OpenAI 风格端点）" value="images" />
+              </el-select>
+            </el-form-item>
+            <el-form-item v-if="canEdit">
+              <el-button type="primary" :loading="savingAI" @click="saveAI">保存 AI 配置</el-button>
+              <el-button :disabled="!keyMasked" @click="clearKey">清空密钥</el-button>
+            </el-form-item>
+          </el-form>
+
+          <div class="notice">
+            <el-icon><InfoFilled /></el-icon>
+            <span>密钥只存服务器数据库并脱敏展示，不进代码仓库；清空后 AI 生成自动回落 mock 占位实现。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { InfoFilled } from '@element-plus/icons-vue'
+import PageHeader from '@/components/PageHeader.vue'
 import { CONFIG_KEYS, listConfigs, updateConfig } from '@/api/modules/configs'
 import { useAuthStore } from '@/stores/auth'
 
@@ -148,11 +171,31 @@ async function clearKey() {
 </script>
 
 <style scoped>
-.config-card {
-  max-width: 640px;
+.config-wrap {
+  max-width: 860px;
 }
-.hint {
-  margin-left: 8px;
-  color: #909399;
+.cfg-form :deep(.el-form-item) {
+  margin-bottom: 18px;
+}
+.w260 {
+  width: 260px;
+}
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: #f7f9fc;
+  border: 1px solid #eaf0f8;
+  color: var(--text-3);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.notice .el-icon {
+  margin-top: 2px;
+  color: #2b6ef2;
+  flex-shrink: 0;
 }
 </style>

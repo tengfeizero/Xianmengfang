@@ -1,5 +1,8 @@
 <template>
-  <el-tag size="default" :style="tagStyle">{{ meta.text }}</el-tag>
+  <span class="status-pill" :style="{ color: meta.color, background: meta.bg }">
+    <i class="dot" :style="{ background: meta.color }" />
+    {{ meta.text }}
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -15,22 +18,37 @@ interface StatusMeta {
 }
 
 const MAP: Record<string, StatusMeta> = {
-  pending_accept: { text: '待接单', color: '#e6a23c', bg: '#fdf6ec' },
-  producing: { text: '生产中', color: '#409eff', bg: '#ecf5ff' },
-  packing: { text: '打包中', color: '#8b5cf6', bg: '#f4f0ff' },
-  pending_ship: { text: '待发货', color: '#14b8a6', bg: '#e8fbf8' },
-  shipped: { text: '已发货', color: '#67c23a', bg: '#f0f9eb' },
-  done: { text: '已完成', color: '#909399', bg: '#f4f4f5' },
-  canceled: { text: '已取消', color: '#f56c6c', bg: '#fef0f0' },
+  pending_accept: { text: '待接单', color: '#e08600', bg: '#fdf4e6' },
+  producing: { text: '生产中', color: '#2b6ef2', bg: '#eef3ff' },
+  packing: { text: '打包中', color: '#7c5cf0', bg: '#f3efff' },
+  pending_ship: { text: '待发货', color: '#0d8f8f', bg: '#e6f7f7' },
+  shipped: { text: '已发货', color: '#12a150', bg: '#e9f8ef' },
+  done: { text: '已完成', color: '#7c8496', bg: '#f2f4f7' },
+  canceled: { text: '已取消', color: '#b0b6c0', bg: '#f5f6f8' },
 }
 
 const meta = computed<StatusMeta>(
-  () => MAP[props.status] ?? { text: String(props.status), color: '#909399', bg: '#f4f4f5' },
+  () => MAP[props.status] ?? { text: String(props.status), color: '#7c8496', bg: '#f2f4f7' },
 )
-
-const tagStyle = computed(() => ({
-  color: meta.value.color,
-  backgroundColor: meta.value.bg,
-  borderColor: meta.value.color,
-}))
 </script>
+
+<style scoped>
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+</style>

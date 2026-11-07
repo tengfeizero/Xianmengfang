@@ -1,11 +1,15 @@
 <template>
-  <div>
-    <div class="page-toolbar">
-      <span class="tip">角色决定后台可见菜单与可执行操作，账号在「管理员账号」里分配角色。</span>
-      <el-button v-if="auth.hasPerm('role:edit')" type="primary" @click="openCreate">新增角色</el-button>
-    </div>
+  <div class="page">
+    <PageHeader title="角色权限" desc="角色决定后台可见菜单与可执行操作；账号在「管理员账号」里分配角色。">
+      <template #actions>
+        <el-button v-if="auth.hasPerm('role:edit')" type="primary" :icon="Plus" @click="openCreate">
+          新增角色
+        </el-button>
+      </template>
+    </PageHeader>
 
-    <el-table v-loading="loading" :data="roles" border>
+    <div class="panel">
+      <el-table v-loading="loading" :data="roles">
       <el-table-column prop="name" label="角色名称" width="160" />
       <el-table-column label="标识" width="110">
         <template #default="{ row }"><span class="mono">{{ row.code }}</span></template>
@@ -32,7 +36,7 @@
           <span v-else>自定义</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="160">
+      <el-table-column label="操作" width="140" align="right">
         <template #default="{ row }">
           <el-button v-if="auth.hasPerm('role:edit')" link type="primary" @click="openEdit(row as RoleRow)">
             编辑
@@ -45,9 +49,11 @@
           >
             删除
           </el-button>
+          <span v-if="!auth.hasPerm('role:edit')" class="readonly-hint">只读</span>
         </template>
       </el-table-column>
     </el-table>
+    </div>
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑角色' : '新增角色'" width="720px" top="6vh">
       <el-form label-width="90px">
@@ -106,6 +112,8 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { Plus } from '@element-plus/icons-vue'
+import PageHeader from '@/components/PageHeader.vue'
 import { createRole, deleteRole, getPermCatalog, listRoles, updateRole } from '@/api/modules/rbac'
 import { useAuthStore } from '@/stores/auth'
 import type { PermGroup, RoleRow } from '@/types'
@@ -240,25 +248,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.tip {
-  color: var(--el-text-color-secondary);
-  font-size: 13px;
-}
 .mono {
   font-family: ui-monospace, Menlo, Consolas, monospace;
-  color: var(--el-text-color-secondary);
+  color: var(--text-3);
 }
 .perm-count {
   margin-right: 8px;
 }
 .perm-list {
-  color: var(--el-text-color-secondary);
+  color: var(--text-3);
   font-size: 12px;
 }
 .perm-box {

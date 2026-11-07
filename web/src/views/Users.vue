@@ -1,23 +1,29 @@
 <template>
-  <el-card shadow="never">
-    <div class="toolbar">
-      <el-input
-        v-model="keyword"
-        placeholder="按昵称搜索"
-        clearable
-        style="width: 220px"
-        @keyup.enter="load"
-        @clear="load"
-      />
-      <el-select v-model="statusFilter" style="width: 140px" @change="load">
-        <el-option label="全部状态" value="" />
-        <el-option label="正常" value="1" />
-        <el-option label="禁用" value="0" />
-      </el-select>
-      <el-button type="primary" @click="load">查询</el-button>
-    </div>
+  <div class="page">
+    <PageHeader title="用户管理" desc="小程序端注册用户；禁用后无法登录，已登录会话在下次请求时失效。" />
 
-    <el-table :data="rows" v-loading="loading" stripe>
+    <div class="panel">
+      <div class="toolbar">
+        <el-input
+          v-model="keyword"
+          placeholder="按昵称搜索"
+          clearable
+          :prefix-icon="Search"
+          class="w240"
+          @keyup.enter="load"
+          @clear="load"
+        />
+        <el-select v-model="statusFilter" class="w140" @change="load">
+          <el-option label="全部状态" value="" />
+          <el-option label="正常" value="1" />
+          <el-option label="禁用" value="0" />
+        </el-select>
+        <el-button @click="load">查询</el-button>
+        <span class="spacer" />
+        <span class="count-hint">共 {{ rows.length }} 人</span>
+      </div>
+
+      <el-table v-loading="loading" :data="rows">
       <el-table-column prop="id" label="ID" width="70" />
       <el-table-column label="头像" width="70">
         <template #default="{ row }">
@@ -29,15 +35,17 @@
       <el-table-column prop="work_count" label="作品数" width="90" />
       <el-table-column label="状态" width="100">
         <template #default="{ row }">
-          <el-tag :type="row.status === 1 ? 'success' : 'danger'">{{ row.status === 1 ? '正常' : '禁用' }}</el-tag>
+          <el-tag :type="row.status === 1 ? 'success' : 'danger'" effect="light" size="small">
+            {{ row.status === 1 ? '正常' : '禁用' }}
+          </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="created_at" label="注册时间" width="170">
-        <template #default="{ row }">{{ new Date(row.created_at).toLocaleString() }}</template>
+      <el-table-column label="注册时间" width="170">
+        <template #default="{ row }"><span class="muted">{{ fmtTime(row.created_at) }}</span></template>
       </el-table-column>
-      <el-table-column label="操作" width="130" fixed="right">
+      <el-table-column label="操作" width="100" align="right" fixed="right">
         <template #default="{ row }">
-          <span v-if="!auth.hasPerm('user:edit')" class="readonly">只读</span>
+          <span v-if="!auth.hasPerm('user:edit')" class="readonly-hint">只读</span>
           <el-popconfirm
             v-else
             :title="row.status === 1 ? '禁用后该用户将无法登录，确认？' : '恢复该用户为正常状态？'"
@@ -52,12 +60,15 @@
         </template>
       </el-table-column>
     </el-table>
-  </el-card>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Search } from '@element-plus/icons-vue'
+import PageHeader from '@/components/PageHeader.vue'
 import { listUsers, setUserStatus, type AdminUserRow } from '@/api/modules/users'
 import { useAuthStore } from '@/stores/auth'
 
@@ -91,12 +102,25 @@ async function toggle(row: AdminUserRow) {
     ElMessage.error(e instanceof Error ? e.message : '操作失败')
   }
 }
+
+function fmtTime(v: string | null | undefined): string {
+  if (!v) return '—'
+  const d = new Date(v)
+  if (isNaN(d.getTime())) return '—'
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+}
 </script>
 
 <style scoped>
-.toolbar {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 14px;
+.w240 {
+  width: 240px;
+}
+.w140 {
+  width: 140px;
+}
+.count-hint {
+  font-size: 12px;
+  color: var(--text-3);
 }
 </style>

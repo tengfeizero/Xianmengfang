@@ -1,7 +1,84 @@
+/* ==========================================================================
+   现梦坊后台 · 设计系统
+   电商后台风格：深色侧栏 + 中性灰内容区 + 品牌玫红强调色。
+   页面只使用本文件定义的 token 与骨架类，不再写零散魔法色值。
+   ========================================================================== */
+
 :root {
-  --xmf-pink: #ff7ea0;
-  --xmf-pink-deep: #ff5c7a;
-  --xmf-bg: #f5f7fa;
+  /* 品牌与状态色 */
+  --brand: #f2455f;
+  --brand-dark: #d92c47;
+  --brand-soft: #fff1f3;
+  --brand-line: #ffd9df;
+
+  /* 中性色（由深到浅） */
+  --text-1: #1f2430;
+  --text-2: #5c6470;
+  --text-3: #8b929e;
+  --text-4: #b4bac4;
+  --line-1: #e8ebef;
+  --line-2: #f1f3f6;
+  --page-bg: #f4f5f7;
+  --panel-bg: #ffffff;
+  --fill-1: #f7f8fa;
+
+  /* 侧栏 */
+  --side-bg: #1b1f2a;
+  --side-bg-deep: #151821;
+  --side-text: #a4acbd;
+  --side-text-dim: #6d7688;
+  --side-hover: rgba(255, 255, 255, 0.06);
+  --side-active: rgba(242, 69, 95, 0.14);
+
+  /* 形状 */
+  --radius-lg: 12px;
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.03);
+  --shadow-pop: 0 12px 32px rgba(16, 24, 40, 0.12), 0 2px 8px rgba(16, 24, 40, 0.06);
+
+  /* 布局 */
+  --side-w: 216px;
+  --header-h: 56px;
+}
+
+/* ---- Element Plus 变量对齐品牌 ---- */
+:root {
+  --el-color-primary: #f2455f;
+  --el-color-primary-light-3: #f67084;
+  --el-color-primary-light-5: #f89aa8;
+  --el-color-primary-light-7: #fbc3cb;
+  --el-color-primary-light-8: #fdd9de;
+  --el-color-primary-light-9: #feecef;
+  --el-color-primary-dark-2: #d92c47;
+
+  --el-color-success: #12a150;
+  --el-color-success-light-9: #e9f8ef;
+  --el-color-warning: #e08600;
+  --el-color-warning-light-9: #fdf4e6;
+  --el-color-danger: #e5484d;
+  --el-color-danger-light-9: #feeced;
+  --el-color-info: #7c8496;
+  --el-color-info-light-9: #f2f4f7;
+
+  --el-font-size-base: 13px;
+  --el-font-size-small: 12px;
+  --el-text-color-primary: #1f2430;
+  --el-text-color-regular: #5c6470;
+  --el-text-color-secondary: #8b929e;
+  --el-text-color-placeholder: #b4bac4;
+
+  --el-border-color: #e2e6eb;
+  --el-border-color-light: #e8ebef;
+  --el-border-color-lighter: #f1f3f6;
+  --el-border-radius-base: 6px;
+  --el-border-radius-small: 4px;
+
+  --el-fill-color-light: #f7f8fa;
+  --el-fill-color-lighter: #fafbfc;
+
+  --el-box-shadow-light: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.03);
+  --el-box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12), 0 2px 8px rgba(16, 24, 40, 0.06);
 }
 
 * {
@@ -16,30 +93,310 @@ body,
 
 body {
   margin: 0;
-  background: var(--xmf-bg);
-  color: #303133;
+  background: var(--page-bg);
+  color: var(--text-1);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
 }
 
-/* 页面通用布局工具类，避免每个视图重复写内联样式 */
-.page-toolbar {
+::selection {
+  background: var(--brand-line);
+  color: var(--brand-dark);
+}
+
+/* 细滚动条：后台信息密度高，默认滚动条太抢眼 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d3d8e0;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b9c0cb;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==========================================================================
+   页面骨架
+   ========================================================================== */
+
+/* 页面根容器：统一纵向节奏 + 轻量入场 */
+.page {
+  animation: page-in 0.22s ease;
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 页头：标题 + 说明在左，操作在右 */
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.page-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--text-1);
+  line-height: 1.4;
+}
+.page-desc {
+  margin: 5px 0 0;
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+.page-head-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  flex-shrink: 0;
+  padding-top: 2px;
 }
 
-.card-block {
-  margin-bottom: 16px;
+/* 面板：所有内容的白卡 */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--line-1);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+.panel + .panel {
+  margin-top: 16px;
+}
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--line-2);
+}
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.panel-title .count {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.panel-body {
+  padding: 16px 18px;
+}
+/* 表格型面板：表格贴边 */
+.panel-body.flush {
+  padding: 0;
 }
 
-.text-muted {
-  color: #909399;
+/* 筛选/工具栏：与表格同处一个面板时置于表格上方 */
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-2);
+}
+.toolbar .spacer {
+  flex: 1;
 }
 
+/* 面板底部（分页） */
+.panel-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line-2);
+}
+.panel-foot .hint {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* 常用工具类 */
 .flex-between {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+}
+.muted {
+  color: var(--text-3);
+}
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+.price {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.form-tip {
+  margin-left: 10px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.readonly-hint {
+  font-size: 12px;
+  color: var(--text-4);
+}
+
+/* ==========================================================================
+   Element Plus 微调：统一圆角、去竖线、表头浅灰、行高一致
+   ========================================================================== */
+
+/* 表格 */
+.el-table {
+  --el-table-border-color: var(--line-2);
+  --el-table-header-bg-color: #fafbfc;
+  --el-table-header-text-color: var(--text-2);
+  --el-table-row-hover-bg-color: #fafbfc;
+  font-size: 13px;
+}
+.el-table th.el-table__cell {
+  height: 44px;
+  padding: 0;
+  font-weight: 600;
+  background: #fafbfc !important;
+}
+.el-table td.el-table__cell {
+  padding: 11px 0;
+  color: var(--text-2);
+}
+.el-table .cell {
+  line-height: 1.5;
+}
+/* 去掉表格底部那条悬空线 */
+.el-table::before,
+.el-table--group::after,
+.el-table--border::after,
+.el-table__inner-wrapper::before {
+  display: none;
+}
+/* 表格内的操作按钮更像入口 */
+.el-table .el-button.is-link {
+  font-weight: 500;
+}
+
+/* 卡片（兼容仍使用 el-card 的场景） */
+.el-card {
+  border-radius: var(--radius);
+  border-color: var(--line-1);
+}
+.el-card__header {
+  padding: 14px 18px;
+  border-bottom-color: var(--line-2);
+}
+
+/* 按钮 */
+.el-button {
+  font-weight: 500;
+}
+.el-button--primary {
+  --el-button-hover-bg-color: var(--brand-dark);
+  --el-button-hover-border-color: var(--brand-dark);
+}
+
+/* 输入类控件圆角统一 */
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  border-radius: var(--radius-sm);
+}
+
+/* 标签 */
+.el-tag {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* 分页 */
+.el-pagination {
+  --el-pagination-button-bg-color: transparent;
+  font-weight: 400;
+}
+.el-pagination.is-background .el-pager li {
+  border-radius: 6px;
+}
+
+/* 弹窗 */
+.el-dialog {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+}
+.el-dialog__header {
+  margin: 0;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--line-2);
+}
+.el-dialog__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.el-dialog__body {
+  padding: 18px 22px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.el-dialog__footer {
+  padding: 12px 22px 16px;
+  border-top: 1px solid var(--line-2);
+}
+.el-dialog__headerbtn {
+  top: 14px;
+  right: 14px;
+}
+
+/* 消息条 */
+.el-message {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pop);
+}
+
+/* 描述列表：标签列浅灰，与表格观感一致 */
+.el-descriptions__label.el-descriptions__cell.is-bordered-label {
+  background: #fafbfc !important;
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+/* 空状态 */
+.el-table__empty-block {
+  min-height: 180px;
+}
+.el-table__empty-text {
+  color: var(--text-4);
+  font-size: 13px;
 }

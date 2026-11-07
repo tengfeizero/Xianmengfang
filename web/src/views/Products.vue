@@ -1,32 +1,56 @@
 <template>
-  <div>
-    <el-card shadow="never" class="card-block">
-      <template #header><b>商品分类</b></template>
-      <div class="page-toolbar">
-        <el-input v-model="newCat" placeholder="新分类名称" class="cat-input" />
-        <el-button v-if="auth.hasPerm('product:edit')" type="primary" @click="addCategory">添加分类</el-button>
-      </div>
-      <el-tag
-        v-for="c in categories"
-        :key="c.id"
-        class="cat-tag"
-        :type="c.status === 1 ? 'primary' : 'info'"
-        :closable="auth.hasPerm('product:edit')"
-        @close="delCategory(c)"
-        @click="auth.hasPerm('product:edit') && editCategory(c)"
-      >
-        {{ c.name }}
-      </el-tag>
-    </el-card>
-
-    <el-card shadow="never">
-      <template #header>
-        <div class="flex-between">
-          <b>商品列表</b>
-          <el-button v-if="auth.hasPerm('product:edit')" type="primary" @click="openProduct(null)">新增商品</el-button>
-        </div>
+  <div class="page">
+    <PageHeader title="商品管理" desc="分类、商品信息与规格库存的统一维护，改动对小程序端实时生效。">
+      <template #actions>
+        <el-button v-if="auth.hasPerm('product:edit')" type="primary" :icon="Plus" @click="openProduct(null)">
+          新增商品
+        </el-button>
       </template>
-      <el-table v-loading="loading" :data="products" border>
+    </PageHeader>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          商品分类
+          <span class="count">{{ categories.length }} 个</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="cat-add">
+          <el-input
+            v-model="newCat"
+            placeholder="输入分类名称"
+            class="cat-input"
+            @keyup.enter="addCategory"
+          />
+          <el-button v-if="auth.hasPerm('product:edit')" :icon="Plus" @click="addCategory">添加分类</el-button>
+          <span class="form-tip">点击标签可重命名，× 删除</span>
+        </div>
+        <div class="cat-list">
+          <el-tag
+            v-for="c in categories"
+            :key="c.id"
+            class="cat-tag"
+            :type="c.status === 1 ? 'primary' : 'info'"
+            :closable="auth.hasPerm('product:edit')"
+            @close="delCategory(c)"
+            @click="auth.hasPerm('product:edit') && editCategory(c)"
+          >
+            {{ c.name }}
+          </el-tag>
+          <span v-if="!categories.length" class="muted">还没有分类，先加一个吧</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          商品列表
+          <span class="count">{{ products.length }} 款</span>
+        </div>
+      </div>
+      <el-table v-loading="loading" :data="products">
         <el-table-column label="商品" min-width="200">
           <template #default="{ row }">
             <div class="p-cell">
@@ -49,33 +73,36 @@
         <el-table-column label="规格/SKU" min-width="320">
           <template #default="{ row }">
             <div v-for="s in row.skus" :key="s.id" class="sku-row">
-              <el-tag size="small">{{ s.specs }}</el-tag>
+              <el-tag size="small" type="info" effect="plain">{{ s.specs }}</el-tag>
               <span><AmountText :cents="s.price_cents" /> / 库存 {{ s.stock }}</span>
               <template v-if="auth.hasPerm('product:edit')">
-                <el-button size="small" link type="primary" @click="openSKU(row as Product, s)">改价/库存</el-button>
-                <el-button size="small" link type="danger" @click="delSKU(s)">删除</el-button>
+                <el-button link type="primary" @click="openSKU(row as Product, s)">改价/库存</el-button>
+                <el-button link type="danger" @click="delSKU(s)">删除</el-button>
               </template>
             </div>
-            <el-button v-if="auth.hasPerm('product:edit')" size="small" @click="openSKU(row as Product, null)">
-              + 添加规格
+            <el-button v-if="auth.hasPerm('product:edit')" size="small" :icon="Plus" @click="openSKU(row as Product, null)">
+              添加规格
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160">
+        <el-table-column label="操作" width="150" align="right" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="auth.hasPerm('product:edit')" size="small" @click="openProduct(row as Product)">编辑</el-button>
+            <el-button v-if="auth.hasPerm('product:edit')" link type="primary" @click="openProduct(row as Product)">
+              编辑
+            </el-button>
             <el-button
               v-if="auth.hasPerm('product:edit')"
-              size="small"
-              type="warning"
+              link
+              :type="row.status === 1 ? 'warning' : 'success'"
               @click="toggleShelf(row as Product)"
             >
               {{ row.status === 1 ? '下架' : '上架' }}
             </el-button>
+            <span v-if="!auth.hasPerm('product:edit')" class="readonly-hint">只读</span>
           </template>
         </el-table-column>
       </el-table>
-    </el-card>
+    </div>
 
     <el-dialog v-model="productVisible" :title="productForm.id ? '编辑商品' : '新增商品'" width="640px">
       <el-form label-width="80px">
@@ -198,8 +225,10 @@
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import { uploadImage } from '@/api/http'
 import AmountText from '@/components/AmountText.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import {
   createCategory,
   createProduct,
@@ -460,18 +489,30 @@ onMounted(load)
 </script>
 
 <style scoped>
+.cat-add {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
 .cat-input {
   width: 200px;
 }
+.cat-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .cat-tag {
-  margin: 0 8px 8px 0;
   cursor: pointer;
+  height: 26px;
+  padding: 0 10px;
 }
 .sku-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 4px 0;
+  margin: 3px 0;
 }
 .p-cell {
   display: flex;

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 
 /** 菜单路径 → 页面组件（与 config/menu.ts 一一对应） */
 const PAGES: Record<string, () => Promise<unknown>> = {
+  '/dashboard': () => import('@/views/Dashboard.vue'),
   '/orders': () => import('@/views/Orders.vue'),
   '/products': () => import('@/views/Products.vue'),
   '/assets': () => import('@/views/Assets.vue'),
@@ -21,7 +22,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/layouts/Layout.vue'),
-    redirect: '/orders',
+    redirect: '/dashboard',
     children: MENU.map((m) => ({
       path: m.path.replace(/^\//, ''),
       name: m.path.replace(/^\//, ''),

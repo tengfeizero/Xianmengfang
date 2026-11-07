@@ -1,34 +1,45 @@
 <template>
-  <div>
-    <el-card shadow="never" class="card-block">
-      <template #header>
-        <div class="flex-between">
-          <b>拼装底板</b>
-          <el-button v-if="auth.hasPerm('asset:edit')" type="primary" @click="openBoard">新增底板</el-button>
-        </div>
+  <div class="page">
+    <PageHeader title="拼装素材" desc="小程序创作页的底板与可拼装元素；分类决定图层叠放顺序（服装 &lt; 头发 &lt; 表情 &lt; 睫毛 &lt; 帽子 &lt; 配饰）。">
+      <template #actions>
+        <el-button v-if="auth.hasPerm('asset:edit')" :icon="Plus" @click="openElement()">新增元素</el-button>
+        <el-button v-if="auth.hasPerm('asset:edit')" type="primary" :icon="Plus" @click="openBoard">新增底板</el-button>
       </template>
-      <el-table :data="boards" border>
-        <el-table-column label="预览" width="80">
+    </PageHeader>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          拼装底板
+          <span class="count">{{ boards.length }} 个</span>
+        </div>
+      </div>
+      <el-table :data="boards">
+        <el-table-column label="预览" width="88">
           <template #default="{ row }">
             <el-image :src="row.url" class="preview" fit="contain" />
           </template>
         </el-table-column>
         <el-table-column prop="name" label="名称" width="160" />
-        <el-table-column prop="url" label="图片" min-width="200" />
-        <el-table-column label="尺寸" width="110">
-          <template #default="{ row }">{{ row.width }}×{{ row.height }}</template>
+        <el-table-column prop="url" label="图片路径" min-width="200">
+          <template #default="{ row }"><span class="mono">{{ row.url }}</span></template>
         </el-table-column>
-        <el-table-column label="状态" width="80">
+        <el-table-column label="尺寸" width="110">
+          <template #default="{ row }"><span class="muted">{{ row.width }} × {{ row.height }}</span></template>
+        </el-table-column>
+        <el-table-column label="状态" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? '上架' : '下架' }}</el-tag>
+            <el-tag :type="row.status === 1 ? 'success' : 'info'" effect="light" size="small">
+              {{ row.status === 1 ? '上架' : '下架' }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="90">
+        <el-table-column label="操作" width="100" align="right">
           <template #default="{ row }">
             <el-button
               v-if="auth.hasPerm('asset:edit')"
-              size="small"
-              type="warning"
+              link
+              :type="row.status === 1 ? 'warning' : 'success'"
               @click="onToggleBoard(row as Board)"
             >
               {{ row.status === 1 ? '下架' : '上架' }}
@@ -36,21 +47,19 @@
           </template>
         </el-table-column>
       </el-table>
-    </el-card>
+    </div>
 
-    <el-card shadow="never">
-      <template #header>
-        <div class="flex-between">
-          <b>拼装元素</b>
-          <div class="page-toolbar">
-            <el-select v-model="catFilter" placeholder="全部分类" clearable class="filter" @change="loadElements">
-              <el-option v-for="c in CATEGORIES" :key="c.value" :label="c.label" :value="c.value" />
-            </el-select>
-            <el-button v-if="auth.hasPerm('asset:edit')" type="primary" @click="openElement()">新增元素</el-button>
-          </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          拼装元素
+          <span class="count">{{ elements.length }} 个</span>
         </div>
-      </template>
-      <el-table :data="elements" border>
+        <el-select v-model="catFilter" placeholder="全部分类" clearable class="filter" @change="loadElements">
+          <el-option v-for="c in CATEGORIES" :key="c.value" :label="c.label" :value="c.value" />
+        </el-select>
+      </div>
+      <el-table :data="elements">
         <el-table-column label="预览" width="80">
           <template #default="{ row }">
             <el-image :src="row.image_url" class="preview square" fit="contain" />
@@ -58,26 +67,33 @@
         </el-table-column>
         <el-table-column prop="name" label="名称" width="140" />
         <el-table-column label="分类" width="110">
-          <template #default="{ row }">{{ catLabel(row.category) }}</template>
-        </el-table-column>
-        <el-table-column prop="anchor" label="默认锚点" min-width="160" />
-        <el-table-column label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? '上架' : '下架' }}</el-tag>
+            <el-tag size="small" type="info" effect="plain">{{ catLabel(row.category) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="140">
+        <el-table-column prop="anchor" label="默认锚点" min-width="160">
+          <template #default="{ row }"><span class="mono">{{ row.anchor }}</span></template>
+        </el-table-column>
+        <el-table-column label="状态" width="90">
+          <template #default="{ row }">
+            <el-tag :type="row.status === 1 ? 'success' : 'info'" effect="light" size="small">
+              {{ row.status === 1 ? '上架' : '下架' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="140" align="right">
           <template #default="{ row }">
             <template v-if="auth.hasPerm('asset:edit')">
-              <el-button size="small" @click="openElement(row as ElementItem)">编辑</el-button>
-              <el-button size="small" type="warning" @click="onToggleElement(row as ElementItem)">
+              <el-button link type="primary" @click="openElement(row as ElementItem)">编辑</el-button>
+              <el-button link :type="row.status === 1 ? 'warning' : 'success'" @click="onToggleElement(row as ElementItem)">
                 {{ row.status === 1 ? '下架' : '上架' }}
               </el-button>
             </template>
+            <span v-else class="readonly-hint">只读</span>
           </template>
         </el-table-column>
       </el-table>
-    </el-card>
+    </div>
 
     <el-dialog v-model="boardVisible" title="新增底板" width="440px">
       <el-form label-width="70px">
@@ -143,6 +159,8 @@ import {
   uploadImage,
 } from '@/api/modules/assets'
 import type { Board, ElementItem } from '@/types'
+import { Plus } from '@element-plus/icons-vue'
+import PageHeader from '@/components/PageHeader.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -283,11 +301,14 @@ onMounted(load)
 
 <style scoped>
 .preview {
-  width: 48px;
-  height: 60px;
+  width: 44px;
+  height: 56px;
+  border-radius: 6px;
+  background: var(--fill-1);
+  display: block;
 }
 .preview.square {
-  height: 48px;
+  height: 44px;
 }
 .filter {
   width: 140px;
@@ -297,6 +318,7 @@ onMounted(load)
 }
 .uploaded {
   margin-left: 8px;
-  color: #67c23a;
+  font-size: 12px;
+  color: var(--el-color-success);
 }
 </style>

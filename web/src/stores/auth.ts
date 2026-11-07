@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { clearToken, getToken, setToken } from '@/utils/auth'
 import { getMe } from '@/api/modules/rbac'
-import { MENU } from '@/config/menu'
+import { MENU, MENU_GROUPS } from '@/config/menu'
 import type { AdminMe } from '@/types'
 
 /** 登录态唯一来源：token + 当前管理员与权限。
@@ -50,10 +50,18 @@ export const useAuthStore = defineStore('auth', () => {
     return perms.includes('*') || perms.includes(code)
   }
 
-  const menus = computed(() => MENU.filter((m) => hasPerm(m.perm)))
+  /** 有权限的菜单项（perm 为空表示登录即可访问） */
+  const menus = computed(() => MENU.filter((m) => !m.perm || hasPerm(m.perm)))
+
+  /** 按分组聚合的菜单，供侧栏渲染；空分组自动隐藏 */
+  const menuGroups = computed(() =>
+    MENU_GROUPS.map((g) => ({ ...g, items: menus.value.filter((m) => m.group === g.key) })).filter(
+      (g) => g.items.length > 0,
+    ),
+  )
 
   /** 无权访问时的落地页：第一个有权限的菜单 */
   const firstPath = computed(() => menus.value[0]?.path ?? '/login')
 
-  return { token, me, isLoggedIn, menus, firstPath, login, logout, loadMe, hasPerm }
+  return { token, me, isLoggedIn, menus, menuGroups, firstPath, login, logout, loadMe, hasPerm }
 })

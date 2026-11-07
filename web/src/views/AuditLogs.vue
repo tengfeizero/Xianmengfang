@@ -1,19 +1,29 @@
 <template>
-  <div>
-    <div class="page-toolbar">
-      <el-input v-model="filters.keyword" placeholder="关键字（操作人/路径/目标/明细）" clearable class="w260" @keyup.enter="search" />
-      <el-input v-model="filters.action" placeholder="动作，如 order.ship" clearable class="w200" @keyup.enter="search" />
-      <el-select v-model="filters.result" placeholder="全部结果" clearable class="w140" @change="search">
-        <el-option label="成功" value="ok" />
-        <el-option label="失败" value="fail" />
-        <el-option label="越权拦截" value="deny" />
-      </el-select>
-      <el-button type="primary" @click="search">查询</el-button>
-      <el-button @click="reset">重置</el-button>
-    </div>
+  <div class="page">
+    <PageHeader title="操作日志" desc="记录后台全部写操作、登录与越权拦截；只追加、不可删除，密码与密钥已脱敏。" />
 
-    <el-table v-loading="loading" :data="rows" border>
-      <el-table-column type="expand">
+    <div class="panel">
+      <div class="toolbar">
+        <el-input
+          v-model="filters.keyword"
+          placeholder="关键字（操作人 / 路径 / 目标 / 明细）"
+          clearable
+          :prefix-icon="Search"
+          class="w280"
+          @keyup.enter="search"
+        />
+        <el-input v-model="filters.action" placeholder="动作，如 order.ship" clearable class="w200" @keyup.enter="search" />
+        <el-select v-model="filters.result" placeholder="全部结果" clearable class="w140" @change="search">
+          <el-option label="成功" value="ok" />
+          <el-option label="失败" value="fail" />
+          <el-option label="越权拦截" value="deny" />
+        </el-select>
+        <el-button type="primary" @click="search">查询</el-button>
+        <el-button @click="reset">重置</el-button>
+      </div>
+
+      <el-table v-loading="loading" :data="rows">
+        <el-table-column type="expand">
         <template #default="{ row }">
           <div class="detail">
             <p><b>路径：</b><span class="mono">{{ row.method }} {{ row.path }}</span></p>
@@ -54,22 +64,26 @@
       <el-table-column prop="ip" label="IP" width="130" />
     </el-table>
 
-    <div class="pager">
-      <el-pagination
-        layout="total, sizes, prev, pager, next"
-        :total="total"
-        :page-size="filters.size"
-        :current-page="filters.page"
-        :page-sizes="[20, 50, 100]"
-        @current-change="onPage"
-        @size-change="onSize"
-      />
+      <div class="panel-foot">
+        <span class="hint">共 {{ total }} 条记录</span>
+        <el-pagination
+          layout="sizes, prev, pager, next"
+          :total="total"
+          :page-size="filters.size"
+          :current-page="filters.page"
+          :page-sizes="[20, 50, 100]"
+          @current-change="onPage"
+          @size-change="onSize"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { Search } from '@element-plus/icons-vue'
+import PageHeader from '@/components/PageHeader.vue'
 import { listAuditLogs } from '@/api/modules/rbac'
 import type { AuditLogRow } from '@/types'
 
@@ -171,14 +185,8 @@ onMounted(load)
 </script>
 
 <style scoped>
-.page-toolbar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-.w260 {
-  width: 260px;
+.w280 {
+  width: 280px;
 }
 .w200 {
   width: 200px;
