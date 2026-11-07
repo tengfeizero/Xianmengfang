@@ -69,6 +69,22 @@
         └───────────────────────────┘
 ```
 
+## 预览
+
+**小程序**
+
+![小程序 · 浏览与创作](docs/images/mp-browse.jpg)
+
+![小程序 · 商品与订单](docs/images/mp-trade.jpg)
+
+**管理后台**
+
+![后台工作台](docs/images/web-dashboard.png)
+
+![后台使用明细](docs/images/web-usages.png)
+
+> 截图由仓库内的离线渲染工具生成（见「小程序预览工具」一节），界面为演示数据。
+
 ## 快速开始
 
 ### 0. 前置
@@ -186,7 +202,7 @@ curl -X POST http://127.0.0.1:8080/api/v1/user/auth/dev_login \
 ```
 .
 ├─ AGENTS.md            # AI 协作红线（给 Claude/Codex 等读的入口）
-├─ docs/                # 唯一事实来源：PRD / API / DATA-MODEL / CONVENTIONS / CHANGELOG / TODO
+├─ docs/                # 唯一事实来源：PRD / API / DATA-MODEL / CONVENTIONS / CHANGELOG / TODO（+ images/ README 配图）
 ├─ server/              # Go 后端
 │  ├─ cmd/xmf/          # 唯一入口：config → db → repo → service → api 装配
 │  ├─ internal/
@@ -200,7 +216,7 @@ curl -X POST http://127.0.0.1:8080/api/v1/user/auth/dev_login \
 │  └─ data/             # 运行时：db、上传文件、密钥（.gitignore）
 ├─ web/                 # Vue 3 管理后台（src/api · components · layouts · stores · views）
 ├─ miniprogram/         # 微信小程序（19 页 · components · utils/icons.js · custom-tab-bar）
-├─ tools/               # 开发辅助：mp-preview（小程序离线预览截图）、web-shot（后台上台截图）
+├─ tools/               # 开发辅助：mp-preview（小程序离线预览截图）、web-shot（后台截图）、make-preview（README 配图拼合）
 └─ docs/ + README.md
 ```
 
@@ -248,6 +264,7 @@ node tools/mp-preview/make-data.js      # 生成 19 页假数据
 node tools/mp-preview/render-all.js     # WXML → out/*.html
 node tools/mp-preview/serve.js          # http://127.0.0.1:8123
 node tools/mp-preview/shot-all.js       # shots/mp/*.png（可传页名过滤，如 pages_mine_mine）
+node tools/make-preview.js              # 拼合 README 预览图到 docs/images/
 ```
 
 后台截图：`node tools/web-shot.js dashboard users works`（需后端已启动，会自动登录）。
