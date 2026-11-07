@@ -72,15 +72,15 @@ module.exports = {
       "key": "settings",
       "label": "设置",
       "icon": "settings",
-      "color": "#6c5ce7",
-      "bg": "#f1eeff"
+      "color": "#f2455f",
+      "bg": "#fff1f3"
     },
     {
       "key": "about",
       "label": "关于现梦坊",
       "icon": "info",
-      "color": "#5d576e",
-      "bg": "#f3f1f7"
+      "color": "#5c5b62",
+      "bg": "#f4f3f4"
     }
   ],
   "version": "v2.1.0"

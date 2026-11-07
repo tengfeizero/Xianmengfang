@@ -2,12 +2,12 @@
   <!-- 通用 -->
   <view class="panel rise">
     <view class="cell">
-      <view class="cell-ic" style="background:#f1eeff"><x-icon name="bell" size="34" color="#6c5ce7" /></view>
+      <view class="cell-ic" style="background:#fff1f3"><x-icon name="bell" size="34" color="#f2455f" /></view>
       <view class="col grow">
         <text class="cell-t">消息通知</text>
         <text class="cap mt8">订单进度与积分变动提醒</text>
       </view>
-      <switch checked="{{notify}}" color="#6c5ce7" bindchange="onNotify" />
+      <switch checked="{{notify}}" color="#f2455f" bindchange="onNotify" />
     </view>
     <view class="cell" hover-class="press-soft" bindtap="clearCache">
       <view class="cell-ic" style="background:#e8f8f4"><x-icon name="eraser" size="34" color="#14b8a6" /></view>
@@ -15,27 +15,27 @@
         <text class="cell-t">清除缓存</text>
         <text class="cap mt8">当前 {{cacheText}}</text>
       </view>
-      <x-icon name="right" size="24" color="#c4bdd1" />
+      <x-icon name="right" size="24" color="#c5c4cb" />
     </view>
   </view>
 
   <!-- 账号：注销（不可逆，红）/ 退出登录（可再登回） -->
   <view class="panel rise d1">
     <view class="cell" hover-class="press-soft" bindtap="deactivate">
-      <view class="cell-ic" style="background:#ffecef"><x-icon name="trash" size="34" color="#f04452" /></view>
+      <view class="cell-ic" style="background:#ffecef"><x-icon name="trash" size="34" color="#e0362f" /></view>
       <view class="col grow">
         <text class="cell-t red">注销账号</text>
         <text class="cap mt8">清空作品、点赞、购物车与地址，无法恢复</text>
       </view>
-      <x-icon name="right" size="24" color="#c4bdd1" />
+      <x-icon name="right" size="24" color="#c5c4cb" />
     </view>
     <view class="cell" hover-class="press-soft" bindtap="logout">
-      <view class="cell-ic" style="background:#f3f1f7"><x-icon name="logout" size="34" color="#5d576e" /></view>
+      <view class="cell-ic" style="background:#f4f3f4"><x-icon name="logout" size="34" color="#5c5b62" /></view>
       <view class="col grow">
         <text class="cell-t">退出登录</text>
         <text class="cap mt8">需重新登录才能继续使用</text>
       </view>
-      <x-icon name="right" size="24" color="#c4bdd1" />
+      <x-icon name="right" size="24" color="#c5c4cb" />
     </view>
   </view>
 

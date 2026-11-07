@@ -1,21 +1,20 @@
 <view class="page page-tab">
   <!-- 头部 -->
-  <view class="head rise">
-    <view class="col grow">
-      <view class="h1">灵感广场</view>
-      <view class="cap mt8">点赞喜欢的作品，就能用它下单定制</view>
-    </view>
-    <view class="head-search" hover-class="press" bindtap="goSearch">
-      <x-icon name="search" size="32" color="#5d576e" />
+  <!-- 搜索（吸顶） -->
+  <view class="search-sticky">
+    <view class="search" hover-class="press-soft" bindtap="goSearch">
+      <x-icon name="search" size="34" color="#9a99a2" />
+      <text class="search-ph">搜索作品或提示词</text>
+      <view class="search-go">搜索</view>
     </view>
   </view>
 
   <!-- 榜单切换 -->
-  <view class="seg rise d1">
+  <view class="filters rise d1">
     <view
       wx:for="{{tabs}}"
       wx:key="key"
-      class="seg-item {{tabKey === item.key ? 'on' : ''}}"
+      class="chip chip-line {{tabKey === item.key ? 'on' : ''}}"
       data-key="{{item.key}}"
       bindtap="switchTab"
       hover-class="press-soft"
@@ -62,12 +61,17 @@
             catchtap="toggleLike"
             hover-class="press"
           >
-            <x-icon name="heart" size="26" color="{{item.liked ? '#ff6fa5' : '#9a93a8'}}" fill="{{item.liked}}" />
+            <x-icon name="heart" size="26" color="{{item.liked ? '#ff6fa5' : '#9a99a2'}}" fill="{{item.liked}}" />
             <text class="wlike-n">{{item.likeCount}}</text>
           </view>
         </view>
       </view>
     </view>
+  </view>
+
+  <!-- 回到顶部 -->
+  <view wx:if="{{showTop}}" class="top-fab" hover-class="press" bindtap="goTop">
+    <x-icon name="up" size="40" color="#5c5b62" />
   </view>
 
   <view wx:if="{{items.length}}" class="more">

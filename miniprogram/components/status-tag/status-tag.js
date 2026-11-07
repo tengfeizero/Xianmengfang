@@ -8,8 +8,8 @@ Component({
   },
   data: {
     text: '',
-    color: '#9a93a8',
-    bg: '#f3f1f7',
+    color: '#9a99a2',
+    bg: '#f4f3f4',
   },
   observers: {
     status(v) {

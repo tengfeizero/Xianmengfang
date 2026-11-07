@@ -12,16 +12,16 @@
 
     <view class="stage-tools">
       <view class="tool" hover-class="press" bindtap="undo">
-        <x-icon name="undo" size="32" color="#5d576e" />
+        <x-icon name="undo" size="32" color="#5c5b62" />
       </view>
       <view class="tool" hover-class="press" bindtap="clearAll">
-        <x-icon name="eraser" size="32" color="#5d576e" />
+        <x-icon name="eraser" size="32" color="#5c5b62" />
       </view>
     </view>
 
-    <view class="stage-hint" wx:if="{{!placements.length}}">
-      <x-icon name="sparkles" size="26" color="#9a93a8" />
-      <text>点下面的素材，把角色装扮起来</text>
+    <view class="stage-hint" wx:if="{{boardIdx < 0}}">
+      <x-icon name="sparkles" size="26" color="#9a99a2" />
+      <text>先选择一个底板，再点下面的素材装扮角色</text>
     </view>
 
     <!-- 选中元素浮层：缩放 + 删除 -->
@@ -33,13 +33,13 @@
         max="2"
         step="0.1"
         value="{{scaleVal}}"
-        activeColor="#6c5ce7"
-        backgroundColor="#e6e1f2"
+        activeColor="#f2455f"
+        backgroundColor="#ece8ea"
         blockSize="20"
         bindchange="onScale"
       />
       <view class="sel-del" hover-class="press" bindtap="removeSelected">
-        <x-icon name="trash" size="30" color="#f04452" />
+        <x-icon name="trash" size="30" color="#e0362f" />
       </view>
     </view>
   </view>
@@ -98,7 +98,7 @@
   <!-- 底部操作 -->
   <view class="actions">
     <view class="act-ghost" hover-class="press" bindtap="goAI">
-      <x-icon name="wand" size="34" color="#5646d6" />
+      <x-icon name="wand" size="34" color="#d92c47" />
       <text>AI 生成</text>
     </view>
     <view class="btn btn-primary act-main" hover-class="press" bindtap="compose">

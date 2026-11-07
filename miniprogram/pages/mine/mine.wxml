@@ -38,7 +38,7 @@
       <text class="h3">我的订单</text>
       <view class="more" hover-class="press-soft" bindtap="goOrders">
         <text>全部订单</text>
-        <x-icon name="right" size="22" color="#9a93a8" />
+        <x-icon name="right" size="22" color="#9a99a2" />
       </view>
     </view>
     <view class="o-grid">
@@ -51,7 +51,7 @@
         hover-class="press"
       >
         <view class="o-ic">
-          <x-icon name="{{item.icon}}" size="40" color="#5646d6" />
+          <x-icon name="{{item.icon}}" size="40" color="#d92c47" />
           <view wx:if="{{item.count}}" class="o-badge num">{{item.count > 99 ? '99+' : item.count}}</view>
         </view>
         <text class="o-t">{{item.label}}</text>
@@ -76,7 +76,7 @@
       <view wx:if="{{item.key === 'cart' && stats.cart_count}}" class="cell-badge num">
         {{stats.cart_count > 99 ? '99+' : stats.cart_count}}
       </view>
-      <x-icon name="right" size="24" color="#c4bdd1" />
+      <x-icon name="right" size="24" color="#c5c4cb" />
     </view>
   </view>
 

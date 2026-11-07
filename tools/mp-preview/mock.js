@@ -1,11 +1,11 @@
 // 预览用占位图：生成柔和的渐变 SVG，避免设计走查时全是灰块
 const PALS = [
-  ['#cabfff', '#ffd3e4'],
-  ['#bfe7e1', '#d6ecff'],
-  ['#ffd7c2', '#ffc7d9'],
-  ['#d6cfff', '#c6f0e7'],
+  ['#ffc9d2', '#ffe3d8'],
+  ['#c6e8e2', '#d8e9ff'],
+  ['#ffdcc2', '#ffc7d0'],
+  ['#e9e2e4', '#f7efe9'],
   ['#ffe4a8', '#ffcdd7'],
-  ['#c9d8ff', '#e6d5ff'],
+  ['#d8f0ff', '#d8f5e6'],
 ]
 
 function art(seed, w, h) {

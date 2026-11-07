@@ -178,7 +178,7 @@ Page({
     wx.showModal({
       title: '清空画布',
       content: '把已放置的元素全部移除？',
-      confirmColor: '#6c5ce7',
+      confirmColor: '#f2455f',
       success: (r) => {
         if (!r.confirm) return
         this.setData({ placements: [], selectedIdx: -1 })
@@ -293,7 +293,7 @@ Page({
         const r = this.placementRect(p)
         ctx.drawImage(im, r.x, r.y, r.w, r.h)
         if (idx === this.data.selectedIdx) {
-          ctx.strokeStyle = '#6c5ce7'
+          ctx.strokeStyle = '#f2455f'
           ctx.setLineDash([6, 4])
           ctx.strokeRect(r.x, r.y, r.w, r.h)
           ctx.setLineDash([])

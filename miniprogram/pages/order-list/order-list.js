@@ -85,7 +85,7 @@ Page({
     wx.showModal({
       title: '确认收货',
       content: '请确认已收到商品',
-      confirmColor: '#6c5ce7',
+      confirmColor: '#f2455f',
       success: (r) => {
         if (!r.confirm) return
         api
@@ -104,7 +104,7 @@ Page({
     wx.showModal({
       title: '取消订单',
       content: '仅待接单状态可取消，库存将自动恢复',
-      confirmColor: '#f04452',
+      confirmColor: '#e0362f',
       success: (r) => {
         if (!r.confirm) return
         api

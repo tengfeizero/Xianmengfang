@@ -65,7 +65,7 @@
   right: 0;
   bottom: 0;
   padding: 18rpx 28rpx calc(18rpx + env(safe-area-inset-bottom));
-  background: rgba(247, 245, 251, 0.96);
+  background: rgba(247, 246, 247, 0.96);
   backdrop-filter: blur(20rpx);
   z-index: 100;
 }

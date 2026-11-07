@@ -1,5 +1,5 @@
 // 图标系统：线性 SVG（24×24）运行时着色，免去为每个尺寸/颜色准备图片。
-// 用法：icon('home', '#6c5ce7', { size: 40 }) → data URI，直接喂给 <image>。
+// 用法：icon('home', '#f2455f', { size: 40 }) → data URI，直接喂给 <image>。
 // 之所以走 data URI 而不是字体图标：小程序无需引入 ttf，也不受字体文件体积限制。
 
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -36,6 +36,7 @@ const PATHS = {
   back: '<path d="M15 5.5 7.6 12.5 15 19.5"/>',
   right: '<path d="m9.5 5.5 7.4 7-7.4 7"/>',
   down: '<path d="m5.5 9.5 7 7 7-7"/>',
+  up: '<path d="m5.5 14.5 7-7 7 7"/>',
   close: '<path d="M6.2 6.2l11.6 11.6M17.8 6.2 6.2 17.8"/>',
   check: '<path d="m4.5 12.5 5 5L19.5 6.8"/>',
   trash:

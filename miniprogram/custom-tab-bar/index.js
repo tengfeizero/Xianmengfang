@@ -1,7 +1,7 @@
 const { icon } = require('../utils/icons')
 
-const INK = '#9a93a8'
-const ACTIVE = '#6c5ce7'
+const INK = '#9a99a2'
+const ACTIVE = '#f2455f'
 
 const TABS = [
   { path: '/pages/index/index', text: '首页', icon: 'home' },

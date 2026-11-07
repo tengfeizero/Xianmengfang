@@ -13,8 +13,8 @@ const CELLS = [
   { key: 'cart', label: '购物车', icon: 'cart', color: '#ff6fa5', bg: '#ffeef4' },
   { key: 'address', label: '收货地址', icon: 'pin', color: '#14b8a6', bg: '#e8f8f4' },
   { key: 'help', label: '帮助与反馈', icon: 'help', color: '#3b82f6', bg: '#eaf1ff' },
-  { key: 'settings', label: '设置', icon: 'settings', color: '#6c5ce7', bg: '#f1eeff' },
-  { key: 'about', label: '关于现梦坊', icon: 'info', color: '#5d576e', bg: '#f3f1f7' },
+  { key: 'settings', label: '设置', icon: 'settings', color: '#f2455f', bg: '#fff1f3' },
+  { key: 'about', label: '关于现梦坊', icon: 'info', color: '#5c5b62', bg: '#f4f3f4' },
 ]
 
 Page({
@@ -90,7 +90,7 @@ Page({
       editable: true,
       placeholderText: '1~16 个字',
       content: this.data.user.nickname || '',
-      confirmColor: '#6c5ce7',
+      confirmColor: '#f2455f',
       success: (r) => {
         if (!r.confirm || !r.content || !r.content.trim()) return
         api

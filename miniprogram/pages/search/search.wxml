@@ -2,7 +2,7 @@
   <!-- 搜索框 -->
   <view class="s-head">
     <view class="s-box">
-      <x-icon name="search" size="32" color="#9a93a8" />
+      <x-icon name="search" size="32" color="#9a99a2" />
       <input
         class="s-input"
         value="{{kw}}"
@@ -14,7 +14,7 @@
         bindconfirm="onConfirm"
       />
       <view wx:if="{{kw}}" class="s-clear" bindtap="tapClear">
-        <x-icon name="close" size="24" color="#c4bdd1" />
+        <x-icon name="close" size="24" color="#c5c4cb" />
       </view>
     </view>
     <text class="s-cancel" bindtap="goBack">取消</text>

@@ -80,7 +80,7 @@
   width: 160rpx;
   height: 160rpx;
   border-radius: var(--r-md);
-  background: #f1eef8;
+  background: #f2f1f3;
   flex-shrink: 0;
 }
 .p-t {
@@ -107,7 +107,7 @@
   display: block;
   width: 332rpx;
   height: 400rpx;
-  background: #f1eef8;
+  background: #f2f1f3;
 }
 .wbody {
   padding: 18rpx 20rpx 20rpx;

@@ -155,7 +155,7 @@
   <!-- 底部操作 -->
   <view class="footer">
     <view class="f-cart" hover-class="press" bindtap="goCart">
-      <x-icon name="cart" size="40" color="#191624" />
+      <x-icon name="cart" size="40" color="#1a1a1d" />
       <view wx:if="{{cartCount}}" class="f-badge num">{{cartCount > 99 ? '99+' : cartCount}}</view>
     </view>
     <view class="btn btn-ghost grow" hover-class="press" bindtap="addCart">加入购物车</view>

@@ -10,7 +10,7 @@
 
   <view class="feats rise d1">
     <view class="feat">
-      <view class="f-ic" style="background:#f1eeff"><x-icon name="wand" size="34" color="#6c5ce7" /></view>
+      <view class="f-ic" style="background:#fff1f3"><x-icon name="wand" size="34" color="#f2455f" /></view>
       <view class="col"><text class="f-t">AI 一句话生图</text><text class="cap">每天有免费额度</text></view>
     </view>
     <view class="feat">

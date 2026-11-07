@@ -10,7 +10,7 @@
   <block wx:else>
     <view class="art">
       <view class="art-blob"></view>
-      <x-icon name="{{icon}}" size="72" color="#b3a9d9" />
+      <x-icon name="{{icon}}" size="72" color="#ffb3bf" />
     </view>
     <view class="t">{{text}}</view>
     <view class="d" wx:if="{{desc}}">{{desc}}</view>

@@ -2,11 +2,11 @@
   <!-- 模式切换 -->
   <view class="seg rise">
     <view class="seg-item {{mode === 'ai_text' ? 'on' : ''}}" data-mode="ai_text" bindtap="switchMode" hover-class="press-soft">
-      <x-icon name="wand" size="30" color="{{mode === 'ai_text' ? '#5646d6' : '#9a93a8'}}" />
+      <x-icon name="wand" size="30" color="{{mode === 'ai_text' ? '#d92c47' : '#9a99a2'}}" />
       <text>文字生图</text>
     </view>
     <view class="seg-item {{mode === 'ai_photo' ? 'on' : ''}}" data-mode="ai_photo" bindtap="switchMode" hover-class="press-soft">
-      <x-icon name="camera" size="30" color="{{mode === 'ai_photo' ? '#5646d6' : '#9a93a8'}}" />
+      <x-icon name="camera" size="30" color="{{mode === 'ai_photo' ? '#d92c47' : '#9a99a2'}}" />
       <text>照片转风格</text>
     </view>
   </view>
@@ -36,7 +36,7 @@
     <view class="photo" hover-class="press-soft" bindtap="choosePhoto">
       <image wx:if="{{photoPath}}" class="photo-img" src="{{photoPath}}" mode="aspectFill" />
       <view wx:else class="col center photo-empty">
-        <x-icon name="camera" size="56" color="#c4bdd1" />
+        <x-icon name="camera" size="56" color="#c5c4cb" />
         <text class="photo-tip">点击拍照或从相册选择</text>
       </view>
       <view wx:if="{{photoPath}}" class="photo-retry">重选</view>

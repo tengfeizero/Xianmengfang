@@ -6,7 +6,7 @@
   position: relative;
   margin: 24rpx 32rpx 0;
   padding: 40rpx 36rpx 34rpx;
-  background: linear-gradient(135deg, #7a5cff 0%, #a673ff 55%, #ff6fa5 100%);
+  background: linear-gradient(135deg, #ff6b7d 0%, #f2455f 52%, #d92c47 100%);
   border-radius: var(--r-xl);
   box-shadow: var(--sh-brand);
   overflow: hidden;
@@ -111,7 +111,7 @@
   width: 140rpx;
   height: 140rpx;
   border-radius: var(--r-md);
-  background: #f1eef8;
+  background: #f2f1f3;
   flex-shrink: 0;
 }
 .placeholder {
@@ -257,7 +257,7 @@
   width: 18rpx;
   height: 18rpx;
   border-radius: 50%;
-  background: #ded9ea;
+  background: #e5e3e6;
   margin-top: 8rpx;
   flex-shrink: 0;
 }
@@ -301,7 +301,7 @@
   padding: 18rpx 28rpx calc(18rpx + env(safe-area-inset-bottom));
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20rpx);
-  border-top: 1rpx solid rgba(25, 22, 36, 0.05);
+  border-top: 1rpx solid rgba(26, 26, 29, 0.05);
   z-index: 100;
 }
 .footer .btn.grow {

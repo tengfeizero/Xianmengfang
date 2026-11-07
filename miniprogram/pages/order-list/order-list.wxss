@@ -72,7 +72,7 @@
   width: 108rpx;
   height: 108rpx;
   border-radius: var(--r-sm);
-  background: #f1eef8;
+  background: #f2f1f3;
 }
 .o-more {
   display: flex;

@@ -18,6 +18,16 @@ Page({
     points: 0,
     stats: { total: 0, published: 0, likes: 0 },
     loading: true,
+    showTop: false,
+  },
+
+  onPageScroll(e) {
+    const show = e.scrollTop > 300
+    if (show !== this.data.showTop) this.setData({ showTop: show })
+  },
+
+  goTop() {
+    wx.pageScrollTo({ scrollTop: 0, duration: 300 })
   },
 
   onShow() {
@@ -117,7 +127,7 @@ Page({
     wx.showModal({
       title: toPublic ? '发布到广场' : '取消发布',
       content: tips,
-      confirmColor: '#6c5ce7',
+      confirmColor: '#f2455f',
       success: (r) => {
         if (!r.confirm) return
         api
@@ -136,7 +146,7 @@ Page({
     wx.showModal({
       title: '删除作品',
       content: '删除后不可恢复，广场上也会一并移除，确定吗？',
-      confirmColor: '#f04452',
+      confirmColor: '#e0362f',
       success: (r) => {
         if (!r.confirm) return
         api

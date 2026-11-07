@@ -7,7 +7,7 @@
   padding-bottom: env(safe-area-inset-bottom);
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(24rpx);
-  border-top: 1rpx solid rgba(25, 22, 36, 0.06);
+  border-top: 1rpx solid rgba(26, 26, 29, 0.06);
 }
 .bar {
   display: flex;
@@ -31,11 +31,11 @@
 .label {
   font-size: 20rpx;
   line-height: 1.2;
-  color: #9a93a8;
+  color: #9a99a2;
   transition: color 0.2s ease;
 }
 .item.on .label {
-  color: #5646d6;
+  color: #d92c47;
   font-weight: 600;
 }
 .press {
@@ -49,8 +49,8 @@
   height: 92rpx;
   margin-top: -34rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7a5cff 0%, #ff6fa5 100%);
-  box-shadow: 0 14rpx 26rpx rgba(108, 92, 231, 0.34);
+  background: linear-gradient(135deg, #ff6b7d 0%, #f2455f 52%, #d92c47 100%);
+  box-shadow: 0 14rpx 26rpx rgba(242, 69, 95, 0.34);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,7 +59,7 @@
 }
 .mid-on {
   transform: translateY(-4rpx) scale(1.04);
-  box-shadow: 0 18rpx 32rpx rgba(108, 92, 231, 0.42);
+  box-shadow: 0 18rpx 32rpx rgba(242, 69, 95, 0.42);
 }
 .mid-ic {
   width: 46rpx;
@@ -67,6 +67,6 @@
 }
 .mid-label {
   margin-top: 6rpx;
-  color: #5646d6;
+  color: #d92c47;
   font-weight: 600;
 }

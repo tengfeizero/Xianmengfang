@@ -19,6 +19,16 @@ Page({
     loading: true,
     loadingMore: false,
     hasMore: true,
+    showTop: false,
+  },
+
+  onPageScroll(e) {
+    const show = e.scrollTop > 300
+    if (show !== this.data.showTop) this.setData({ showTop: show })
+  },
+
+  goTop() {
+    wx.pageScrollTo({ scrollTop: 0, duration: 300 })
   },
 
   onLoad() {

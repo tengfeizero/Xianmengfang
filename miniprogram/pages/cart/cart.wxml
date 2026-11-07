@@ -14,7 +14,7 @@
         <text class="addr-name">请选择收货地址</text>
         <text class="cap mt8">还没设置地址，点击添加</text>
       </view>
-      <x-icon name="right" size="24" color="#c4bdd1" />
+      <x-icon name="right" size="24" color="#c5c4cb" />
     </view>
 
     <!-- 商品 -->
@@ -42,7 +42,7 @@
         <view class="row">
           <text class="c-title grow ell {{item.valid ? '' : 'invalid'}}">{{item.valid ? item.title : '商品已失效'}}</text>
           <view class="c-del" data-id="{{item.id}}" catchtap="removeItem">
-            <x-icon name="trash" size="28" color="#c4bdd1" />
+            <x-icon name="trash" size="28" color="#c5c4cb" />
           </view>
         </view>
         <text wx:if="{{item.invalidReason}}" class="c-warn">{{item.invalidReason}}</text>

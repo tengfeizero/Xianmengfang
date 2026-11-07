@@ -8,7 +8,7 @@
   />
 
   <view class="tip-bar" wx:if="{{selectMode && addresses.length}}">
-    <x-icon name="info" size="26" color="#5646d6" />
+    <x-icon name="info" size="26" color="#d92c47" />
     <text>点击地址卡片即可选用</text>
   </view>
 
@@ -27,10 +27,10 @@
       <view wx:if="{{item.isDefault}}" class="tag tag-soft">默认</view>
       <view class="grow"></view>
       <view class="a-op" data-id="{{item.id}}" catchtap="edit">
-        <x-icon name="edit" size="28" color="#5d576e" />
+        <x-icon name="edit" size="28" color="#5c5b62" />
       </view>
       <view class="a-op" data-id="{{item.id}}" catchtap="del">
-        <x-icon name="trash" size="28" color="#f04452" />
+        <x-icon name="trash" size="28" color="#e0362f" />
       </view>
     </view>
     <view class="a-detail">{{item.full}}</view>

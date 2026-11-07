@@ -14,9 +14,9 @@
     <view class="h3 mt24">三步完成</view>
     <view class="steps mt16">
       <view class="step"><view class="s-n">1</view><text>创作作品</text></view>
-      <view class="s-arrow"><x-icon name="right" size="24" color="#c4bdd1" /></view>
+      <view class="s-arrow"><x-icon name="right" size="24" color="#c5c4cb" /></view>
       <view class="step"><view class="s-n">2</view><text>选商品下单</text></view>
-      <view class="s-arrow"><x-icon name="right" size="24" color="#c4bdd1" /></view>
+      <view class="s-arrow"><x-icon name="right" size="24" color="#c5c4cb" /></view>
       <view class="step"><view class="s-n">3</view><text>工厂直发到家</text></view>
     </view>
   </view>

@@ -6,7 +6,7 @@
   margin: 24rpx 32rpx 0;
   padding: 40rpx 36rpx 32rpx;
   height: auto;
-  background: linear-gradient(135deg, #7a5cff 0%, #a673ff 55%, #ff6fa5 100%);
+  background: linear-gradient(135deg, #ff6b7d 0%, #f2455f 52%, #d92c47 100%);
   border-radius: var(--r-xl);
   box-shadow: var(--sh-brand);
   overflow: hidden;
@@ -72,7 +72,7 @@
   padding: 26rpx 28rpx;
   border-radius: var(--r-md);
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 14rpx 30rpx rgba(25, 22, 36, 0.14);
+  box-shadow: 0 14rpx 30rpx rgba(26, 26, 29, 0.14);
   transition: transform 0.18s ease;
 }
 .p-ic {

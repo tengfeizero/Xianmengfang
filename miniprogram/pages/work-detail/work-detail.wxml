@@ -18,7 +18,7 @@
       <text class="num">{{likeCount}}</text>
     </view>
     <view class="st">
-      <x-icon name="package" size="26" color="#9a93a8" />
+      <x-icon name="package" size="26" color="#9a99a2" />
       <text class="num">{{useCount}}</text>
     </view>
   </view>
@@ -28,7 +28,7 @@
     <view class="row between">
       <text class="h3">提示词</text>
       <view class="copy" hover-class="press" bindtap="copyPrompt">
-        <x-icon name="copy" size="26" color="#5646d6" />
+        <x-icon name="copy" size="26" color="#d92c47" />
         <text>复制</text>
       </view>
     </view>
@@ -38,7 +38,7 @@
   <!-- 说明 -->
   <view class="card tip-card rise d3">
     <view class="tip-row">
-      <x-icon name="info" size="28" color="#9a93a8" />
+      <x-icon name="info" size="28" color="#9a99a2" />
       <text>点赞他人作品后，下单时可以选用这张图做定制</text>
     </view>
     <view class="tip-row" wx:if="{{isMine}}">
@@ -51,7 +51,7 @@
   <view class="footer">
     <block wx:if="{{isMine}}">
       <view class="f-act" hover-class="press" bindtap="del">
-        <x-icon name="trash" size="34" color="#5d576e" />
+        <x-icon name="trash" size="34" color="#5c5b62" />
       </view>
       <view class="btn btn-ghost grow" hover-class="press" bindtap="togglePublish">
         {{work.is_public === 1 ? '取消发布' : '发布到广场'}}
@@ -60,7 +60,7 @@
     </block>
     <block wx:else>
       <view class="f-act {{liked ? 'liked' : ''}} {{pop ? 'pop' : ''}}" hover-class="press" bindtap="toggleLike">
-        <x-icon name="heart" size="34" color="{{liked ? '#ff6fa5' : '#5d576e'}}" fill="{{liked}}" />
+        <x-icon name="heart" size="34" color="{{liked ? '#ff6fa5' : '#5c5b62'}}" fill="{{liked}}" />
       </view>
       <view class="btn btn-primary grow" hover-class="press" bindtap="useIt">用这张图定制</view>
     </block>

@@ -90,6 +90,23 @@
   transition: transform 0.18s ease;
 }
 
+/* 回到顶部 */
+.top-fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(210rpx + env(safe-area-inset-bottom));
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sh-2);
+  z-index: 99;
+  transition: transform 0.18s ease;
+}
+
 .grid {
   display: flex;
   flex-wrap: wrap;
@@ -111,7 +128,7 @@
   display: block;
   width: 332rpx;
   height: 400rpx;
-  background: #f1eef8;
+  background: #f2f1f3;
 }
 .badge {
   position: absolute;
@@ -123,13 +140,13 @@
   height: 44rpx;
   padding: 0 16rpx;
   border-radius: 999rpx;
-  background: rgba(25, 22, 36, 0.5);
+  background: rgba(26, 26, 29, 0.5);
   backdrop-filter: blur(10rpx);
   color: #fff;
   font-size: 21rpx;
 }
 .badge.on {
-  background: rgba(108, 92, 231, 0.92);
+  background: rgba(242, 69, 95, 0.92);
 }
 .badge text {
   color: #fff;

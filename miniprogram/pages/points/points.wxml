@@ -28,7 +28,7 @@
 
   <view wx:else class="panel">
     <view class="log" wx:for="{{logs}}" wx:key="id">
-      <view class="log-ic"><x-icon name="{{item.icon}}" size="32" color="#5646d6" /></view>
+      <view class="log-ic"><x-icon name="{{item.icon}}" size="32" color="#d92c47" /></view>
       <view class="col grow">
         <view class="log-t">{{item.title}}</view>
         <view class="cap mt8">{{item.time}}{{item.remark ? ' · ' + item.remark : ''}}</view>

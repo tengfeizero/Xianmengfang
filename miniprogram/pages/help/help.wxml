@@ -17,7 +17,7 @@
       <view class="row between">
         <text class="q grow">{{item.q}}</text>
         <view class="arrow {{openIdx === index ? 'up' : ''}}">
-          <x-icon name="down" size="26" color="#9a93a8" />
+          <x-icon name="down" size="26" color="#9a99a2" />
         </view>
       </view>
       <view class="a" wx:if="{{openIdx === index}}">{{item.a}}</view>
@@ -25,7 +25,7 @@
   </view>
 
   <view class="btn btn-soft btn-block rise d2 contact" hover-class="press" bindtap="contact">
-    <x-icon name="message" size="32" color="#5646d6" />
+    <x-icon name="message" size="32" color="#d92c47" />
     <text>联系客服</text>
   </view>
 </view>

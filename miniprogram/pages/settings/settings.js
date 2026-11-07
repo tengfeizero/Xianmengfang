@@ -30,7 +30,7 @@ Page({
     wx.showModal({
       title: '清除本地缓存',
       content: '搜索历史等本地数据将被清空，登录状态保留。',
-      confirmColor: '#6c5ce7',
+      confirmColor: '#f2455f',
       success: (r) => {
         if (!r.confirm) return
         try {
@@ -50,7 +50,7 @@ Page({
       title: '注销账号',
       content: '注销后作品、点赞、购物车与收货地址将被清空且无法恢复；订单与积分记录会保留。确定注销？',
       confirmText: '注销',
-      confirmColor: '#f04452',
+      confirmColor: '#e0362f',
       success: (r) => {
         if (!r.confirm) return
         wx.showLoading({ title: '正在注销', mask: true })
@@ -74,7 +74,7 @@ Page({
     wx.showModal({
       title: '退出登录',
       content: '退出后需要重新登录才能继续使用',
-      confirmColor: '#f04452',
+      confirmColor: '#e0362f',
       success: (r) => {
         if (!r.confirm) return
         api.clearToken()

@@ -15,21 +15,21 @@ const STATUS_TEXT = {
 }
 const STATUS_COLOR = {
   pending_accept: '#f59f00',
-  producing: '#6c5ce7',
-  packing: '#7a5cff',
+  producing: '#f2455f',
+  packing: '#ff6b7d',
   pending_ship: '#14b8a6',
   shipped: '#3b82f6',
-  done: '#9a93a8',
-  canceled: '#b8b1c4',
+  done: '#9a99a2',
+  canceled: '#b9b7bf',
 }
 const STATUS_BG = {
   pending_accept: '#fff6e4',
-  producing: '#f1eeff',
-  packing: '#f1eeff',
+  producing: '#fff1f3',
+  packing: '#fff1f3',
   pending_ship: '#e8f8f4',
   shipped: '#eaf1ff',
-  done: '#f3f1f7',
-  canceled: '#f6f4f9',
+  done: '#f4f3f4',
+  canceled: '#f6f5f6',
 }
 // 订单详情页顶部进度条节点（canceled 不在链路里）
 const STATUS_STEPS = ['pending_accept', 'producing', 'packing', 'pending_ship', 'shipped', 'done']
@@ -55,10 +55,10 @@ function statusText(s) {
   return STATUS_TEXT[s] || s
 }
 function statusColor(s) {
-  return STATUS_COLOR[s] || '#9a93a8'
+  return STATUS_COLOR[s] || '#9a99a2'
 }
 function statusBg(s) {
-  return STATUS_BG[s] || '#f3f1f7'
+  return STATUS_BG[s] || '#f4f3f4'
 }
 function statusStep(s) {
   return STATUS_STEPS.indexOf(s)

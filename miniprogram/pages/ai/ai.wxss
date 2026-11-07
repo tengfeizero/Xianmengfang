@@ -4,7 +4,7 @@
   gap: 12rpx;
   margin: 24rpx 32rpx 0;
   padding: 8rpx;
-  background: #efedf5;
+  background: #f0eeef;
   border-radius: 999rpx;
 }
 .seg-item {
@@ -23,7 +23,7 @@
   background: #fff;
   color: var(--ink);
   font-weight: 600;
-  box-shadow: 0 6rpx 16rpx rgba(25, 22, 36, 0.08);
+  box-shadow: 0 6rpx 16rpx rgba(26, 26, 29, 0.08);
 }
 
 .ta-wrap {
@@ -66,7 +66,7 @@
   height: 340rpx;
   margin-top: 22rpx;
   border-radius: var(--r-md);
-  border: 3rpx dashed #ded9ea;
+  border: 3rpx dashed #e5e3e6;
   background: var(--bg);
   overflow: hidden;
   display: flex;
@@ -92,7 +92,7 @@
   height: 48rpx;
   padding: 0 18rpx;
   border-radius: 999rpx;
-  background: rgba(25, 22, 36, 0.55);
+  background: rgba(26, 26, 29, 0.55);
   color: #fff;
   font-size: 21rpx;
   display: flex;

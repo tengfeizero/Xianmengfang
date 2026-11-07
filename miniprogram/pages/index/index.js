@@ -5,7 +5,7 @@ const { getCount, refreshBadge } = require('../../utils/cartBadge')
 const { setTab } = require('../../utils/tabbar')
 
 const QUICK = [
-  { icon: 'wand', label: 'AI 生图', color: '#6c5ce7', bg: '#f1eeff', url: '/pages/ai/ai' },
+  { icon: 'wand', label: 'AI 生图', color: '#f2455f', bg: '#fff1f3', url: '/pages/ai/ai' },
   { icon: 'palette', label: '拼装工坊', color: '#ff6fa5', bg: '#ffeef4', url: '/pages/studio/studio' },
   { icon: 'compass', label: '灵感广场', color: '#14b8a6', bg: '#e8f8f4', url: '/pages/plaza/plaza' },
   { icon: 'grid', label: '我的作品', color: '#f5a623', bg: '#fff6e4', url: '/pages/works/works' },
@@ -13,13 +13,30 @@ const QUICK = [
 
 const TAB_PATHS = ['/pages/studio/studio', '/pages/plaza/plaza', '/pages/works/works']
 
+const SORTS = [
+  { key: 'hot', label: '最热' },
+  { key: 'latest', label: '最新' },
+  { key: 'price', label: '价格' },
+]
+
 Page({
   data: {
     products: [],
-    plaza: [],
     quick: QUICK,
+    sorts: SORTS,
+    sortKey: 'hot',
     cartCount: 0,
     loading: true,
+    showTop: false,
+  },
+
+  onPageScroll(e) {
+    const show = e.scrollTop > 300
+    if (show !== this.data.showTop) this.setData({ showTop: show })
+  },
+
+  goTop() {
+    wx.pageScrollTo({ scrollTop: 0, duration: 300 })
   },
 
   onShow() {
@@ -30,19 +47,17 @@ Page({
     }
     this.setData({ cartCount: getCount() })
     this.load()
-    this.loadPlaza()
     refreshBadge().then((n) => this.setData({ cartCount: n }))
   },
 
   onPullDownRefresh() {
     this.load()
-    this.loadPlaza()
     refreshBadge().then((n) => this.setData({ cartCount: n }))
   },
 
   load() {
     api
-      .request('GET', '/products')
+      .request('GET', '/products?sort=' + this.data.sortKey)
       .then((list) => {
         const products = (list || []).map((p) => {
           const min = this.minPrice(p.skus)
@@ -62,22 +77,6 @@ Page({
         this.setData({ loading: false })
         wx.showToast({ title: e.message, icon: 'none' })
       })
-  },
-
-  // 首页只取广场前 8 件做灵感横滑，失败不影响主流程
-  loadPlaza() {
-    api
-      .request('GET', '/plaza?sort=likes&page=1&size=8')
-      .then((d) => {
-        this.setData({
-          plaza: (d.items || []).map((w) => ({
-            id: w.id,
-            cover: img(w.thumbnail_url || w.image_url),
-            likeCount: w.like_count || 0,
-          })),
-        })
-      })
-      .catch(() => {})
   },
 
   firstImg(imagesJson) {
@@ -104,12 +103,15 @@ Page({
     else wx.navigateTo({ url: item.url })
   },
 
-  goProduct(e) {
-    wx.navigateTo({ url: '/pages/product/product?id=' + e.currentTarget.dataset.id })
+  pickSort(e) {
+    const key = e.currentTarget.dataset.key
+    if (key === this.data.sortKey) return
+    this.setData({ sortKey: key, loading: true, products: [] })
+    this.load()
   },
 
-  goWork(e) {
-    wx.navigateTo({ url: '/pages/work-detail/work-detail?id=' + e.currentTarget.dataset.id })
+  goProduct(e) {
+    wx.navigateTo({ url: '/pages/product/product?id=' + e.currentTarget.dataset.id })
   },
 
   goStudio() {

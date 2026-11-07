@@ -15,7 +15,7 @@
           {{region[0] ? region[0] + ' ' + region[1] + ' ' + region[2] : '选择省 / 市 / 区'}}
         </view>
       </picker>
-      <x-icon name="right" size="24" color="#c4bdd1" />
+      <x-icon name="right" size="24" color="#c5c4cb" />
     </view>
     <view class="form-row col">
       <text class="label">详细地址</text>
@@ -24,7 +24,7 @@
     <view class="form-row">
       <text class="label">设为默认</text>
       <view class="grow"></view>
-      <switch checked="{{isDefault}}" color="#6c5ce7" bindchange="onDefault" />
+      <switch checked="{{isDefault}}" color="#f2455f" bindchange="onDefault" />
     </view>
   </view>
 

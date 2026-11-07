@@ -1,47 +1,47 @@
 /* 广场：头部 + 分段榜单 + 作品瀑布卡 */
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28rpx 32rpx 0;
+/* 搜索（与首页同款，吸顶） */
+.search-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 20rpx 0 12rpx;
+  background: var(--bg);
 }
-.head-search {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 50%;
-  background: #fff;
+.search {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 14rpx;
+  margin: 0 32rpx;
+  height: 84rpx;
+  padding: 0 12rpx 0 28rpx;
+  background: #fff;
+  border-radius: 999rpx;
   box-shadow: var(--sh-1);
   transition: transform 0.18s ease;
 }
-
-/* 分段控件 */
-.seg {
-  display: flex;
-  gap: 12rpx;
-  margin: 26rpx 32rpx 0;
-  padding: 8rpx;
-  background: #efedf5;
-  border-radius: 999rpx;
-}
-.seg-item {
+.search-ph {
   flex: 1;
-  height: 64rpx;
+  font-size: 26rpx;
+  color: var(--ink-3);
+}
+.search-go {
+  height: 60rpx;
+  padding: 0 28rpx;
+  border-radius: 999rpx;
+  background: var(--ink);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 999rpx;
-  font-size: 26rpx;
-  color: var(--ink-2);
-  transition: all 0.24s cubic-bezier(0.22, 0.68, 0, 1);
 }
-.seg-item.on {
-  background: #fff;
-  color: var(--ink);
-  font-weight: 600;
-  box-shadow: 0 6rpx 16rpx rgba(25, 22, 36, 0.08);
+
+/* 榜单切换（与作品页筛选同款） */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin: 24rpx 32rpx 0;
 }
 
 /* 作品卡 */
@@ -66,7 +66,7 @@
   display: block;
   width: 332rpx;
   height: 416rpx;
-  background: #f1eef8;
+  background: #f2f1f3;
 }
 .wtype {
   position: absolute;
@@ -75,7 +75,7 @@
   height: 40rpx;
   padding: 0 14rpx;
   border-radius: 999rpx;
-  background: rgba(122, 92, 255, 0.92);
+  background: rgba(255, 107, 129, 0.92);
   color: #fff;
   font-size: 20rpx;
   font-weight: 600;
@@ -90,7 +90,7 @@
   height: 40rpx;
   padding: 0 14rpx;
   border-radius: 999rpx;
-  background: rgba(25, 22, 36, 0.55);
+  background: rgba(26, 26, 29, 0.55);
   color: #fff;
   font-size: 20rpx;
   display: flex;
@@ -162,6 +162,23 @@
 .wlike.on .wlike-n {
   color: #d63a6a;
   font-weight: 600;
+}
+
+/* 回到顶部 */
+.top-fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(210rpx + env(safe-area-inset-bottom));
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sh-2);
+  z-index: 99;
+  transition: transform 0.18s ease;
 }
 
 .more {

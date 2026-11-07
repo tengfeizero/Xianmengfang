@@ -41,7 +41,7 @@ Page({
           title: '联系我们',
           content: '客服微信号 xianmengfang-support 已复制，添加时备注「现梦坊」。',
           showCancel: false,
-          confirmColor: '#6c5ce7',
+          confirmColor: '#f2455f',
         }),
     })
   },

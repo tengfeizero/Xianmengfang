@@ -1,7 +1,7 @@
 /* 登录 */
 .login {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f4f1ff 0%, #f7f5fb 46%);
+  background: linear-gradient(180deg, #fff3f4 0%, #f7f6f7 46%);
   display: flex;
   flex-direction: column;
 }
@@ -19,7 +19,7 @@
   width: 156rpx;
   height: 156rpx;
   border-radius: 48rpx;
-  background: linear-gradient(135deg, #7a5cff 0%, #ff6fa5 100%);
+  background: linear-gradient(135deg, #ff6b7d 0%, #f2455f 52%, #d92c47 100%);
   color: #fff;
   font-size: 72rpx;
   font-weight: 700;
@@ -53,7 +53,7 @@
   height: 320rpx;
   left: -110rpx;
   top: -80rpx;
-  background: rgba(122, 92, 255, 0.14);
+  background: rgba(255, 107, 129, 0.14);
 }
 .b2 {
   width: 240rpx;
@@ -67,7 +67,7 @@
   height: 140rpx;
   left: 90rpx;
   top: 340rpx;
-  background: rgba(122, 92, 255, 0.1);
+  background: rgba(255, 107, 129, 0.1);
 }
 
 .feats {

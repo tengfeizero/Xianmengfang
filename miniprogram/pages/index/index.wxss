@@ -14,14 +14,14 @@
   width: 72rpx;
   height: 72rpx;
   border-radius: 22rpx;
-  background: linear-gradient(135deg, #7a5cff 0%, #ff6fa5 100%);
+  background: linear-gradient(135deg, #ff6b7d 0%, #f2455f 52%, #d92c47 100%);
   color: #fff;
   font-size: 36rpx;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10rpx 22rpx rgba(108, 92, 231, 0.28);
+  box-shadow: 0 10rpx 22rpx rgba(242, 69, 95, 0.28);
 }
 .brand-name {
   font-size: 34rpx;
@@ -64,12 +64,19 @@
   border: 3rpx solid var(--bg);
 }
 
-/* 搜索 */
+/* 搜索（吸顶） */
+.search-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 20rpx 0 12rpx;
+  background: var(--bg);
+}
 .search {
   display: flex;
   align-items: center;
   gap: 14rpx;
-  margin: 24rpx 32rpx 0;
+  margin: 0 32rpx;
   height: 84rpx;
   padding: 0 12rpx 0 28rpx;
   background: #fff;
@@ -100,8 +107,8 @@
   margin: 24rpx 32rpx 0;
   height: 356rpx;
   border-radius: var(--r-xl);
-  background: linear-gradient(135deg, #7a5cff 0%, #a673ff 48%, #ff6fa5 100%);
-  box-shadow: 0 22rpx 44rpx rgba(108, 92, 231, 0.28);
+  background: linear-gradient(135deg, #ff6b7d 0%, #f2455f 52%, #d92c47 100%);
+  box-shadow: 0 22rpx 44rpx rgba(242, 69, 95, 0.28);
   overflow: hidden;
 }
 .blob {
@@ -254,6 +261,40 @@
   font-weight: 500;
 }
 
+/* 回到顶部（叠在购物车按钮上方） */
+.top-fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(330rpx + env(safe-area-inset-bottom));
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sh-2);
+  z-index: 99;
+  transition: transform 0.18s ease;
+}
+
+/* 悬浮购物车 */
+.cart-fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(210rpx + env(safe-area-inset-bottom));
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--sh-2);
+  z-index: 99;
+  transition: transform 0.18s ease;
+}
+
 /* 分区标题 */
 .sec-left {
   display: flex;
@@ -263,6 +304,16 @@
 .sec-hint {
   font-size: 22rpx;
   color: var(--ink-3);
+}
+.sort-chips {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.sort-chips .chip {
+  height: 52rpx;
+  padding: 0 20rpx;
+  font-size: 22rpx;
 }
 
 /* 灵感横滑 */
@@ -287,7 +338,7 @@
   display: block;
   width: 208rpx;
   height: 260rpx;
-  background: #f1eef8;
+  background: #f2f1f3;
 }
 .insp-foot {
   display: flex;
@@ -322,7 +373,7 @@
   display: block;
   width: 332rpx;
   height: 332rpx;
-  background: #f1eef8;
+  background: #f2f1f3;
 }
 .g-chip {
   position: absolute;

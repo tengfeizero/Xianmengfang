@@ -1,7 +1,7 @@
 .hero {
   margin: 24rpx 32rpx 0;
   padding: 44rpx 40rpx;
-  background: linear-gradient(135deg, #7a5cff 0%, #ff6fa5 100%);
+  background: linear-gradient(135deg, #ff6b7d 0%, #f2455f 52%, #d92c47 100%);
   border-radius: var(--r-xl);
   box-shadow: var(--sh-brand);
 }
