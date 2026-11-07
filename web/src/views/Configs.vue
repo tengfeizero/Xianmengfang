@@ -7,7 +7,7 @@
         <span class="hint">次（0 = 关闭 AI 生成）</span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" :loading="saving" @click="save">保存</el-button>
+        <el-button v-if="canEdit" type="primary" :loading="saving" @click="save">保存</el-button>
       </el-form-item>
     </el-form>
 
@@ -44,8 +44,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" :loading="savingAI" @click="saveAI">保存 AI 配置</el-button>
-        <el-button :disabled="!keyMasked" @click="clearKey">清空密钥（停用真实生图）</el-button>
+        <el-button v-if="canEdit" type="primary" :loading="savingAI" @click="saveAI">保存 AI 配置</el-button>
+        <el-button v-if="canEdit" :disabled="!keyMasked" @click="clearKey">清空密钥（停用真实生图）</el-button>
       </el-form-item>
     </el-form>
     <el-alert
@@ -57,9 +57,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { CONFIG_KEYS, listConfigs, updateConfig } from '@/api/modules/configs'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
+const canEdit = computed(() => auth.hasPerm('config:edit'))
 
 const aiLimit = ref(3)
 const saving = ref(false)

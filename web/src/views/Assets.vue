@@ -4,7 +4,7 @@
       <template #header>
         <div class="flex-between">
           <b>拼装底板</b>
-          <el-button type="primary" @click="openBoard">新增底板</el-button>
+          <el-button v-if="auth.hasPerm('asset:edit')" type="primary" @click="openBoard">新增底板</el-button>
         </div>
       </template>
       <el-table :data="boards" border>
@@ -25,7 +25,12 @@
         </el-table-column>
         <el-table-column label="操作" width="90">
           <template #default="{ row }">
-            <el-button size="small" type="warning" @click="onToggleBoard(row as Board)">
+            <el-button
+              v-if="auth.hasPerm('asset:edit')"
+              size="small"
+              type="warning"
+              @click="onToggleBoard(row as Board)"
+            >
               {{ row.status === 1 ? '下架' : '上架' }}
             </el-button>
           </template>
@@ -41,7 +46,7 @@
             <el-select v-model="catFilter" placeholder="全部分类" clearable class="filter" @change="loadElements">
               <el-option v-for="c in CATEGORIES" :key="c.value" :label="c.label" :value="c.value" />
             </el-select>
-            <el-button type="primary" @click="openElement()">新增元素</el-button>
+            <el-button v-if="auth.hasPerm('asset:edit')" type="primary" @click="openElement()">新增元素</el-button>
           </div>
         </div>
       </template>
@@ -63,10 +68,12 @@
         </el-table-column>
         <el-table-column label="操作" width="140">
           <template #default="{ row }">
-            <el-button size="small" @click="openElement(row as ElementItem)">编辑</el-button>
-            <el-button size="small" type="warning" @click="onToggleElement(row as ElementItem)">
-              {{ row.status === 1 ? '下架' : '上架' }}
-            </el-button>
+            <template v-if="auth.hasPerm('asset:edit')">
+              <el-button size="small" @click="openElement(row as ElementItem)">编辑</el-button>
+              <el-button size="small" type="warning" @click="onToggleElement(row as ElementItem)">
+                {{ row.status === 1 ? '下架' : '上架' }}
+              </el-button>
+            </template>
           </template>
         </el-table-column>
       </el-table>
@@ -136,6 +143,9 @@ import {
   uploadImage,
 } from '@/api/modules/assets'
 import type { Board, ElementItem } from '@/types'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 
 const CATEGORIES = [
   { value: 'hair', label: '头发' },

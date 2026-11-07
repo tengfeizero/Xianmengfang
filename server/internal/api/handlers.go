@@ -19,6 +19,8 @@ type Handlers struct {
 	Addresses  *service.AddressService
 	Carts      *service.CartService
 	AI         *service.AIService
+	RBAC       *service.RBACService
+	Audit      *service.AuditService
 	UploadsDir string
 	Dev        bool // 是否允许开发者模拟登录
 }
@@ -87,6 +89,7 @@ func (h *Handlers) adminLogin(c *gin.Context) {
 	}
 	a, err := h.Auth.AdminLogin(req.Username, req.Password)
 	if err != nil {
+		h.auditLogin(c, 0, req.Username, "fail", err.Error(), 401)
 		fail(c, 401, err.Error())
 		return
 	}
@@ -95,7 +98,12 @@ func (h *Handlers) adminLogin(c *gin.Context) {
 		fail(c, 500, "登录失败，请稍后再试")
 		return
 	}
-	ok(c, gin.H{"token": token, "admin": gin.H{"id": a.ID, "username": a.Username}})
+	h.RBAC.TouchLogin(a.ID)
+	h.auditLogin(c, a.ID, a.Username, "ok", "登录成功", 200)
+	ok(c, gin.H{
+		"token": token,
+		"admin": gin.H{"id": a.ID, "username": a.Username, "nickname": a.Nickname},
+	})
 }
 
 // ---- 商品 ----

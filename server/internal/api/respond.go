@@ -15,6 +15,8 @@ func ok(c *gin.Context, data any) {
 }
 
 func fail(c *gin.Context, httpCode int, msg string) {
+	// 供审计中间件取失败原因（不改变响应体）
+	c.Set("err_msg", msg)
 	c.JSON(httpCode, gin.H{"code": httpCode, "msg": msg, "data": nil})
 }
 
@@ -30,6 +32,17 @@ func failErr(c *gin.Context, err error) {
 	case errors.Is(err, service.ErrStockInsufficient):
 		fail(c, 400, err.Error())
 	case errors.Is(err, service.ErrEmptyItems):
+		fail(c, 400, err.Error())
+	case errors.Is(err, service.ErrRoleNotFound), errors.Is(err, service.ErrAdminNotFound):
+		fail(c, 404, err.Error())
+	case errors.Is(err, service.ErrRoleBuiltin), errors.Is(err, service.ErrRoleInUse),
+		errors.Is(err, service.ErrLastSuper), errors.Is(err, service.ErrAdminDup),
+		errors.Is(err, service.ErrRoleCodeDup), errors.Is(err, service.ErrSelfDisable),
+		errors.Is(err, service.ErrSelfDelete):
+		fail(c, 409, err.Error())
+	case errors.Is(err, service.ErrAdminRoleBad), errors.Is(err, service.ErrRolePermBad),
+		errors.Is(err, service.ErrRolePermEmpty), errors.Is(err, service.ErrRoleNameEmpty),
+		errors.Is(err, service.ErrAdminPassword), errors.Is(err, service.ErrAdminRoleUnset):
 		fail(c, 400, err.Error())
 	default:
 		fail(c, 400, err.Error())

@@ -120,6 +120,27 @@
 | GET | /admin/works | 全站作品列表（含作者昵称；type=collage/ai_text/ai_photo、status=0/1/2 过滤） | ✅ 已实现 |
 | PUT | /admin/works/:id/status | 上架(1)/下架(2)。用户已删除(status=0)的作品不可变更，返回 409 | ✅ 已实现 |
 | POST | /admin/upload | 后台上传图片（与用户端 /upload 同逻辑） | ✅ 已实现 |
+| GET | /admin/me | 登录态自检：账号、角色、权限码列表（超管为 `["*"]`） | ✅ 已实现 |
+| GET | /admin/permissions | 权限清单（按模块分组的权限码 + 中文名，前端渲染勾选） | ✅ 已实现 |
+| GET/POST/PUT/DELETE | /admin/roles… | 角色管理：列表含账号数；内置角色不可删、超管角色权限不可改；在用角色不可删 | ✅ 已实现 |
+| GET/POST/PUT/DELETE | /admin/admins… | 管理员账号：新增（用户名唯一/密码≥6位）、改角色/昵称/状态、重置密码、删除 | ✅ 已实现 |
+| GET | /admin/audit-logs | 审计日志分页查询：`admin_id` / `action`（前缀）/ `result`(ok\|fail\|deny) / `keyword` / `page` / `size` | ✅ 已实现 |
+
+### 权限码（v1.4）
+
+| 模块 | 权限码 |
+|---|---|
+| 订单 | `order:view` `order:process`（接单/生产完成/打包完成） `order:ship` `order:cancel` `order:refund` |
+| 商品 | `product:view` `product:edit`（含分类/SKU/上传） |
+| 素材 | `asset:view` `asset:edit` |
+| 用户 | `user:view` `user:edit` |
+| 作品 | `work:view` `work:edit` |
+| 配置 | `config:view` `config:edit` |
+| 权限与日志 | `admin:view` `admin:edit` `role:view` `role:edit` `audit:view` |
+
+- 超级管理员（`super` 角色，perms=`["*"]`）绕过全部权限校验
+- 鉴权链路：`AuthRequired`（JWT）→ `RoleRequired("admin")` → `AdminAuthRequired`（每请求查库，禁用/改权限立即生效）→ `PermRequired`（权限码）→ `AuditWrite`（写操作留痕）
+- 越权返回 403 并写一条 `action=deny` 的审计日志（target_id 为所需权限码）
 
 ## 状态码约定
 

@@ -90,47 +90,66 @@ func Router(h *Handlers) *gin.Engine {
 	// 管理后台：登录公开，其余需管理员
 	v1.POST("/admin/auth/login", h.adminLogin)
 
-	// 管理后台（需管理员）
-	ag := v1.Group("/admin", AuthRequired(h.Secret), RoleRequired("admin"))
+	// 管理后台（需管理员）：AuthRequired 验 JWT → RoleRequired 验端 → AdminAuthRequired 载入账号+角色
+	// → AuditWrite 对写操作留痕；每条路由再按权限码精确拦截。
+	ag := v1.Group("/admin",
+		AuthRequired(h.Secret), RoleRequired("admin"), AdminAuthRequired(h), AuditWrite(h))
 	{
-		ag.GET("/orders", h.adminOrderList)
-		ag.GET("/orders/:id", h.adminOrderDetail)
-		ag.POST("/orders/:id/accept", h.adminOrderAccept)
-		ag.POST("/orders/:id/pack", h.adminOrderPack)
-		ag.POST("/orders/:id/ready_ship", h.adminOrderReadyShip)
-		ag.POST("/orders/:id/ship", h.adminOrderShip)
-		ag.POST("/orders/:id/cancel", h.adminOrderCancel)
-		ag.POST("/orders/:id/refund_mark", h.adminOrderRefundMark)
+		// 登录态自检与权限清单
+		ag.GET("/me", h.adminMe)
+		ag.GET("/permissions", h.adminPermCatalog)
+
+		ag.GET("/orders", PermRequired(h, "order:view"), h.adminOrderList)
+		ag.GET("/orders/:id", PermRequired(h, "order:view"), h.adminOrderDetail)
+		ag.POST("/orders/:id/accept", PermRequired(h, "order:process"), h.adminOrderAccept)
+		ag.POST("/orders/:id/pack", PermRequired(h, "order:process"), h.adminOrderPack)
+		ag.POST("/orders/:id/ready_ship", PermRequired(h, "order:process"), h.adminOrderReadyShip)
+		ag.POST("/orders/:id/ship", PermRequired(h, "order:ship"), h.adminOrderShip)
+		ag.POST("/orders/:id/cancel", PermRequired(h, "order:cancel"), h.adminOrderCancel)
+		ag.POST("/orders/:id/refund_mark", PermRequired(h, "order:refund"), h.adminOrderRefundMark)
 
 		// 素材与底板管理（M1）
-		ag.POST("/boards", h.adminBoardCreate)
-		ag.GET("/boards", h.adminBoardList)
-		ag.PUT("/boards/:id", h.adminBoardUpdate)
-		ag.DELETE("/boards/:id", h.adminBoardDelete)
-		ag.POST("/elements", h.adminElementCreate)
-		ag.GET("/elements", h.adminElementList)
-		ag.PUT("/elements/:id", h.adminElementUpdate)
-		ag.DELETE("/elements/:id", h.adminElementDelete)
+		ag.GET("/boards", PermRequired(h, "asset:view"), h.adminBoardList)
+		ag.POST("/boards", PermRequired(h, "asset:edit"), h.adminBoardCreate)
+		ag.PUT("/boards/:id", PermRequired(h, "asset:edit"), h.adminBoardUpdate)
+		ag.DELETE("/boards/:id", PermRequired(h, "asset:edit"), h.adminBoardDelete)
+		ag.GET("/elements", PermRequired(h, "asset:view"), h.adminElementList)
+		ag.POST("/elements", PermRequired(h, "asset:edit"), h.adminElementCreate)
+		ag.PUT("/elements/:id", PermRequired(h, "asset:edit"), h.adminElementUpdate)
+		ag.DELETE("/elements/:id", PermRequired(h, "asset:edit"), h.adminElementDelete)
 
 		// 商品/分类/SKU 管理 + 系统配置（M1.4）
-		ag.POST("/upload", h.upload)
-		ag.GET("/categories", h.adminCategoryList)
-		ag.POST("/categories", h.adminCategoryCreate)
-		ag.PUT("/categories/:id", h.adminCategoryUpdate)
-		ag.DELETE("/categories/:id", h.adminCategoryDelete)
-		ag.GET("/products", h.adminProductList)
-		ag.POST("/products", h.adminProductCreate)
-		ag.PUT("/products/:id", h.adminProductUpdate)
-		ag.DELETE("/products/:id", h.adminProductDelete)
-		ag.POST("/skus", h.adminSKUCreate)
-		ag.PUT("/skus/:id", h.adminSKUUpdate)
-		ag.DELETE("/skus/:id", h.adminSKUDelete)
-		ag.GET("/configs", h.adminConfigList)
-		ag.PUT("/configs", h.adminConfigUpdate)
-		ag.GET("/users", h.adminUserList)
-		ag.PUT("/users/:id/status", h.adminUserSetStatus)
-		ag.GET("/works", h.adminWorkList)
-		ag.PUT("/works/:id/status", h.adminWorkSetStatus)
+		ag.POST("/upload", PermAny(h, "product:edit", "asset:edit"), h.upload)
+		ag.GET("/categories", PermRequired(h, "product:view"), h.adminCategoryList)
+		ag.POST("/categories", PermRequired(h, "product:edit"), h.adminCategoryCreate)
+		ag.PUT("/categories/:id", PermRequired(h, "product:edit"), h.adminCategoryUpdate)
+		ag.DELETE("/categories/:id", PermRequired(h, "product:edit"), h.adminCategoryDelete)
+		ag.GET("/products", PermRequired(h, "product:view"), h.adminProductList)
+		ag.POST("/products", PermRequired(h, "product:edit"), h.adminProductCreate)
+		ag.PUT("/products/:id", PermRequired(h, "product:edit"), h.adminProductUpdate)
+		ag.DELETE("/products/:id", PermRequired(h, "product:edit"), h.adminProductDelete)
+		ag.POST("/skus", PermRequired(h, "product:edit"), h.adminSKUCreate)
+		ag.PUT("/skus/:id", PermRequired(h, "product:edit"), h.adminSKUUpdate)
+		ag.DELETE("/skus/:id", PermRequired(h, "product:edit"), h.adminSKUDelete)
+
+		// 配置、用户、作品
+		ag.GET("/configs", PermRequired(h, "config:view"), h.adminConfigList)
+		ag.PUT("/configs", PermRequired(h, "config:edit"), h.adminConfigUpdate)
+		ag.GET("/users", PermRequired(h, "user:view"), h.adminUserList)
+		ag.PUT("/users/:id/status", PermRequired(h, "user:edit"), h.adminUserSetStatus)
+		ag.GET("/works", PermRequired(h, "work:view"), h.adminWorkList)
+		ag.PUT("/works/:id/status", PermRequired(h, "work:edit"), h.adminWorkSetStatus)
+
+		// RBAC：角色 / 管理员 / 审计日志
+		ag.GET("/roles", PermRequired(h, "role:view"), h.adminRoleList)
+		ag.POST("/roles", PermRequired(h, "role:edit"), h.adminRoleCreate)
+		ag.PUT("/roles/:id", PermRequired(h, "role:edit"), h.adminRoleUpdate)
+		ag.DELETE("/roles/:id", PermRequired(h, "role:edit"), h.adminRoleDelete)
+		ag.GET("/admins", PermRequired(h, "admin:view"), h.adminAdminList)
+		ag.POST("/admins", PermRequired(h, "admin:edit"), h.adminAdminCreate)
+		ag.PUT("/admins/:id", PermRequired(h, "admin:edit"), h.adminAdminUpdate)
+		ag.DELETE("/admins/:id", PermRequired(h, "admin:edit"), h.adminAdminDelete)
+		ag.GET("/audit-logs", PermRequired(h, "audit:view"), h.adminAuditLogs)
 	}
 
 	return r

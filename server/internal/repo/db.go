@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"fmt"
 
 	"xmf/internal/model"
@@ -38,6 +39,20 @@ func Seed(db *gorm.DB, uploadsDir string) error {
 	if err := SeedProductImages(uploadsDir); err != nil {
 		return err
 	}
+	// 角色种子（按 code 幂等；super 权限恒为通配，不可改）
+	superID, err := ensureRole(db, "super", "超级管理员", "系统内置：拥有全部权限，不可删除、不可改权限", `["*"]`)
+	if err != nil {
+		return err
+	}
+	if _, err := ensureRole(db, "ops", "运营专员", "订单处理、发货、商品素材查看、作品上下架",
+		`["asset:view","order:cancel","order:process","order:ship","order:view","product:view","user:view","work:edit","work:view"]`); err != nil {
+		return err
+	}
+	if _, err := ensureRole(db, "viewer", "只读账号", "仅可查看，不能执行任何写操作",
+		`["asset:view","order:view","product:view","user:view","work:view"]`); err != nil {
+		return err
+	}
+
 	// 管理员 admin / admin123（上线前必须改密）
 	var adminCount int64
 	if err := db.Model(&model.Admin{}).Count(&adminCount).Error; err != nil {
@@ -48,9 +63,16 @@ func Seed(db *gorm.DB, uploadsDir string) error {
 		if err != nil {
 			return err
 		}
-		if err := db.Create(&model.Admin{Username: "admin", PasswordHash: string(hash), Status: 1}).Error; err != nil {
+		if err := db.Create(&model.Admin{
+			Username: "admin", PasswordHash: string(hash), Nickname: "系统管理员", RoleID: superID, Status: 1,
+		}).Error; err != nil {
 			return err
 		}
+	}
+	// 老库升级：v1.4 之前的账号没有角色，统一绑到超级管理员
+	if err := db.Model(&model.Admin{}).Where("role_id = 0 OR role_id IS NULL").
+		Update("role_id", superID).Error; err != nil {
+		return err
 	}
 
 	// 系统配置
@@ -83,4 +105,21 @@ func Seed(db *gorm.DB, uploadsDir string) error {
 
 	// 拼装底板与元素
 	return SeedCatalogAssets(db)
+}
+
+// ensureRole 按 code 幂等写入内置角色，返回角色 ID
+func ensureRole(db *gorm.DB, code, name, remark, perms string) (int64, error) {
+	var r model.Role
+	err := db.Where("code = ?", code).First(&r).Error
+	if err == nil {
+		return r.ID, nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return 0, err
+	}
+	r = model.Role{Code: code, Name: name, Remark: remark, Perms: perms, Builtin: 1, Status: 1}
+	if err := db.Create(&r).Error; err != nil {
+		return 0, err
+	}
+	return r.ID, nil
 }

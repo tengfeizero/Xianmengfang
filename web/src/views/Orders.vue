@@ -49,20 +49,40 @@
       <el-table-column label="操作" min-width="320">
         <template #default="{ row }">
           <el-button size="small" @click="openDetail(row.order.id)">详情</el-button>
-          <el-button v-if="row.order.status === 'pending_accept'" type="primary" size="small" @click="act('accept', row as AdminOrderRow)">
+          <el-button
+            v-if="auth.hasPerm('order:process') && row.order.status === 'pending_accept'"
+            type="primary"
+            size="small"
+            @click="act('accept', row as AdminOrderRow)"
+          >
             接单
           </el-button>
-          <el-button v-if="row.order.status === 'producing'" type="primary" size="small" @click="act('pack', row as AdminOrderRow)">
+          <el-button
+            v-if="auth.hasPerm('order:process') && row.order.status === 'producing'"
+            type="primary"
+            size="small"
+            @click="act('pack', row as AdminOrderRow)"
+          >
             生产完成
           </el-button>
-          <el-button v-if="row.order.status === 'packing'" type="primary" size="small" @click="act('ready_ship', row as AdminOrderRow)">
+          <el-button
+            v-if="auth.hasPerm('order:process') && row.order.status === 'packing'"
+            type="primary"
+            size="small"
+            @click="act('ready_ship', row as AdminOrderRow)"
+          >
             打包完成
           </el-button>
-          <el-button v-if="row.order.status === 'pending_ship'" type="success" size="small" @click="openShip(row as AdminOrderRow)">
+          <el-button
+            v-if="auth.hasPerm('order:ship') && row.order.status === 'pending_ship'"
+            type="success"
+            size="small"
+            @click="openShip(row as AdminOrderRow)"
+          >
             发货
           </el-button>
           <el-button
-            v-if="cancellable.includes(row.order.status)"
+            v-if="auth.hasPerm('order:cancel') && cancellable.includes(row.order.status)"
             type="warning"
             size="small"
             @click="act('cancel', row as AdminOrderRow)"
@@ -70,7 +90,7 @@
             取消
           </el-button>
           <el-button
-            v-if="['shipped', 'done'].includes(row.order.status) && !row.order.refund_flag"
+            v-if="auth.hasPerm('order:refund') && ['shipped', 'done'].includes(row.order.status) && !row.order.refund_flag"
             type="danger"
             size="small"
             @click="act('refund_mark', row as AdminOrderRow)"
@@ -190,7 +210,10 @@ import { onMounted, reactive, ref } from 'vue'
 import AmountText from '@/components/AmountText.vue'
 import StatusTag from '@/components/StatusTag.vue'
 import { listOrders, getOrderDetail, orderAction, shipOrder, type OrderAction } from '@/api/modules/orders'
+import { useAuthStore } from '@/stores/auth'
 import type { AdminOrderDetail, AdminOrderRow, OrderEvent } from '@/types'
+
+const auth = useAuthStore()
 
 const orders = ref<AdminOrderRow[]>([])
 const loading = ref(false)

@@ -1,5 +1,20 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 import { getToken } from '@/utils/auth'
+import { MENU } from '@/config/menu'
+import { useAuthStore } from '@/stores/auth'
+
+/** 菜单路径 → 页面组件（与 config/menu.ts 一一对应） */
+const PAGES: Record<string, () => Promise<unknown>> = {
+  '/orders': () => import('@/views/Orders.vue'),
+  '/products': () => import('@/views/Products.vue'),
+  '/assets': () => import('@/views/Assets.vue'),
+  '/users': () => import('@/views/Users.vue'),
+  '/works': () => import('@/views/Works.vue'),
+  '/configs': () => import('@/views/Configs.vue'),
+  '/roles': () => import('@/views/Roles.vue'),
+  '/admins': () => import('@/views/Admins.vue'),
+  '/audit': () => import('@/views/AuditLogs.vue'),
+}
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'login', component: () => import('@/views/Login.vue'), meta: { title: '登录' } },
@@ -7,24 +22,12 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('@/layouts/Layout.vue'),
     redirect: '/orders',
-    children: [
-      { path: 'orders', name: 'orders', component: () => import('@/views/Orders.vue'), meta: { title: '订单管理' } },
-      {
-        path: 'products',
-        name: 'products',
-        component: () => import('@/views/Products.vue'),
-        meta: { title: '商品管理' },
-      },
-      { path: 'assets', name: 'assets', component: () => import('@/views/Assets.vue'), meta: { title: '素材管理' } },
-      { path: 'users', name: 'users', component: () => import('@/views/Users.vue'), meta: { title: '用户管理' } },
-      { path: 'works', name: 'works', component: () => import('@/views/Works.vue'), meta: { title: '作品管理' } },
-      {
-        path: 'configs',
-        name: 'configs',
-        component: () => import('@/views/Configs.vue'),
-        meta: { title: '系统配置' },
-      },
-    ],
+    children: MENU.map((m) => ({
+      path: m.path.replace(/^\//, ''),
+      name: m.path.replace(/^\//, ''),
+      component: PAGES[m.path] as RouteRecordRaw['component'],
+      meta: { title: m.title, perm: m.perm },
+    })) as RouteRecordRaw[],
   },
 ]
 
@@ -33,9 +36,39 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to) => {
-  if (to.path !== '/login' && !getToken()) return { path: '/login' }
-  if (to.path === '/login' && getToken()) return { path: '/orders' }
+router.beforeEach(async (to) => {
+  const auth = useAuthStore()
+
+  if (to.path === '/login') {
+    if (getToken()) {
+      try {
+        await auth.loadMe()
+        return auth.firstPath
+      } catch {
+        auth.logout()
+      }
+    }
+    return true
+  }
+
+  if (!getToken()) return { path: '/login' }
+
+  // 每次启动拉一次权限；失败（401/账号被禁用/角色停用）直接回登录
+  try {
+    await auth.loadMe()
+  } catch {
+    auth.logout()
+    return { path: '/login' }
+  }
+
+  const perm = to.meta.perm as string | undefined
+  if (perm && !auth.hasPerm(perm)) {
+    if (auth.firstPath === '/login') {
+      auth.logout()
+      return { path: '/login' }
+    }
+    return auth.firstPath
+  }
   return true
 })
 

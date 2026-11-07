@@ -35,7 +35,8 @@ async function onLogin() {
   try {
     const data = await adminLogin(form.username, form.password)
     auth.login(data.token)
-    router.push('/orders')
+    await auth.loadMe()
+    router.push(auth.firstPath)
   } catch (e) {
     ElMessage.error(e instanceof Error ? e.message : '登录失败')
   } finally {

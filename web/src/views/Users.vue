@@ -37,7 +37,9 @@
       </el-table-column>
       <el-table-column label="操作" width="130" fixed="right">
         <template #default="{ row }">
+          <span v-if="!auth.hasPerm('user:edit')" class="readonly">只读</span>
           <el-popconfirm
+            v-else
             :title="row.status === 1 ? '禁用后该用户将无法登录，确认？' : '恢复该用户为正常状态？'"
             @confirm="toggle(row as AdminUserRow)"
           >
@@ -57,6 +59,9 @@
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { listUsers, setUserStatus, type AdminUserRow } from '@/api/modules/users'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 
 const rows = ref<AdminUserRow[]>([])
 const keyword = ref('')

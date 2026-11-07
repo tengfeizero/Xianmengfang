@@ -18,12 +18,44 @@ type User struct {
 	Status   int    `json:"status"` // 1 正常 0 禁用
 }
 
-// Admin 后台管理员
+// Admin 后台管理员（v1.4 起归属角色，权限由角色决定）
 type Admin struct {
 	Model
-	Username     string `gorm:"uniqueIndex;size:32" json:"username"`
-	PasswordHash string `json:"-"`
-	Status       int    `json:"status"`
+	Username     string     `gorm:"uniqueIndex;size:32" json:"username"`
+	PasswordHash string     `json:"-"`
+	Nickname     string     `gorm:"size:32" json:"nickname"`
+	RoleID       int64      `gorm:"index" json:"role_id"`
+	Status       int        `json:"status"` // 1 正常 0 禁用
+	LastLoginAt  *time.Time `json:"last_login_at"`
+}
+
+// Role 后台角色：权限码集合存 JSON 数组，内置角色不可删除
+type Role struct {
+	Model
+	Code    string `gorm:"uniqueIndex;size:32" json:"code"` // super / ops / viewer / 自定义
+	Name    string `gorm:"size:32" json:"name"`
+	Remark  string `gorm:"size:255" json:"remark"`
+	Perms   string `gorm:"type:text" json:"perms"` // JSON 数组，如 ["order:view"]
+	Builtin int    `json:"builtin"`                // 1 内置（不可删）
+	Status  int    `json:"status"`                 // 1 启用 0 停用
+}
+
+// AuditLog 敏感操作审计日志：后台写操作、登录、越权拦截全量留痕
+type AuditLog struct {
+	Model
+	AdminID    int64  `gorm:"index" json:"admin_id"`
+	AdminName  string `gorm:"size:32;index" json:"admin_name"`
+	Action     string `gorm:"size:48;index" json:"action"` // order.ship / config.update / login / deny
+	TargetType string `gorm:"size:32" json:"target_type"`
+	TargetID   string `gorm:"size:32" json:"target_id"`
+	Method     string `gorm:"size:8" json:"method"`
+	Path       string `gorm:"size:128" json:"path"`
+	IP         string `gorm:"size:64" json:"ip"`
+	UserAgent  string `gorm:"size:255" json:"user_agent"`
+	Detail     string `gorm:"type:text" json:"detail"`       // 请求摘要（密码/密钥已脱敏）
+	Result     string `gorm:"size:12;index" json:"result"`   // ok / fail / deny
+	StatusCode int    `json:"status_code"`                   // HTTP 状态码
+	ErrMsg     string `gorm:"size:255" json:"err_msg"`
 }
 
 // Config KV 系统配置
@@ -195,5 +227,6 @@ func AllMigrations() []any {
 		&Board{}, &Element{},
 		&Order{}, &OrderItem{}, &OrderEvent{}, &Shipment{}, &AITask{},
 		&CartItem{},
+		&Role{}, &AuditLog{},
 	}
 }

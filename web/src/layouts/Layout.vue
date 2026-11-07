@@ -3,13 +3,19 @@
     <el-aside width="200px" class="aside">
       <div class="logo">现梦坊</div>
       <el-menu :default-active="route.path" class="menu" router>
-        <el-menu-item v-for="m in menus" :key="m.path" :index="m.path">{{ m.title }}</el-menu-item>
+        <el-menu-item v-for="m in auth.menus" :key="m.path" :index="m.path">{{ m.title }}</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
       <el-header class="header">
         <b>{{ route.meta.title }}</b>
-        <el-button link type="danger" @click="onLogout">退出登录</el-button>
+        <div class="user">
+          <span class="who">
+            {{ auth.me?.nickname || auth.me?.username || '—' }}
+            <el-tag v-if="auth.me" size="small" type="info" class="role">{{ auth.me.role.name }}</el-tag>
+          </span>
+          <el-button link type="danger" @click="onLogout">退出登录</el-button>
+        </div>
       </el-header>
       <el-main>
         <router-view />
@@ -25,15 +31,6 @@ import { useAuthStore } from '@/stores/auth'
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
-
-const menus = [
-  { path: '/orders', title: '订单管理' },
-  { path: '/products', title: '商品管理' },
-  { path: '/assets', title: '素材管理' },
-  { path: '/users', title: '用户管理' },
-  { path: '/works', title: '作品管理' },
-  { path: '/configs', title: '系统配置' },
-]
 
 function onLogout() {
   auth.logout()
@@ -67,5 +64,19 @@ function onLogout() {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.who {
+  color: #606266;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.role {
+  transform: scale(0.92);
 }
 </style>

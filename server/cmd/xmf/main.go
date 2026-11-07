@@ -42,6 +42,8 @@ func main() {
 		Carts:      &service.CartService{DB: db, Orders: orders},
 		Addresses:  &service.AddressService{DB: db},
 		AI:         &service.AIService{DB: db, Provider: aiProvider, UploadsDir: uploadsDir},
+		RBAC:       &service.RBACService{DB: db},
+		Audit:      &service.AuditService{DB: db},
 		UploadsDir: uploadsDir,
 		Dev:        cfg.DevLogin,
 	}

@@ -93,9 +93,28 @@ pending_pay ──支付──→ pending_accept ──接单──→ producing
 - 状态变更写 `order_events` 流水表（order_id / from / to / operator / note），只追加
 - 兼容说明：v1.3.5 之前的历史订单若停在 `pending_ship`，可直接发货（无需补生产/打包动作）
 
-## admins（后台管理员）
+## admins（后台管理员，v1.4 起归属角色）
 
-username / password_hash（bcrypt）/ status。登录用 JWT，密钥从环境变量读取。
+username（唯一）/ password_hash（bcrypt）/ nickname / role_id（→ roles.id）/ status / last_login_at。
+
+- 登录鉴权链：JWT 只带 admin_id，**权限每次请求现查 DB**（role → perms），因此禁用账号、改角色权限立即生效，不等 token 过期
+- 保护规则：不能禁用/降级/删除自己；系统必须保留至少一个启用状态的超级管理员
+
+## roles（角色，v1.4）
+
+code（唯一，内置 super/ops/viewer）/ name / remark / perms（JSON 数组，权限码）/ builtin（内置不可删）/ status。
+
+- `super` 角色 perms 恒为 `["*"]`，拥有全部权限且不可改权限
+- 自定义角色 code 自动生成（`role_<ts>`），删除前校验无账号使用
+- 权限码清单见 API.md「权限码」；新增功能时先加权限码再挂路由
+
+## audit_logs（敏感操作日志，v1.4）
+
+admin_id / admin_name / action（如 `order.ship`、`config.update`、`auth.login`、`deny`）/ target_type / target_id /
+method / path / ip / user_agent / detail（请求体摘要，**密码与密钥字段脱敏为 `***`**）/ result（ok / fail / deny）/ status_code / err_msg。
+
+- 采集方式：管理端写方法（POST/PUT/DELETE）由 `AuditWrite` 中间件统一记录；登录成功/失败、越权拦截单独记录
+- 日志只追加，不提供删除接口；查询需 `audit:view` 权限
 
 ## configs（系统配置，KV）
 

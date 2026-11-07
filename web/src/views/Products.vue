@@ -4,16 +4,16 @@
       <template #header><b>商品分类</b></template>
       <div class="page-toolbar">
         <el-input v-model="newCat" placeholder="新分类名称" class="cat-input" />
-        <el-button type="primary" @click="addCategory">添加分类</el-button>
+        <el-button v-if="auth.hasPerm('product:edit')" type="primary" @click="addCategory">添加分类</el-button>
       </div>
       <el-tag
         v-for="c in categories"
         :key="c.id"
         class="cat-tag"
         :type="c.status === 1 ? 'primary' : 'info'"
-        closable
+        :closable="auth.hasPerm('product:edit')"
         @close="delCategory(c)"
-        @click="editCategory(c)"
+        @click="auth.hasPerm('product:edit') && editCategory(c)"
       >
         {{ c.name }}
       </el-tag>
@@ -23,7 +23,7 @@
       <template #header>
         <div class="flex-between">
           <b>商品列表</b>
-          <el-button type="primary" @click="openProduct(null)">新增商品</el-button>
+          <el-button v-if="auth.hasPerm('product:edit')" type="primary" @click="openProduct(null)">新增商品</el-button>
         </div>
       </template>
       <el-table v-loading="loading" :data="products" border>
@@ -51,16 +51,25 @@
             <div v-for="s in row.skus" :key="s.id" class="sku-row">
               <el-tag size="small">{{ s.specs }}</el-tag>
               <span><AmountText :cents="s.price_cents" /> / 库存 {{ s.stock }}</span>
-              <el-button size="small" link type="primary" @click="openSKU(row as Product, s)">改价/库存</el-button>
-              <el-button size="small" link type="danger" @click="delSKU(s)">删除</el-button>
+              <template v-if="auth.hasPerm('product:edit')">
+                <el-button size="small" link type="primary" @click="openSKU(row as Product, s)">改价/库存</el-button>
+                <el-button size="small" link type="danger" @click="delSKU(s)">删除</el-button>
+              </template>
             </div>
-            <el-button size="small" @click="openSKU(row as Product, null)">+ 添加规格</el-button>
+            <el-button v-if="auth.hasPerm('product:edit')" size="small" @click="openSKU(row as Product, null)">
+              + 添加规格
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="160">
           <template #default="{ row }">
-            <el-button size="small" @click="openProduct(row as Product)">编辑</el-button>
-            <el-button size="small" type="warning" @click="toggleShelf(row as Product)">
+            <el-button v-if="auth.hasPerm('product:edit')" size="small" @click="openProduct(row as Product)">编辑</el-button>
+            <el-button
+              v-if="auth.hasPerm('product:edit')"
+              size="small"
+              type="warning"
+              @click="toggleShelf(row as Product)"
+            >
               {{ row.status === 1 ? '下架' : '上架' }}
             </el-button>
           </template>
@@ -206,6 +215,9 @@ import {
 import type { ProductInput } from '@/api/modules/products'
 import type { Category, Product, Sku } from '@/types'
 import { cents } from '@/utils/money'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 
 const categories = ref<Category[]>([])
 const products = ref<Product[]>([])

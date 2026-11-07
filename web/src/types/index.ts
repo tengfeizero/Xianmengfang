@@ -154,3 +154,76 @@ export interface ConfigItem {
   key: string
   value: string
 }
+
+// ---- RBAC 与审计日志（v1.4） ----
+
+/** 登录态自检返回：权限以后端为准，前端只做展示层过滤 */
+export interface AdminMe {
+  id: number
+  username: string
+  nickname: string
+  is_super: boolean
+  role: { id: number; code: string; name: string }
+  /** 超级管理员为 ["*"] */
+  perms: string[]
+}
+
+export interface PermItem {
+  code: string
+  name: string
+}
+
+export interface PermGroup {
+  key: string
+  name: string
+  items: PermItem[]
+}
+
+export interface RoleRow {
+  id: number
+  code: string
+  name: string
+  remark: string
+  perms: string[]
+  builtin: number
+  status: number
+  admin_count: number
+}
+
+export interface AdminRow {
+  id: number
+  username: string
+  nickname: string
+  role_id: number
+  role_name: string
+  role_code: string
+  perms: string[]
+  status: number
+  last_login_at: string | null
+  created_at: string
+}
+
+export interface AuditLogRow {
+  id: number
+  admin_id: number
+  admin_name: string
+  action: string
+  target_type: string
+  target_id: string
+  method: string
+  path: string
+  ip: string
+  user_agent: string
+  detail: string
+  result: 'ok' | 'fail' | 'deny'
+  status_code: number
+  err_msg: string
+  created_at: string
+}
+
+export interface AuditPage {
+  list: AuditLogRow[]
+  total: number
+  page: number
+  size: number
+}

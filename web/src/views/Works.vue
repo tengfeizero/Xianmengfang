@@ -52,7 +52,8 @@
       </el-table-column>
       <el-table-column label="操作" width="110" fixed="right">
         <template #default="{ row }">
-          <template v-if="row.status === 1">
+          <span v-if="!auth.hasPerm('work:edit')" class="deleted-hint">只读</span>
+          <template v-else-if="row.status === 1">
             <el-popconfirm title="下架后用户端将不可见，确认？" @confirm="setStatus(row as AdminWorkRow, 2)">
               <template #reference>
                 <el-button link type="warning">下架</el-button>
@@ -73,6 +74,9 @@
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { listWorks, setWorkStatus, type AdminWorkRow } from '@/api/modules/works'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 
 const rows = ref<AdminWorkRow[]>([])
 const typeFilter = ref('')
