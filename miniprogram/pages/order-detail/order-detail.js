@@ -5,7 +5,9 @@ const { img } = require('../../config')
 // 状态一句话说明（给用户看的，不用状态机术语）
 const STATUS_DESC = {
   pending_accept: '等待商家接单',
-  pending_ship: '商家已接单，正在打包',
+  producing: '工厂正在制作你的作品，请耐心等待',
+  packing: '作品已完成，正在打包',
+  pending_ship: '已打包完成，等待快递揽收',
   shipped: '商品已发出，请注意查收',
   done: '交易已完成，感谢你的支持',
   canceled: '订单已取消，库存已恢复',
@@ -14,7 +16,9 @@ const STATUS_DESC = {
 // 订单流水：to 状态 → 动作文案
 const EVENT_TEXT = {
   pending_accept: '提交订单',
-  pending_ship: '商家接单',
+  producing: '商家接单，开始生产',
+  packing: '生产完成，开始打包',
+  pending_ship: '打包完成，等待发货',
   shipped: '商家发货',
   done: '确认收货',
   canceled: '订单取消',

@@ -4,6 +4,8 @@ const { fen2yuan } = require('../../utils/util')
 const TABS = [
   { key: '', label: '全部' },
   { key: 'pending_accept', label: '待接单' },
+  { key: 'producing', label: '生产中' },
+  { key: 'packing', label: '打包中' },
   { key: 'pending_ship', label: '待发货' },
   { key: 'shipped', label: '已发货' },
   { key: 'done', label: '已完成' },

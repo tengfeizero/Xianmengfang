@@ -12,9 +12,14 @@ import (
 )
 
 // 订单状态机（唯一合法流转，见 docs/DATA-MODEL.md）
+//
+//	pending_accept → producing → packing → pending_ship → shipped → done
+//	                 ↘ canceled（用户仅可取消待接单；管理员可取消至待发货）
 const (
 	StatusPendingAccept = "pending_accept" // 待接单（mock 支付下单直达）
-	StatusPendingShip   = "pending_ship"   // 待发货
+	StatusProducing     = "producing"      // 生产中（已接单，工厂制作）
+	StatusPacking       = "packing"        // 打包中（生产完成，包装待发）
+	StatusPendingShip   = "pending_ship"   // 待发货（打包完成，等快递揽收）
 	StatusShipped       = "shipped"        // 已发货
 	StatusDone          = "done"           // 已完成（确认收货）
 	StatusCanceled      = "canceled"       // 已取消
@@ -136,7 +141,7 @@ func (s *OrderService) GetForUser(orderID, userID int64) (*model.Order, error) {
 	return &o, nil
 }
 
-// Cancel 取消订单。用户只能取消待接单；管理员可取消待接单和待发货。取消恢复库存。
+// Cancel 取消订单。用户只能取消待接单；管理员可取消待接单/生产中/打包中/待发货。取消恢复库存。
 func (s *OrderService) Cancel(orderID, userID int64, byAdmin bool, reason string) error {
 	return s.DB.Transaction(func(tx *gorm.DB) error {
 		var o model.Order
@@ -148,6 +153,8 @@ func (s *OrderService) Cancel(orderID, userID int64, byAdmin bool, reason string
 		}
 		allowed := map[string]bool{StatusPendingAccept: true}
 		if byAdmin {
+			allowed[StatusProducing] = true
+			allowed[StatusPacking] = true
 			allowed[StatusPendingShip] = true
 		}
 		if !allowed[o.Status] {
@@ -180,9 +187,19 @@ func (s *OrderService) cancelTx(tx *gorm.DB, o *model.Order, userID int64, byAdm
 	return appendEvent(tx, o.ID, fromOf(o), StatusCanceled, operator, "取消订单："+reason)
 }
 
-// Accept 接单：pending_accept → pending_ship
+// Accept 接单：pending_accept → producing（接单即进入生产）
 func (s *OrderService) Accept(orderID, adminID int64) error {
-	return s.transition(orderID, adminID, StatusPendingAccept, StatusPendingShip, "接单")
+	return s.transition(orderID, adminID, StatusPendingAccept, StatusProducing, "接单，开始生产")
+}
+
+// Pack 生产完成转打包：producing → packing
+func (s *OrderService) Pack(orderID, adminID int64) error {
+	return s.transition(orderID, adminID, StatusProducing, StatusPacking, "生产完成，开始打包")
+}
+
+// ReadyShip 打包完成待发货：packing → pending_ship
+func (s *OrderService) ReadyShip(orderID, adminID int64) error {
+	return s.transition(orderID, adminID, StatusPacking, StatusPendingShip, "打包完成，等待发货")
 }
 
 // Ship 发货：pending_ship → shipped

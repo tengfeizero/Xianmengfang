@@ -6,6 +6,8 @@ function fen2yuan(cents) {
 // 订单状态文案与颜色
 const STATUS_TEXT = {
   pending_accept: '待接单',
+  producing: '生产中',
+  packing: '打包中',
   pending_ship: '待发货',
   shipped: '已发货',
   done: '已完成',
@@ -13,7 +15,9 @@ const STATUS_TEXT = {
 }
 const STATUS_COLOR = {
   pending_accept: '#ff9800',
-  pending_ship: '#2196f3',
+  producing: '#409eff',
+  packing: '#8b5cf6',
+  pending_ship: '#14b8a6',
   shipped: '#8bc34a',
   done: '#999999',
   canceled: '#bbbbbb',

@@ -97,6 +97,8 @@ r = req("POST", "/user/orders", ut, {"address_id": ADDR, "items": [{"sku_id": sk
 assert r["code"] == 0, "下单失败: %s" % r
 oid = r["data"]["order"]["id"]
 req("POST", "/admin/orders/%d/accept" % oid, at)
+req("POST", "/admin/orders/%d/pack" % oid, at)
+req("POST", "/admin/orders/%d/ready_ship" % oid, at)
 req("POST", "/admin/orders/%d/ship" % oid, at, {"company": "中通快递", "tracking_no": "ZN8866"})
 d = req("GET", "/user/orders/%d" % oid, ut)["data"]
 assert d["items"][0]["work_id"] == work["id"], "订单未绑定作品"

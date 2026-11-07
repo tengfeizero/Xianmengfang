@@ -96,6 +96,8 @@ func Router(h *Handlers) *gin.Engine {
 		ag.GET("/orders", h.adminOrderList)
 		ag.GET("/orders/:id", h.adminOrderDetail)
 		ag.POST("/orders/:id/accept", h.adminOrderAccept)
+		ag.POST("/orders/:id/pack", h.adminOrderPack)
+		ag.POST("/orders/:id/ready_ship", h.adminOrderReadyShip)
 		ag.POST("/orders/:id/ship", h.adminOrderShip)
 		ag.POST("/orders/:id/cancel", h.adminOrderCancel)
 		ag.POST("/orders/:id/refund_mark", h.adminOrderRefundMark)

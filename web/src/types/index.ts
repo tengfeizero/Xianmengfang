@@ -41,7 +41,14 @@ export interface Product {
   skus: Sku[]
 }
 
-export type OrderStatus = 'pending_accept' | 'pending_ship' | 'shipped' | 'done' | 'canceled'
+export type OrderStatus =
+  | 'pending_accept'
+  | 'producing'
+  | 'packing'
+  | 'pending_ship'
+  | 'shipped'
+  | 'done'
+  | 'canceled'
 
 export interface OrderInfo {
   id: number

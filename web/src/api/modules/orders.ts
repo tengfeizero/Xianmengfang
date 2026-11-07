@@ -14,7 +14,7 @@ export function getOrderDetail(id: number) {
   return http.get<AdminOrderDetail>(`/admin/orders/${id}`)
 }
 
-export type OrderAction = 'accept' | 'cancel' | 'refund_mark'
+export type OrderAction = 'accept' | 'pack' | 'ready_ship' | 'cancel' | 'refund_mark'
 
 export function orderAction(id: number, action: OrderAction, body?: unknown) {
   return http.post(`/admin/orders/${id}/${action}`, body)

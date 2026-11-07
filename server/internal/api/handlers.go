@@ -294,6 +294,24 @@ func (h *Handlers) adminOrderAccept(c *gin.Context) {
 	ok(c, nil)
 }
 
+func (h *Handlers) adminOrderPack(c *gin.Context) {
+	claims := c.MustGet("claims").(*service.Claims)
+	if err := h.Orders.Pack(paramID(c), claims.UserID); err != nil {
+		failErr(c, err)
+		return
+	}
+	ok(c, nil)
+}
+
+func (h *Handlers) adminOrderReadyShip(c *gin.Context) {
+	claims := c.MustGet("claims").(*service.Claims)
+	if err := h.Orders.ReadyShip(paramID(c), claims.UserID); err != nil {
+		failErr(c, err)
+		return
+	}
+	ok(c, nil)
+}
+
 func (h *Handlers) adminOrderShip(c *gin.Context) {
 	claims := c.MustGet("claims").(*service.Claims)
 	var req struct {

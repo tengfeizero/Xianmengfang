@@ -81,14 +81,17 @@
 ## 订单状态机（唯一合法流转）
 
 ```
-pending_pay ──支付──→ pending_accept ──接单──→ pending_ship ──发货──→ shipped ──确认收货──→ done
-     │                    │
-     └────── cancel ──────┴──（用户取消 / 后台取消，均记 cancel_reason）
+pending_pay ──支付──→ pending_accept ──接单──→ producing ──生产完成──→ packing ──打包完成──→ pending_ship ──发货──→ shipped ──确认收货──→ done
+     │                    │                        │                      │                        │
+     └────── cancel ──────┴────────────────────────┴──────────────────────┴────────────────────────┘（均记 cancel_reason）
 ```
 
+- 状态含义：`pending_accept` 待接单 / `producing` 生产中 / `packing` 打包中 / `pending_ship` 待发货（等快递揽收）/ `shipped` 已发货 / `done` 已完成 / `canceled` 已取消
 - mock 支付：下单直接进入 `pending_accept`（跳过 pending_pay），`pay_type=mock`
+- 取消权限：用户仅可取消 `pending_accept`；管理员可取消 `pending_accept`/`producing`/`packing`/`pending_ship`，均恢复库存
 - `done` 之前允许后台标记退款标记（仅标记字段，MVP 无退款资金流）
 - 状态变更写 `order_events` 流水表（order_id / from / to / operator / note），只追加
+- 兼容说明：v1.3.5 之前的历史订单若停在 `pending_ship`，可直接发货（无需补生产/打包动作）
 
 ## admins（后台管理员）
 

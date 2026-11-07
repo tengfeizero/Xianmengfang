@@ -3,6 +3,8 @@
     <div class="page-toolbar">
       <el-select v-model="statusFilter" placeholder="全部状态" clearable class="filter" @change="load">
         <el-option label="待接单" value="pending_accept" />
+        <el-option label="生产中" value="producing" />
+        <el-option label="打包中" value="packing" />
         <el-option label="待发货" value="pending_ship" />
         <el-option label="已发货" value="shipped" />
         <el-option label="已完成" value="done" />
@@ -20,22 +22,6 @@
     </div>
 
     <el-table v-loading="loading" :data="orders" border>
-      <el-table-column type="expand">
-        <template #default="{ row }">
-          <div class="detail">
-            <p><b>明细：</b></p>
-            <p v-for="it in row.items" :key="it.id" class="line">
-              {{ it.title }}（{{ it.specs }}）× {{ it.qty }} =
-              <AmountText :cents="it.price_cents * it.qty" />
-              <el-tag v-if="it.work_id" size="small" type="warning">绑定作品 #{{ it.work_id }}</el-tag>
-            </p>
-            <p v-if="row.shipment"><b>物流：</b>{{ row.shipment.company }} {{ row.shipment.tracking_no }}</p>
-            <p v-if="row.order.receiver_name">
-              <b>收货：</b>{{ row.order.receiver_name }} {{ row.order.receiver_phone }} {{ row.order.receiver_address }}
-            </p>
-          </div>
-        </template>
-      </el-table-column>
       <el-table-column prop="order.order_no" label="单号" width="200" />
       <el-table-column label="买家" width="140">
         <template #default="{ row }">
@@ -60,17 +46,23 @@
           <el-tag v-if="row.order.refund_flag" type="danger">已标记</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" min-width="280">
+      <el-table-column label="操作" min-width="320">
         <template #default="{ row }">
           <el-button size="small" @click="openDetail(row.order.id)">详情</el-button>
           <el-button v-if="row.order.status === 'pending_accept'" type="primary" size="small" @click="act('accept', row as AdminOrderRow)">
             接单
           </el-button>
+          <el-button v-if="row.order.status === 'producing'" type="primary" size="small" @click="act('pack', row as AdminOrderRow)">
+            生产完成
+          </el-button>
+          <el-button v-if="row.order.status === 'packing'" type="primary" size="small" @click="act('ready_ship', row as AdminOrderRow)">
+            打包完成
+          </el-button>
           <el-button v-if="row.order.status === 'pending_ship'" type="success" size="small" @click="openShip(row as AdminOrderRow)">
             发货
           </el-button>
           <el-button
-            v-if="['pending_accept', 'pending_ship'].includes(row.order.status)"
+            v-if="cancellable.includes(row.order.status)"
             type="warning"
             size="small"
             @click="act('cancel', row as AdminOrderRow)"
@@ -211,6 +203,9 @@ const detailVisible = ref(false)
 const detailLoading = ref(false)
 const detail = ref<AdminOrderDetail | null>(null)
 
+/** 可取消状态：发货前均可（生产/打包中的库存尚未发出，取消自动回补） */
+const cancellable = ['pending_accept', 'producing', 'packing', 'pending_ship']
+
 async function load() {
   loading.value = true
   try {
@@ -236,14 +231,20 @@ async function openDetail(id: number) {
   }
 }
 
+const STATUS_LABEL: Record<string, string> = {
+  pending_accept: '待接单',
+  producing: '生产中',
+  packing: '打包中',
+  pending_ship: '待发货',
+  shipped: '已发货',
+  done: '已完成',
+  canceled: '已取消',
+}
+
 function eventText(ev: OrderEvent): string {
   const who = ev.operator.startsWith('admin:') ? '管理员' : '用户'
-  if (ev.to === 'canceled') return `${who}${ev.note ? '（' + ev.note + '）' : ''}取消订单`
-  if (ev.to === 'pending_ship') return `${who}接单`
-  if (ev.to === 'shipped') return `${who}发货`
-  if (ev.to === 'done') return `${who}确认收货`
-  if (ev.to === 'pending_accept') return '订单创建，等待接单'
-  return `${ev.from || '—'} → ${ev.to}${ev.note ? '（' + ev.note + '）' : ''}`
+  if (ev.note) return `${who} ${ev.note}`
+  return `${who} → ${STATUS_LABEL[ev.to] ?? ev.to}`
 }
 
 function fmtTime(v: string | null | undefined): string {
@@ -308,12 +309,6 @@ onMounted(load)
 }
 .filter.wide {
   width: 220px;
-}
-.detail {
-  padding: 12px 24px;
-}
-.line {
-  margin: 4px 0;
 }
 .buyer {
   display: flex;

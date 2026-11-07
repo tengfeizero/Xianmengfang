@@ -104,9 +104,11 @@
 | POST | /admin/auth/login | 管理员登录 | ✅ 已实现 |
 | GET | /admin/orders | 订单列表（筛选状态；order_no 模糊 / user_id 过滤；行含买家昵称头像） | ✅ 已实现 |
 | GET | /admin/orders/:id | 订单详情（明细含商品图/作品图、物流、状态流水、金额明细、买家信息） | ✅ 已实现 |
-| POST | /admin/orders/:id/accept | 接单 | ✅ 已实现 |
+| POST | /admin/orders/:id/accept | 接单（待接单 → 生产中） | ✅ 已实现 |
+| POST | /admin/orders/:id/pack | 生产完成（生产中 → 打包中） | ✅ 已实现 |
+| POST | /admin/orders/:id/ready_ship | 打包完成（打包中 → 待发货） | ✅ 已实现 |
 | POST | /admin/orders/:id/ship | 发货（物流公司+单号） | ✅ 已实现 |
-| POST | /admin/orders/:id/cancel | 后台取消（待接单/待发货，恢复库存） | ✅ 已实现 |
+| POST | /admin/orders/:id/cancel | 后台取消（待接单/生产中/打包中/待发货，恢复库存） | ✅ 已实现 |
 | POST | /admin/orders/:id/refund_mark | 退款标记（仅标记，已发货/已完成） | ✅ 已实现 |
 | GET/POST/PUT/DELETE | /admin/products… | 商品管理（列表含下架，删除=下架）。v0.9 起支持 subtitle / images / original_price_cents / unit / detail / detail_images / service_notes / sort；images 与 detail_images 为 JSON 数组字符串；update 为全量覆盖语义，前端上下架时必须带全字段 | ✅ 已实现 |
 | POST/PUT/DELETE | /admin/skus… | SKU 管理（有订单引用的 SKU 禁止删除） | ✅ 已实现 |

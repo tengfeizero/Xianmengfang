@@ -47,6 +47,8 @@ req("POST", "/admin/orders/%d/accept" % oid, at)
 r = req("POST", "/admin/orders/%d/accept" % oid, at)
 print("重复接单返回:", r["code"], r["msg"])
 
+req("POST", "/admin/orders/%d/pack" % oid, at)
+req("POST", "/admin/orders/%d/ready_ship" % oid, at)
 req("POST", "/admin/orders/%d/ship" % oid, at, {"company": "顺丰速运", "tracking_no": "SF8866"})
 d = req("GET", "/user/orders/%d" % oid, ut)["data"]
 print("发货后状态:", d["order"]["status"], "| 物流:", d["shipment"]["company"], d["shipment"]["tracking_no"])
